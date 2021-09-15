@@ -1,0 +1,36 @@
+conditionalPanel("1 == 1", 
+                 # img(src="bigorb.png", height = 400, width = 400),
+                 # textOutput("ER"), 
+                 h3("Distribución Chi Cuadrado"),
+                 textOutput("ER2"),
+                 textOutput("ER1"),
+                 #tableOutput("values"), 
+                 plotOutput("distPlot"),
+                 tableOutput("values"), 
+                 br(),
+                 h1("Distribución Chi Cuadrado"),
+                 h4(uiOutput("ex7")),
+                 #  h1(paste("La probabilidad comprendida entre", YA,sep="")),
+                 # h3("Resolución Extendida"),
+                 textOutput("text1"),
+                 textOutput("text2"),
+                 
+                 textOutput("text3"),
+                 
+                 # h3(textOutput("text4")),
+                 # h3("Resolución Extendida"),
+                 # textOutput("text5"), 
+                 # textOutput("text6"),
+                 # textOutput("text7"),
+                 
+              #   uiOutput("ex4"),
+              #   uiOutput("ex5"),
+               #  uiOutput("ex6"),
+                 # uiOutput("ex7"),
+                 br(),
+      #           h3("Referencias????"),
+                 br(),
+                 
+                 #  img(src="bigorb.png", height = 400, width = 400),
+                 h3()
+) 

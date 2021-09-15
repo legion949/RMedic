@@ -1,0 +1,28 @@
+### R+Medic  
+
+**Salud**
+* Un médico es un profesional que intenta mantener y recuperar la salud humana mediante el estudio, el diagnóstico y el tratamiento de la enfermedad o lesión del paciente.
+R+Medic es la herramienta correcta a utilizar en la generación e interpretación de análisis estadísticos en ciencias médicas.
+
+**Análisis de Datos**    
+* R+Medic es un software para la automatización de Análisis Estadísticos aplicados en el campo de las Ciencias Médicas.    
+
+**Objetivo**    
+* Asistir y facilitar en las especialidades médicas la generación e interpretación de informes y análisis estadísticos, para publicaciones en revistas y congresos nacionales e internacionales, tesis, especialidades, foros, meeting, etc.
+
+**Fusión**    
+* Una excelente herramienta computacional internacionamente reconocida como es R, se combina con expertos en bioestadística dentro del marco de la medicina... Dando lugar a un asistente online.
+
+
+Combinar la excelente herramienta estadística como lo es el software R, con una ayuda en la elección e interpretación de análisis estadísticos de la mano de expertos en bioestadítica... Creando R+Medic. 
+
+
+***
+
+***
+
+
+  
+
+
+
