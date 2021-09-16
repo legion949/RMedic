@@ -46,8 +46,8 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                          conditionalPanel( 
                            'input.FileTypePicker == "Ejemplos"',
                            selectInput("ejemplo_file", "Elige una base ejemplo:", 
-                                       choices = c("Base Ejemplo", "rock", "pressure", "cars", "mtcars", "AVER", "iris"),
-                                       selected = "Base Ejemplo",
+                                       choices = c("rock", "pressure", "cars", "mtcars", "iris"),
+                                       selected = "mtcars",
                                        selectize = T)
                          )
 )

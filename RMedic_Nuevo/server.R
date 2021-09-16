@@ -3,8 +3,70 @@ library(DT)
 function(input, output, session) {
   
 
+  Control01 <- reactive({ 
+    
+    if(!is.null(input$FileTypePicker)){  
+      
+      if(input$FileTypePicker == "Excel") { 
+        
+        if (!is.null(input$xls_file)) {
+          
+          the_file <-  input$xls_file[[1]]
+          
+          cat("the_file:" , the_file, "\n")
+          
+          correct_format <- c(".xls", ".xlsx")
+          dt_format <- rep(NA, length(correct_format))
+          dt_format[1] <- grepl(correct_format[1], the_file)
+          dt_format[2] <- grepl(correct_format[2], the_file)
+          ok_format <- sum(dt_format) > 0
+          
+          frase_yes <- ""
+          frase_no  <- "El archivo seleccionado no es un archivo tipo Excel."
+          
+          if(ok_format) frase_alert <- frase_yes else frase_alert <- frase_no
+          
+          my_exit <- list(ok_format, frase_alert)
+          
+          
+        } else return(NULL)
+    
+        
+        } else 
+          if(input$FileTypePicker == "CSV") { 
+            
+            if (!is.null(input$csv_file)) {
+              
+              the_file <-  input$csv_file[[1]]
+              
+              correct_format <- c(".csv")
+              dt_format <- rep(NA, length(correct_format))
+              dt_format[1] <- grepl(correct_format[1], the_file)
+              ok_format <- sum(dt_format) > 0
+              
+              frase_yes <- ""
+              frase_no  <- "El archivo seleccionado no es un archivo tipo CSV."
+              
+              if(ok_format) frase_alert <- frase_yes else frase_alert <- frase_no
+              
+              my_exit <- list(ok_format, frase_alert)
+              
+              
+            } else return(NULL)
+              
+              
+              
+            
+            
+          } else return(NULL)
+      
+      return(my_exit)
+      
+      } 
+    })
   
-  BASE_SALIDA <- reactive({
+  
+  Tab01_Base <- reactive({
     
     # 1) DataSet
     # 2) InfoDataSet
@@ -19,13 +81,16 @@ function(input, output, session) {
           inFile <- input$xls_file
           
           # La direccion del archivo...
-          archivo <- inFile$datapath
+          temporal_file <- inFile$datapath
           
-          
+         # cat("inFile: ", inFile, "\n" )
+         # cat("archivo: ", archivo, "\n" )
+          # cat("archivo2: ", input$xls_file[[1]], "\n" )
+          # cat("temporal_file: ", temporal_file, "\n" )
           
           # 1) DataSet
           library(readxl)
-          DataSet <- as.data.frame(read_excel(archivo, col_names= TRUE, sheet = 1, trim_ws = FALSE))
+          DataSet <- as.data.frame(read_excel(temporal_file, col_names= TRUE, sheet = 1, trim_ws = FALSE))
           
           # 3) InfoDataSetFilas y columnas
           my_columns <- c("FileName", "Rows", "Cols")
@@ -35,16 +100,82 @@ function(input, output, session) {
           InfoDataSet[2] <- nrow(DataSet)
           InfoDataSet[3] <- ncol(DataSet)
           
+          
+             
+          # My Exit
           my_exit <- list(InfoDataSet, DataSet)
           
-          # Return of the king...
-          return(my_exit)
+
           
         } else return(NULL)
         
         
-        } else return(NULL)
+        } else 
+          if(input$FileTypePicker == "CSV") { 
+            
+            if (!is.null(input$csv_file)) {
+              
+              # Detalles varios de direccion
+              inFile <- input$csv_file
+              
+              # Si no hay archivo
+              if (is.null(inFile))
+                return(NULL)
+              
+              # La carga de datos formato CSV
+              DataSet <- read.csv(inFile$datapath, header=input$header, sep=input$sep, dec=input$dec, quote=input$quote)
+              
+              # 3) InfoDataSetFilas y columnas
+              my_columns <- c("FileName", "Rows", "Cols")
+              InfoDataSet <- rep(NA, length(my_columns))
+              names(InfoDataSet) <- my_columns
+              InfoDataSet[1] <- input$csv_file[[1]]
+              InfoDataSet[2] <- nrow(DataSet)
+              InfoDataSet[3] <- ncol(DataSet)
+              
+              
+                
+              my_exit <- list(InfoDataSet, DataSet)
+              
+
+              
+            } else return(NULL)
+            
+            
+          } else 
+            if(input$FileTypePicker == "Ejemplos") { 
+              
+              if (!is.null(input$ejemplo_file)) {
+                
+              
+                
+                # La carga de datos formato CSV
+                DataSet <- eval(parse(text = input$ejemplo_file))
+               # DataSet <- mtcars
+                # 3) InfoDataSetFilas y columnas
+                my_columns <- c("FileName", "Rows", "Cols")
+                InfoDataSet <- rep(NA, length(my_columns))
+                names(InfoDataSet) <- my_columns
+                InfoDataSet[1] <- input$ejemplo_file
+                InfoDataSet[2] <- nrow(DataSet)
+                InfoDataSet[3] <- ncol(DataSet)
+                
+             
+                
+                
+                my_exit <- list(InfoDataSet, DataSet)
+                
+                
+                
+              } else return(NULL)
+              
+              
+            } else return(NULL)
         
+      
+      # Return of the king...
+      return(my_exit)
+      
     } else return(NULL)
     
     
@@ -54,7 +185,8 @@ function(input, output, session) {
     
   })
   
-
+  
+  
   # Output de la Base Salida
   output$BASE_SALIDA <- renderDataTable({
     
@@ -64,7 +196,7 @@ function(input, output, session) {
     
     # if (input$cantidad_filas == 1) cantidad_filas <- 30 else cantidad_filas <- nrow(BASE_SALIDA())
     # cantidad_filas <- 10
-    cantidad_filas <- nrow(BASE_SALIDA()[[1]][2])
+    cantidad_filas <- nrow(Tab01_Base()[[1]][2])
     
     sketch <-  htmltools::withTags(table(
       class = 'compact nowrap',
@@ -79,7 +211,7 @@ function(input, output, session) {
         # # th(colspan = 4, style = 'font-style:italic;','Plots3')
         #    ),
         tr(
-          lapply(colnames(BASE_SALIDA()[[2]]),th)
+          lapply(colnames(Tab01_Base()[[2]]),th)
         )
       )
     )
@@ -100,7 +232,7 @@ function(input, output, session) {
     # "search":         "Search:",
     # "zeroRecords":    "No matching records found",
     
-    datatable(BASE_SALIDA()[[2]], rownames = F, container = sketch, list(pageLength = 5,
+    datatable(Tab01_Base()[[2]], rownames = F, container = sketch, list(pageLength = 5,
                                                                     #language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
                                                                     language = list(
                                                                       search = "Búsqueda:",
@@ -116,15 +248,29 @@ function(input, output, session) {
     # BASE_DIPLO()
   })
 
-  output$TextInfoDataSet <- renderUI({
+  output$TextBase_InfoDataSet <- renderUI({
     
-    if (!is.null(BASE_SALIDA())) {
-    t1 <- paste0("Base: ", BASE_SALIDA()[[1]][1]) 
-    t2 <- paste0("Filas (Unidades): ", BASE_SALIDA()[[1]][2])
-    t3 <- paste0("Columnas (Variables): ", BASE_SALIDA()[[1]][3])
+    if (!is.null(Tab01_Base())) {
+    t1 <- paste0("<b>Base:</b> ", Tab01_Base()[[1]][1]) 
+    t2 <- paste0("<b>Variables (Columnas):</b> ", Tab01_Base()[[1]][3])
+    t3 <- paste0("<b>Unidades (Filas):</b> ", Tab01_Base()[[1]][2])
   
     HTML(paste(t1, t2, t3, sep = '<br/>'))
     
+    } else return(NULL)
+  })
+  
+  output$TextBase_Intro <- renderText({
+    if (!is.null(Tab01_Base())) {
+    "Visualización de la Base de Datos"
+      } else return(NULL)
+  })
+
+  output$TextBase_Alert <- renderText({
+    if (!is.null(Control01())) {
+     # Tab01_Base()[[3]]
+      Control01()[[2]]
+    #  "AVER"
     } else return(NULL)
   })
 }
