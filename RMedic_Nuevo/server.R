@@ -1,5 +1,3 @@
-library(DT)
-library(htmltools)
 source("lib.R")
 
 function(input, output, session) {
@@ -214,60 +212,118 @@ function(input, output, session) {
   })
   
   
+  output$BASE_SALIDA <- renderDataTable({
+    
+    if (!is.null(Tab01_Base())) {
+      
+    mi_base <- Tab01_Base()[[2]]
+ #   rownames(mi_base) <- rep("", nrow(mi_base))
+  # mi_base
+  #  cantidad_columnas <-  ncol(Tab01_Base()[[2]][3])
+    # cantidad_columnas <-  ncol(mi_base)
+    # 
+    # sketch = htmltools::withTags(table(
+    #   class = 'display',
+    #   thead(
+    #     tr(
+    #        lapply(num2let(c(1:(cantidad_columnas)), th, colspan = 1)
+    #      ),
+    #      tr(
+    #        lapply(c(colnames(mi_base)), th)
+    #      )
+    #    )
+    #  )
+    # ))
+    
+    
+
+    #container = sketch,
+    datatable(mi_base, rownames = F,  options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#000', 'color': '#fff'});",
+        "}"), language = list(
+          search = "Búsqueda:",
+          lengthMenu = "Mostrar _MENU_ registros",
+          info = "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          infoFiltered = "(filtrados de un total de _MAX_ registros)",
+          paginate = list(previous =    "Anterior", `next` = "Siguiente")
+        )
+    ))
+    
+    
+    # sketch = htmltools::withTags(table(
+    #   tableHeader(iris),
+    #   tableFooter(iris)
+    # ))
+    # datatable(
+    #   head(iris, 10),
+    #   container = sketch, options = list(pageLength = 5, dom = 'tip'), rownames = FALSE
+    # )
   
+    } else return(NULL)
+  })
+  
+  
+  if (1 == 2) {
   # Output de la Base Salida
   output$BASE_SALIDA <- renderDataTable({
     
     if (!is.null(Tab01_Base())) {
       
-    cantidad_filas <- as.numeric(as.character(Tab01_Base()[[1]][2]))
-    cantidad_columnas <-  as.numeric(as.character(Tab01_Base()[[1]][3]))
+    #  Tab01_Base()[[2]]
       
-    sketch <-  htmltools::withTags(table(
-   #   class = 'compact nowrap',
-      style = 'font-size: 13px; line-height: 10px',
-      thead(
-        #  tr(
-        # # th(rowspan = 2, "Dataset")
-        # #   th(rowspan = 2, "Data type"),
-        # # th(colspan = 1, style = 'font-style:italic;','Samples'),
-        # # th(colspan = 2, style = 'font-style:italic;','Plots'),
-        # # th(colspan = 3, style = 'font-style:italic;','Plots2'),
-        # # th(colspan = 4, style = 'font-style:italic;','Plots3')
-        #    ),
-           tr(
-             lapply(num2let(1:cantidad_columnas),th, rowspan = 1)
-            # th(rowspan = 2, 'Species'),
-            # th(colspan = 2, 'Sepal'),
-            # th(colspan = 2, 'Petal')
-          ),
-        tr(
-           lapply(colnames(Tab01_Base()[[2]]),th)
-           #lapply(rep(colnames(Tab01_Base()[[2]]), 2),th)
-        )
-      )
-    )
-    )
-    # 
-    # # Referencias de salidas para datatable()
-    # # https://datatables.net/reference/option/language
-    # # https://rstudio.github.io/DT/004-i18n.html
-    # # "emptyTable":     "No data available in table",
-    # # "info":           "Showing _START_ to _END_ of _TOTAL_ entries",
-    # # "infoEmpty":      "Showing 0 to 0 of 0 entries",
-    # # "infoFiltered":   "(filtered from _MAX_ total entries)",
-    # # "infoPostFix":    "",
-    # # "thousands":      ",",
-    # # "lengthMenu":     "Show _MENU_ entries",
-    # # "loadingRecords": "Loading...",
-    # # "processing":     "Processing...",
-    # # "search":         "Search:",
-    # # "zeroRecords":    "No matching records found",
-    
-    datatable(Tab01_Base()[[2]], rownames = F, 
+   #  cantidad_filas <- as.numeric(as.character(Tab01_Base()[[1]][2]))
+   #  cantidad_columnas <-  as.numeric(as.character(Tab01_Base()[[1]][3]))
+   #    
+  #   sketch <-  htmltools::withTags(table(style = 'font-size: 13px; line-height: 10px'))
+     
+     
+     
+     
+     datatable(Tab01_Base()[[2]], rownames = F) 
+               
+     
+   # #   class = 'compact nowrap',
+  #     style = 'font-size: 13px; line-height: 10px'))
+   #    thead(
+   #      #  tr(
+   #      # # th(rowspan = 2, "Dataset")
+   #      # #   th(rowspan = 2, "Data type"),
+   #      #    ),
+   #      #   tr(
+   #     #      lapply(num2let(1:cantidad_columnas),th, colspan = 1)
+   #          # th(rowspan = 2, 'Species'),
+   #          # th(colspan = 2, 'Sepal'),
+   #          # th(colspan = 2, 'Petal')
+   #    #    ),
+   #      tr(
+   #         lapply(colnames(Tab01_Base()[[2]]),th)
+   #         #lapply(rep(colnames(Tab01_Base()[[2]]), 2),th)
+   #      )
+   #    )
+   #  )
+   #  )
+   #  # 
+   #  # # Referencias de salidas para datatable()
+   #  # # https://datatables.net/reference/option/language
+   #  # # https://rstudio.github.io/DT/004-i18n.html
+   #  # # "emptyTable":     "No data available in table",
+   #  # # "info":           "Showing _START_ to _END_ of _TOTAL_ entries",
+   #  # # "infoEmpty":      "Showing 0 to 0 of 0 entries",
+   #  # # "infoFiltered":   "(filtered from _MAX_ total entries)",
+   #  # # "infoPostFix":    "",
+   #  # # "thousands":      ",",
+   #  # # "lengthMenu":     "Show _MENU_ entries",
+   #  # # "loadingRecords": "Loading...",
+   #  # # "processing":     "Processing...",
+   #  # # "search":         "Search:",
+   #  # # "zeroRecords":    "No matching records found",
+   #  
+    datatable(Tab01_Base()[[2]], rownames = F,
               container = sketch, list(pageLength = 5,
-                                       escape = FALSE, 
-                                      autoWidth = TRUE,
+                                     #  escape = FALSE,
+                                    #  autoWidth = TRUE,
                                      #  columnDefs = list(list( targets = 2, width = '600px')),
                                      #  scrollX = TRUE,
                                        #language = list(url = '//cdn.datatables.net/plug-ins/1.10.11/i18n/Spanish.json')
@@ -287,6 +343,10 @@ function(input, output, session) {
     } else return(NULL)
   })
 
+  }
+  
+  
+  
   output$TextBase_InfoDataSet <- renderUI({
     
     if (!is.null(Tab01_Base())) {

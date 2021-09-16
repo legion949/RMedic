@@ -1,7 +1,6 @@
 
 # run_with_themer()
-library(shiny)
-library(bslib)
+
 options(encoding = "UTF-8")
 options(shiny.maxRequestSize = 500*1024^2)
 
@@ -48,7 +47,9 @@ fluidPage( theme = "styles.css",
                              h3(textOutput("TextBase_Alert")), 
                              htmlOutput("TextBase_InfoDataSet"), br(),
                              h3(textOutput("TextBase_Intro")),
-                             dataTableOutput('BASE_SALIDA'))
+                             dataTableOutput('BASE_SALIDA')
+                             ),
+
                       )
               ), 
               tabPanel(title = "Control", 

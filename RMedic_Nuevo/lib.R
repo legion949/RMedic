@@ -1,5 +1,14 @@
 
 
+library(DT)
+library(htmltools)
+library(shiny)
+library(bslib)
+library(readxl)
+library(datasets)
+
+
+
 num2let <- function(n, lets = LETTERS) {
   base <- length(lets)
   if (length(n) > 1) return(sapply(n, num2let, lets = lets))
