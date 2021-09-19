@@ -48,7 +48,7 @@ fluidPage( theme = "styles.css",
                              h3(textOutput("TextBase_Alert02")), 
                              h3(textOutput("TextBase_Alert03")),
                              h3(textOutput("TextBase_Alert04")),
-                             br(), br(),
+                             h3(htmlOutput("TextBase_Alert05")),
                              htmlOutput("TextBase_InfoDataSet"), br(),
                              h3(textOutput("TextBase_Intro")),
                              dataTableOutput('BASE_SALIDA')
