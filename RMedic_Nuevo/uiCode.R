@@ -48,5 +48,23 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                            selectInput("ejemplo_file", "Elige una base ejemplo:", 
                                        choices = c("rock", "pressure", "cars", "mtcars", "iris"),
                                        selected = "mtcars")
+                         ),
+                         radioButtons(inputId = "cie_especificaciones", 
+                                      label = "Especificaciones", 
+                                      choices = c("Todas las filas" = 1, 
+                                                  "Criterio de Inclusión Estadístico" = 2)),
+                         br(),
+                         conditionalPanel( 
+                           'input.cie_especificaciones == "2"',
+                         selectInput(inputId = "cie_columna", label = "Criterio de Inclusión Estadístico (solo una variable):", choices = ""),
+                         conditionalPanel( 
+                           'input.cie_selector != NULL',
+                           selectInput(inputId = "cie_categoria", label = "Categoria de Inclusión (solo una categoría):", choices = ""),
+                           actionButton("reset", "Reset"),
+                           actionButton("cargar", "Cargar")
                          )
+                         )
+                        
+                        
+                         
 )

@@ -44,37 +44,20 @@ fluidPage( theme = "styles.css",
                     fluidRow(
                       column(4, OpcionesDeCarga),
                       column(8, 
-                             h3(textOutput("TextBase_Alert")), 
+                             h3(textOutput("TextBase_Alert01")), 
+                             h3(textOutput("TextBase_Alert02")), 
+                             h3(textOutput("TextBase_Alert03")),
+                             h3(textOutput("TextBase_Alert04")),
+                             br(), br(),
                              htmlOutput("TextBase_InfoDataSet"), br(),
                              h3(textOutput("TextBase_Intro")),
                              dataTableOutput('BASE_SALIDA')
                              ),
 
                       )
-              ), 
-              tabPanel(title = "Control", 
-                       icon = icon("user-md"), 
-                       value = 2, 
-              ), 
-              tabPanel(title = "Tablas", 
-                       icon = icon("user-md"), 
-                       value = 3, 
-              ), 
-              tabPanel(title = "Graficos", 
-                       icon = icon("user-md"), 
-                       value = 4, 
-              ),
-              tabPanel(title = "Pruebas de Hipotesis", 
-                       icon = icon("user-md"), 
-                       value = 5, 
-              ),
-              tabPanel(title = "Sobrevida", 
-                       icon = icon("user-md"), 
-                       value = 6, 
               )
-              
-            )
             ),
             column(1)
           )
+)
 )
