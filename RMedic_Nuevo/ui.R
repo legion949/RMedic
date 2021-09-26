@@ -7,7 +7,9 @@ options(shiny.maxRequestSize = 500*1024^2)
 source("uiCode.R")
 source("lib.R")
 # Define UI for dataset viewer application
-fluidPage( theme = "styles.css", 
+fluidPage (
+  useShinyjs(),
+  theme = "styles.css", 
   #         theme = bs_theme(version = 4, bootswatch = "minty",
   #                          fg = "rgb(28, 5, 5)", primary = "#0025FF", 
   #                          secondary = "#42E1C2", success = "#2FB8E3", info = "#A9B817", 
@@ -31,33 +33,35 @@ fluidPage( theme = "styles.css",
   #         # Application title.
           titlePanel("R+Medic"),
           br(),
-          
-          
-          fluidRow(
+  fluidRow(
+    column(1),
+    column(11,
+           actionButton("toggleSidebar", "Mostrar/Quitar Carga de Datos",
+                        icon("bars"), 
+                        style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+    )
+  ),
+  br(),
+  fluidRow(
+    column(1),
+    column(11,
+            actionButton("showSidebar", "Mostrar Carga de Datos"),
+            actionButton("hideSidebar", "Quitar Carga de Datos")
+           )
+  ),
+ 
+  br()
+    ,
+  
+  div(id = "MySidebar", sidebarPanel(OpcionesDeCarga)), 
+  mainPanel(        
+  fluidRow(
             column(1),
             column(10, 
-                    tabsetPanel(
-                    tabPanel(title = "Base de Datos", 
-                        icon = icon("user-md"), 
-                        value = 1,
-                        br(),
-                    fluidRow(
-                      column(4, OpcionesDeCarga),
-                      column(8, 
-                             h3(textOutput("TextBase_Alert01")), 
-                             h3(textOutput("TextBase_Alert02")), 
-                             h3(textOutput("TextBase_Alert03")),
-                             h3(textOutput("TextBase_Alert04")),
-                             h3(htmlOutput("TextBase_Alert05")),
-                             htmlOutput("TextBase_InfoDataSet"), br(),
-                             h3(textOutput("TextBase_Intro")),
-                             dataTableOutput('BASE_SALIDA')
-                             ),
-
-                      )
-              )
-            ),
+                   uiOutput("RMedicSoft"),
             column(1)
+          )
           )
 )
 )
+

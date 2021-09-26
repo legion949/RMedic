@@ -9,18 +9,20 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                          conditionalPanel( 
                            'input.FileTypePicker == "Excel"',
                            fileInput('xls_file', 'Elige tu archivo Excel',
-                                     accept=c('application/vnd.ms-excel', 
-                                              'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
-                         ),
+                                     accept = c(".xls", ".xslx"))
+                         #             accept=c('application/vnd.ms-excel', 
+                         #                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
+                          ),
                          # un CSV
                          conditionalPanel( 
                            'input.FileTypePicker == "CSV"',
                            
                            # Carga de CSV
                            fileInput('csv_file', 'Elige tu archivo CSV',
-                                     accept=c('text/csv', 
-                                              'text/comma-separated-values,text/plain', '.csv')),
-                           
+                                     accept = c(".csv")),
+                                     # accept=c('text/csv', 
+                                     #          'text/comma-separated-values,text/plain', '.csv')),
+                                     # 
                            # Detalles para CSV
                            # # Header
                            checkboxInput('header', 'Encabezado', TRUE),
