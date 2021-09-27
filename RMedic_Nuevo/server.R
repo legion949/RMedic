@@ -7,8 +7,10 @@ nombres1 <- c("Orden Original", "Alfabético Ascendente", "Alfabético Descenden
 opciones_carga1 <- namel(nombres1)
 
 nombres3 <- c("Categórica", "Numérica")
-opciones_carga3 <- namel(nombres3) 
-
+opciones_carga3 <- namel(nombres3)
+# nombres3 <- c("Categórica", "Numérica")
+# opciones_carga3 <- c(1, 7)
+# names(opciones_carga3) <- nombres3
 
 TextServer_Variables <- '
         # Update Menu1  
@@ -192,7 +194,7 @@ function(input, output, session) {
   reseteo_conteo <- reactiveVal(0)
   
   
-  # Seccion 01 - File Selection
+  # Seccion 01 - File Selection y CIE
   {
     
     
@@ -253,6 +255,14 @@ function(input, output, session) {
     } else return(NULL)
     } else return(NULL)
   })
+  
+  
+  zocalo_CIE <- reactive({
+    
+    if(!is.null(input$cie_columna)) paste0("<b>CIE: </b>", input$cie_columna) else NULL
+    
+  })
+  
   
   # Variable criterio de inclusion
   observeEvent(reseteo_conteo(),{
@@ -602,41 +612,7 @@ function(input, output, session) {
     
   })
   
-  # Contorl 06 - Que la columna elegida pertenezca a la base de datos
-  Control06_1 <- reactive({ 
-    
 
-    AllEyesOnMe(ListBase = BaseSalida(), the_col = input$var1_control)
-      
-    # dt_ok <- FALSE
-    # 
-    # if(!is.null(BaseSalida()))
-    #   if(!is.null(input$var1_control))
-    #     if(input$var1_control != "")
-    #       if(sum(colnames(BaseSalida()[[1]]) == input$var1_control) > 0)
-    #         dt_ok <- TRUE
-    # 
-    # 
-    # dt_ok
-   
-    
-  })
-  
-  Control06_2 <- reactive({ 
-    
-    
-    dt_ok <- FALSE
-    
-    if(!is.null(BaseSalida())) 
-      if(!is.null(input$var2_control)) 
-        if(input$var2_control != "")
-          if(sum(colnames(BaseSalida()[[1]]) == input$var2_control) > 0)
-            dt_ok <- TRUE
-    
-    
-    dt_ok
-    
-  })
   
   
   status_BaseSalida <- reactive({
@@ -808,7 +784,7 @@ function(input, output, session) {
     } else return(NULL)    
   })
   
-
+  
   output$TextBase_Alert01 <- renderText({
     if (!is.null(Control01())) {
       # Tab01_Base()[[3]]
@@ -1072,6 +1048,225 @@ function(input, output, session) {
   {
   ###
     
+    Variables_Tablas <- reactive({
+      
+  #    TextServer_ValidacionVariables <- '
+      # Este objeto reativo calcula 3 cosas:
+      # Cosa 1) Un objeto llamado "ok_tablas"
+      # Cosa 2) Un objeto llamado "caso_tablas"
+      # Cosa 3) Un objeto llamada "mis_variables"
+      
+      # Cosa 1) Un objeto llamado "ok_tablas"
+      # Este objeto es logico. Tiene un TRUE si hay efectivamente
+      # variables ya seleccionadas o un FALSE si todavia nada ha sido
+      # seleccionado. Por defecto es FALSE.
+      ok_tablas <- F
+      
+      
+
+      # Cosa 2) Un objeto llamado "caso_tablas"
+      # Hay 5 casos. Hay que ver en cual estamos.
+      # Vamos a usar esto como director para que solo genere las
+      # tablas que deben ser generadas
+      # # Caso Tablas
+      # 1) Una variable cualitativa
+      # 2) Una variable cuantitativa
+      # 3) Dos variables cualitativas
+      # 4) Dos variables cuantitativas
+      # 5) Una y una
+      tipo_variables_tablas <- c(NA, NA)
+      caso_tablas <- c(NA)
+      numeros_tipo_variables_tablas <- c(NA, NA)
+      
+      # Cosa 3) Un objeto llamada "mis_variables"
+      # Aqui vamos a detallar las variables seleccionadas, y lo vamos a usar
+      # para armar la minibase de datos para tablas.
+      variables_tablas <- c(NA, NA)  
+      eyes_tablas <- c(NA, NA)
+      zocalo_tablas <- c(NA, NA)
+  
+      
+  
+      if(!is.null(input$qtty_var_tablas)) {
+        if(input$qtty_var_tablas >= 1) {
+    if(!is.null(input$var1_tablas)) {
+      if(input$var1_tablas != "") {
+        if(!is.null(input$tipo_var1_tablas)) {
+          if(!is.na(input$tipo_var1_tablas)) {
+            if(input$tipo_var1_tablas != "") {
+        
+    variables_tablas[1] <- input$var1_tablas
+    tipo_variables_tablas[1] <- input$tipo_var1_tablas
+    eyes_tablas[1] <- AllEyesOnMe(ListBase = BaseSalida(), the_col = input$var1_tablas)
+    zocalo_tablas[1] <- paste0("<b>Variable 1:</b> ", input$var1_tablas)
+    
+    if (tipo_variables_tablas[1] == "Categórica") numeros_tipo_variables_tablas[1] <- 1 else
+      if (tipo_variables_tablas[1] == "Numérica") numeros_tipo_variables_tablas[1] <- 10
+            }   
+    }
+          }
+        }
+    }
+        }
+      }
+      
+      
+      if(!is.null(input$qtty_var_tablas)) {
+        if(input$qtty_var_tablas >= 2) {
+      if(!is.null(input$var2_tablas)) {
+        if(input$var2_tablas != "") {
+          if(!is.null(input$tipo_var2_tablas)) {
+            if(!is.na(input$tipo_var2_tablas)) {
+              if(input$tipo_var2_tablas != "") {
+                
+                variables_tablas[2] <- input$var2_tablas
+                tipo_variables_tablas[2] <- input$tipo_var2_tablas
+                eyes_tablas[2] <- AllEyesOnMe(ListBase = BaseSalida(), the_col = input$var2_tablas)
+                
+               
+                zocalo_tablas[2] <- paste0("<b>Variable 2:</b> ", input$var2_tablas)
+                
+                
+                if (tipo_variables_tablas[2] == "Categórica") numeros_tipo_variables_tablas[2] <- 1 else
+                  if (tipo_variables_tablas[2] == "Numérica") numeros_tipo_variables_tablas[2] <- 10        
+              }   
+            }
+          }
+        }
+      }
+        }
+      }
+
+      
+      variables_tablas <- na.omit(variables_tablas)
+      tipo_variables_tablas <- na.omit(tipo_variables_tablas)
+      numeros_tipo_variables_tablas <- na.omit(numeros_tipo_variables_tablas)
+      eyes_tablas <- na.omit(eyes_tablas)
+      zocalo_tablas <- na.omit(zocalo_tablas)
+   
+      
+      if (length(numeros_tipo_variables_tablas) > 0) {
+    resultados_posibles <- c(1, 10, 2, 20, 11)
+    casos_posibles <- c(1:length(resultados_posibles))
+    dt_caso <- sum(numeros_tipo_variables_tablas) == resultados_posibles
+    caso_tablas <- casos_posibles[dt_caso]
+      }
+      
+      
+      
+      
+   #   if (length(variables_tablas) ==  input$qtty_var_tablas){
+         if(sum(eyes_tablas) == input$qtty_var_tablas) {
+        ok_tablas <- T
+      }  else {
+        
+        ok_tablas <- F
+        tipo_variables_tablas <- c()
+        caso_tablas <- c()
+        numeros_tipo_variables_tablas <- c()
+        variables_tablas <- c()
+        eyes_tablas <- c()
+        zocalo_tablas <- c()
+  
+      }
+    
+  
+        
+    
+  
+      #tipo_variables_tablas
+      cat("variables_tablas: ",variables_tablas, "\n")
+      cat("tipo_variables_tablas: ", tipo_variables_tablas, "\n")
+      cat("numeros_tipo_variables_tablas: ", numeros_tipo_variables_tablas, "\n")
+      cat("caso_tablas: ", caso_tablas, "\n")
+      cat("eyes_tablas: ", eyes_tablas, "\n")
+      cat("zocalo_tablas: ", zocalo_tablas, "\n\n\n")
+      
+      my_exit <- list(ok_tablas, variables_tablas, tipo_variables_tablas, caso_tablas,
+                      eyes_tablas, zocalo_tablas)
+      
+      my_exit
+  #    '
+      
+     # eval(parse(text = TextServer_ValidacionVariables))
+      
+    })
+    
+    Base_Tablas <- reactive({
+      
+        if (Variables_Tablas()[[1]]) {
+      list(na.omit(BaseSalida()[[1]][Variables_Tablas()[[2]]]))
+      } else return(NULL)
+    })
+   
+   
+     
+    output$Base_Tablas <- renderTable({
+      
+      Base_Tablas()[[1]]
+      
+    })
+    
+    output$zocalo_Tablas <- renderText({
+      
+      if (Variables_Tablas()[[1]]) {
+        armado <- c(Variables_Tablas()[[6]][1], Variables_Tablas()[[6]][2], zocalo_CIE())
+    
+        armado <- na.omit(armado)
+        
+        armado <- paste0(armado, sep ="<br/>")
+      
+        armado <- HTML(armado)
+        } else return(NULL)
+    })
+    
+    # Tablas para 1 variable cualitativa
+    {
+    ### 
+  
+# observeEvent(input$decimales_control,{ 
+    tabla_1q_df_goku <- reactive({
+      if (Variables_Tablas()[[1]]) {
+        
+        
+    #    df01(BASE_goku(), decimales_goku())$df01$DF2
+        df01(Base_Tablas()[[1]], input$decimales_tablas)$df01$DF2
+ 
+      } else return(NULL)
+    })
+# })
+
+
+    tabla_1q_df2_goku <- reactive({
+      if (Variables_Tablas()[[1]]) {
+        
+        
+      #  df01(BASE_goku(), decimales_goku())$df01$IC
+        df01(Base_Tablas()[[1]], input$decimales_tablas)$df01$IC
+      } else return(NULL)
+    })
+    
+    ###
+    }
+    ###########################################################
+    
+    
+  
+  #    output$tabla_1q_df_goku <- renderTable(digits=decimales_goku(), align= "c",{
+  observe(
+      output$tabla_1q_df_goku <- renderTable(digits = input$decimales_tablas,align= "c",{
+        
+        if(!is.null(tabla_1q_df_goku())) {
+          tabla <- tabla_1q_df_goku()
+          tabla[,2] <- as.character(tabla[,2])
+          tabla[,3] <- as.character(tabla[,3])
+          tabla
+        } else return(NULL)
+      })
+  )
+    
+    
+    
     menuTABLAS <- reactive({
       
       if (status_BaseSalida()){
@@ -1097,7 +1292,17 @@ function(input, output, session) {
           title = "Tablas", 
           icon = icon("user-md"), 
           value = 3,
-          eval(parse(text = gsub("_control", "_tablas",TextUI_Variables)))
+          br(),
+          h3("Menú para Tablas Descriptivas"),
+          eval(parse(text = gsub("_control", "_tablas",TextUI_Variables))),
+          br(),
+          h3("Variables Seleccionadas"), 
+          htmlOutput("zocalo_Tablas"),
+          br(),
+          
+          tableOutput("tabla_1q_df_goku"),
+               tableOutput("Base_Tablas")
+                
         )
         
         
@@ -1144,6 +1349,8 @@ function(input, output, session) {
           title = "Graficos", 
           icon = icon("user-md"), 
           value = 4,
+          br(),
+          h3("Menú para Gráficos"),
           eval(parse(text = gsub("_control", "_graficos",TextUI_Variables)))
         )
         
