@@ -8,6 +8,7 @@ library(readxl)
 library(datasets)
 library(DT)
 library(htmltools)
+library(openxlsx)
 
 # library(shinydashboard)
 
@@ -73,6 +74,22 @@ AllEyesOnMe <- function(ListBase = NULL, the_col = NULL) {
   dt_ok
 }
 
+MyLetter <- function(ListBase = NULL, the_col = NULL) {
+  
+  
+  dt_ok <- FALSE
+  
+  if(!is.null(ListBase))
+    if(!is.null(the_col))
+      if(the_col != "")
+        if(sum(colnames(ListBase[[1]]) == the_col) > 0)
+          dt_col <- colnames(ListBase[[1]]) == the_col
+          pos_col <- c(1:length(dt_col))
+          the_col <- pos_col[dt_col]
+          my_letter <- num2let(the_col)
+          
+  my_letter
+}
 
 ModifyMe <- function(the_text = NULL, end_var = NULL){
   
@@ -96,6 +113,18 @@ ModifyMe <- function(the_text = NULL, end_var = NULL){
   
 }
 
+##########
+
+MyDate <- function(){
+  
+  armado <- Sys.time()
+  armado <- gsub("-" ,"_" , armado)
+  armado <- gsub(" " ,"__" , armado)
+  armado <- gsub(":" ,"_" , armado)
+  
+  armado 
+  
+}
 
 ##################################################################
 
@@ -642,4 +671,898 @@ round2 <- function(x, n) {
   z <- z/10^n 
   z*posneg 
 } 
+#############
+
+
+mp <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
+  
+  # Input originales 
+  {
+    ###
+    
+    input_originales <- list(input_decimales, input_cadena)
+    names(input_originales) <- c("input_decimales", "input_cadena")
+    
+    ###    
+  } # Fin Argumentos originales
+  ##############################################################################
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    
+    # Decimales por defecto
+    if (is.null(input_decimales)) input_decimales <- 2
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    veredicto1 <- control_1c(input_base = input_base, input_cadena = output_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  # # # Control 2 - input_decimales
+  {
+    ###
+    
+    # Hacemos el control de input_decimales
+    veredicto2 <- control_decimales(input_decimales = input_decimales, input_cadena = output_cadena)
+    
+    
+    # Si no pasa el control de input_decimales, asignamos un nuevo valor
+    # pero guardamos el original por si hace falta
+    if (veredicto2 == FALSE){
+      input_decimales_original <- input_decimales
+      input_decimales <- 2
+    }
+    
+    # Si paso el control anterior... guardamos esta nueva opinion
+    if (veredicto1) output_cadena <- veredicto2
+    
+    ###  
+  } # Fin Control 2 - input_decimales
+  ############################################################################
+  
+  
+  # # # Modificaciones, Controles 3, y base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "mini"  
+      mini <- na.omit(input_base)
+      
+      # Vemos que mini tenga filas
+      if (nrow(mini) == 0) {
+        cat("Error mp: 'mini' sin filas", "\n")
+        output_cadena <- FALSE
+      }
+      
+    } # Fin if Si todo va OK...
+    ####################################################
+    
+    # Si algo no esta OK...
+    if (output_cadena == FALSE){
+      mini <- as.data.frame(mtcars[1])
+      colnames(mini) <- "No Data"
+      cat("Error mp: 'mini' externo agregado (NO DATA)", "\n")
+    }
+    ### 
+    
+    mini_vector <- mini[,1]
+    
+  } # Fin Modificaciones y Controles 2
+  ############################################################################
+  
+  
+  # # # Medidas de Posicion
+  {
+    ###
+    
+    # Tabla 1 
+    {
+      ###
+      
+      
+      nombres_elementos <- c("Variable", "Mínimo", "Media", "Mediana", "Máximo", "n")
+      
+      tabla1_mp <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+      colnames(tabla1_mp) <- nombres_elementos
+      
+      
+      
+      minimo <- min(mini_vector)
+      minimo <- round2(minimo, input_decimales)
+      
+      # Media
+      media <- mean(mini_vector)
+      media <- round2(media, input_decimales)
+      
+      # Mediana
+      mediana <- median(mini_vector)
+      mediana <- round2(mediana, input_decimales)
+      
+      
+      # Maximo
+      maximo <- max(mini_vector)
+      maximo <- round2(maximo, input_decimales)
+      
+      # Cantidad de Datos
+      n_muestra <- length(mini_vector)
+      
+      
+      tabla1_mp[,1] <- colnames(mini)
+      tabla1_mp[,2] <- minimo
+      tabla1_mp[,3] <- media
+      tabla1_mp[,4] <- mediana
+      tabla1_mp[,5] <- maximo
+      tabla1_mp[,6] <- n_muestra
+      
+      ###
+    } # Fin Tabla 1
+    ############################################################
+    
+    
+    # Tabla 2
+    {
+      ###
+      
+      celdas_vacias <- nrow(input_base) - nrow(mini)
+      
+      tabla2_mp <- as.data.frame(matrix(NA, 1, (ncol(tabla1_mp) + 1)))
+      
+      for (n in 1:ncol(tabla1_mp)) tabla2_mp[1,n] <- tabla1_mp[1,n]
+      
+      colnames(tabla2_mp) <- c(colnames(tabla1_mp), "Celdas Vacías")
+      tabla2_mp[ncol(tabla2_mp)] <- celdas_vacias
+      
+      ###  
+    } # Fin Tabla 2
+    ############################################################
+    
+    
+    # Tabla 3: Intervalos de Confianza
+    {
+      ###
+      
+      
+      alfa <- c(0.10, 0.05, 0.01)
+      nombres_columnas <- c("Variable", "Media", "Confianza", "Límite Inferior IC", "Límite Superior IC", "n")
+      tabla_ic <- as.data.frame(matrix(NA, length(alfa), length(nombres_columnas)))
+      colnames(tabla_ic) <- nombres_columnas
+      
+      for (n in 1:nrow(tabla_ic)) {
+        
+        este_alfa <- alfa[n]
+        este_alfa_2 <- este_alfa/2
+        gl <- n_muestra - 1
+        
+        
+        desvio <- sd(mini_vector)
+        desvio <- round2(desvio, input_decimales)
+        
+        t_li <- qt(este_alfa_2, df = gl, lower.tail = TRUE)
+        t_ld <- qt((1-este_alfa_2), df = gl, lower.tail = TRUE)
+        
+        brazo <- t_ld*(desvio/sqrt(n_muestra))
+        brazo <- round2(brazo, input_decimales)
+        
+        media_li <- media - brazo
+        media_ld <- media + brazo
+        
+        tabla_ic[n, 1] <- colnames(input_base)
+        tabla_ic[n, 2] <- media
+        tabla_ic[n, 3] <- paste0((1-este_alfa)*100, "%")
+        tabla_ic[n, 4] <- media_li
+        tabla_ic[n, 5] <- media_ld
+        tabla_ic[n, 6] <- n_muestra
+        
+      } # Fin for n
+      
+      tabla3_mp <- tabla_ic
+      
+      
+      
+      
+      
+      ###  
+    } # Fin Tabla 3
+    #############################################################
+    
+    
+    
+    
+    ###
+  } # Fin Medidas de Posicion
+  ############################################################################
+  
+  
+  
+  # # #Mis Tablas
+  {
+    ###
+    
+    mis_tablas <- list(tabla1_mp, tabla2_mp, tabla3_mp)
+    names(mis_tablas) <- c("tabla1_mp", "tabla2_mp", "tabla3_mp")
+    
+    ###  
+  } # Fin Mis Tablas
+  ###########################################################################
+  
+  
+  # Cambios "NO DATA" o "Errores"
+  {
+    ###
+    
+    # Si no es valido trabajar... Y estamos en "NO DATA"
+    if (output_cadena == FALSE) {
+      
+      cambio1 <- "Sin datos en la Columna"
+      cambio2 <- "Modificar input_decimales"
+      
+      # Damos aviso si es algo de los datos o los decimales
+      cambio_aplicado <- cambio1
+      if (veredicto1 == TRUE && veredicto2 == FALSE) cambio_aplicado <- cambio2
+      
+      
+      
+      # Cambiamos los valores por avisos
+      for (n in 1:length(mis_tablas)) {
+        
+        esta_tabla <- mis_tablas[[n]]
+        
+        estas_dimensiones <- dim(esta_tabla)
+        tabla_no_data <- as.data.frame(matrix(cambio_aplicado, estas_dimensiones[1], estas_dimensiones[2]))
+        colnames(tabla_no_data) <- colnames(esta_tabla)
+        esta_tabla <- tabla_no_data
+        
+        mis_tablas[[n]]  <- esta_tabla
+        
+      } # Fin for n
+      
+    } # Fin si no es valido trabajar...
+    ########################################
+    
+    ###   
+  } # Fin Cambios "NO DATA" o "Errores"
+  ##################################################
+  
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- list(mis_tablas, output_cadena, input_originales)
+    names(salida) <- c("mp", "output_cadena", "input_originales")
+    
+    return(salida)
+    
+    ###  
+  } # Salida
+  ############################################################################
+  
+  
+  
+  
+  
+} # Fin function mp()
+########################################################################################################
+
+
+############
+
+
+control_1c <- function(input_base = NULL, input_cadena = NULL){
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    
+    
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Controles 1
+  {
+    ###
+    
+    # Verificar que input_base no sea nulo
+    if(output_cadena && is.null(input_base)) {
+      cat("\n", "Error control_1c: input_base no debe ser nulo", "\n")
+      output_cadena <- FALSE
+    }  
+    
+    # Verificar si es un data frame
+    if(output_cadena && !is.data.frame(input_base)) {
+      cat("\n", "Error control_1c: input_base debe ser un data.frame", "\n")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene al menos una columna
+    if(output_cadena && ncol(input_base) == 0) {
+      cat("\n", "Error control_1c: input_base no tiene columnas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene mas de 1 columna
+    if(output_cadena && ncol(input_base) > 1) {
+      cat("\n", "Error control_1c: input_base debe ser solo una columna")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si es no tiene datos
+    if(output_cadena && nrow(input_base) == 0) {
+      cat("\n", "Error control_1c: input_base no presenta filas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar que sea numerica
+    if(output_cadena && !is.numeric(input_base[,1])) {
+      cat("\n", "Error control_1c: input_base debe ser numérica.", "\n", "Utilice la solapa 'Control' sobre esta variable.", "\n")
+      output_cadena <- FALSE
+    }
+    
+    
+    ###      
+  } # Fin Controles 1
+  ###################################################################
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- output_cadena
+    
+    names(salida) <- c("output_cadena")
+    
+    return(salida)
+    
+    
+    ###  
+  } # Fin Salida
+  ##################
+  
+  
+}
+
+
+##############
+
+md <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
+  
+  # Input originales 
+  {
+    ###
+    
+    input_originales <- list(input_decimales, input_cadena)
+    names(input_originales) <- c("input_decimales", "input_cadena")
+    
+    ###    
+  } # Fin Argumentos originales
+  ##############################################################################
+  
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    
+    # Decimales por defecto
+    if (is.null(input_decimales)) input_decimales <- 2
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    veredicto1 <- control_1c(input_base = input_base, input_cadena = output_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  # # # Control 2 - input_decimales
+  {
+    ###
+    
+    # Hacemos el control de decimales
+    veredicto2 <- control_decimales(input_decimales = input_decimales, input_cadena = output_cadena)
+    
+    # Si no pasa el control numerico, asignamos un nuevo valor para input_decimales
+    # pero guardamos el original por si hace falta
+    if (veredicto2 == FALSE){
+      input_decimales_original <- input_decimales
+      input_decimales <- 2
+    }
+    
+    # Si paso el control anterior... guardamos esta nueva opinion
+    if (veredicto1) output_cadena <- veredicto2
+    
+    ###  
+  } # Fin Control 2 - input_decimales
+  ############################################################################
+  
+  
+  # # # Modificaciones, Controles 3, y base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "mini"  
+      mini <- na.omit(input_base)
+      
+      # Vemos que mini tenga filas
+      if (nrow(mini) == 0) {
+        cat("Error mp: 'mini' sin filas", "\n")
+        output_cadena <- FALSE
+      }
+      
+    } # Fin if Si todo va OK...
+    ####################################################
+    
+    # Si algo no esta OK...
+    if (output_cadena == FALSE){
+      mini <- as.data.frame(mtcars[1])
+      colnames(mini) <- "No Data"
+      cat("Error mp: 'mini' externo agregado (NO DATA)", "\n")
+    } # Fin si algo no esta OK
+    ### #####################################################
+    
+    mini_vector <- mini[,1]
+    
+    ###  
+  } # Fin Modificaciones y Controles 2
+  ############################################################################
+  
+  
+  # # # Medidas de Dispersion
+  {
+    ###
+    
+    # Tabla 1 
+    {
+      ###
+      
+      
+      nombres_elementos <- c("Variable", "Varianza", "Desvío Estándard", "Error Estándard", "Coeficiente de Variación", "n")
+      
+      tabla1_md <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+      colnames(tabla1_md) <- nombres_elementos
+      
+      
+      # Varianza
+      varianza <- var(mini_vector)
+      varianza <- round2(varianza, input_decimales)
+      
+      # Desvio
+      desvio <- sd(mini_vector)
+      
+      # Tamanio muestral
+      n_muestra <- length(mini_vector)
+      
+      # Error estandard
+      ee <- desvio/sqrt(n_muestra)
+      
+      # Media
+      media <- mean(mini_vector)
+      
+      # Coeficiente de Variacion
+      cv <- desvio/media
+      
+      
+      # Primero sacamos el desvio...
+      # Sin redondear el desvio, lo usamos para sacar el error estandard...
+      # Y luego redondeamos los dos.
+      # Esto es para sacar mejor al EE... por que sino sacas el DE... lo redondeas...
+      # lo usas para sacar el EE y lo volves a redondear.
+      # Lo mismo con el CV.
+      
+      desvio <- round2(desvio, input_decimales)
+      ee <- round2(ee, input_decimales)
+      cv <- round2(cv, input_decimales)
+      
+      
+      
+      tabla1_md[,1] <- colnames(mini)
+      tabla1_md[,2] <- varianza
+      tabla1_md[,3] <- desvio
+      tabla1_md[,4] <- ee
+      tabla1_md[,5] <- cv
+      tabla1_md[,6] <- n_muestra
+      
+      ###
+    } # Fin Tabla 1
+    ############################################################
+    
+    
+    # Tabla 2
+    {
+      ###
+      
+      celdas_vacias <- nrow(input_base) - nrow(mini)
+      
+      tabla2_md <- as.data.frame(matrix(NA, 1, (ncol(tabla1_md) + 1)))
+      
+      for (n in 1:ncol(tabla1_md)) tabla2_md[1,n] <- tabla1_md[1,n]
+      
+      colnames(tabla2_md) <- c(colnames(tabla1_md), "Celdas Vacías")
+      tabla2_md[ncol(tabla2_md)] <- celdas_vacias
+      
+      ###  
+    } # Fin Tabla 2
+    ############################################################
+    
+    
+    ###
+  } # Fin Medidas de Posicion
+  ############################################################################
+  
+  
+  # # # Mis Tablas
+  {
+    ###
+    
+    mis_tablas <- list(tabla1_md, tabla2_md)
+    names(mis_tablas) <- c("tabla1_md", "tabla2_md")
+    
+    ###  
+  } # Fin Mis Tablas
+  ###########################################################################
+  
+  
+  
+  # Cambios "NO DATA" o "Errores"
+  {
+    ###
+    
+    # Si no es valido trabajar... Y estamos en "NO DATA"
+    if (output_cadena == FALSE) {
+      
+      cambio1 <- "Sin datos en la Columna"
+      cambio2 <- "Modificar input_decimales"
+      
+      # Damos aviso si es algo de los datos o los decimales
+      cambio_aplicado <- cambio1
+      if (veredicto1 == TRUE && veredicto2 == FALSE) cambio_aplicado <- cambio2
+      
+      
+      
+      # Cambiamos los valores por avisos
+      for (n in 1:length(mis_tablas)) {
+        
+        esta_tabla <- mis_tablas[[n]]
+        
+        estas_dimensiones <- dim(esta_tabla)
+        tabla_no_data <- as.data.frame(matrix(cambio_aplicado, estas_dimensiones[1], estas_dimensiones[2]))
+        colnames(tabla_no_data) <- colnames(esta_tabla)
+        esta_tabla <- tabla_no_data
+        
+        
+        mis_tablas[[n]]  <- esta_tabla
+        
+      } # Fin for n
+      
+    }
+    
+    ###   
+  } # Fin Cambios "NO DATA" o "Errores"
+  ##################################################
+  
+  
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- list(mis_tablas, output_cadena, input_originales)
+    names(salida) <- c("md", "output_cadena", "input_originales")
+    
+    return(salida)
+    
+    ###  
+  } # Salida
+  ############################################################################
+  
+  
+  
+  
+  
+} # Fin function md()
+########################################################################################################
+
+############
+
+
+
+percentiles <- function(input_base=NULL, input_busqueda = NULL, input_decimales = NULL, input_cadena = NULL) {
+  
+  
+  
+  
+  # Input originales 
+  {
+    ###
+    
+    input_originales <- list(input_busqueda, input_decimales, input_cadena)
+    names(input_originales) <- c("input_busqueda", "input_decimales", "input_cadena")
+    
+    ###    
+  } # Fin Argumentos originales
+  ##############################################################################
+  
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    # Busqueda por defecto
+    if (is.null(input_cadena)) input_busqueda = c(5, 10, 90, 95)
+    
+    # Cadena por defecto
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    # Decimales por defecto
+    if (is.null(input_decimales)) input_decimales <- 2
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    veredicto1 <- control_1c(input_base = input_base, input_cadena = output_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  # # # Control 2 - input_decimales
+  {
+    ###
+    
+    # Hacemos el control de decimales
+    veredicto2 <- control_decimales(input_decimales = input_decimales, input_cadena = output_cadena)
+    
+    # Si no pasa el control numerico, asignamos un nuevo valor para input_decimales
+    # pero guardamos el original por si hace falta
+    if (veredicto2 == FALSE){
+      input_decimales_original <- input_decimales
+      input_decimales <- 2
+    }
+    
+    # Si paso el control anterior... guardamos esta nueva opinion
+    if (veredicto1) output_cadena <- veredicto2
+    
+    ###  
+  } # Fin Control 2 - input_decimales
+  ############################################################################
+  
+  
+  # # # Control 3 - input_busqueda
+  {
+    ###
+    
+    # Hacemos el control de input_busqueda
+    veredicto3 <- TRUE
+    
+    # Si estuvo bien el control anterior... Seguimos...    
+    if (veredicto2 == TRUE){
+      
+      # Verificar que input_busqueda no sea nulo
+      if(veredicto3 && is.null(input_busqueda)) {
+        cat("\n", "Error percentiles: input_busqueda no debe ser nulo", "\n")
+        veredicto3 <- FALSE
+      }  
+      
+      # Verificar que input_busqueda sea vector
+      if(output_cadena && !is.vector(input_busqueda)) {
+        cat("\n", "Error percentiles: input_busqueda debe ser un vector'", "\n")
+        veredicto3 <- FALSE
+      }
+      
+      
+      # Verificar que input_busqueda debe ser numerico
+      if(output_cadena && !is.numeric(input_busqueda)) {
+        cat("\n", "Error percentiles: input_busqueda debe ser numérico'", "\n")
+        veredicto3 <- FALSE
+      }
+      
+      
+      # Verificar que input_busqueda tenga elementos
+      if(output_cadena && length(input_busqueda) == 0) {
+        cat("\n", "Error percentiles: input_busqueda debe tener al menos un elemento'", "\n")
+        veredicto3 <- FALSE
+      }
+      
+    }
+    
+    # Si paso el control anterior... guardamos esta nueva opinion
+    if (veredicto2) output_cadena <- veredicto3
+    
+    
+    # Si paso el control anterior... guardamos esta nueva opinion
+    if (veredicto2) output_cadena <- veredicto3
+    
+    ###  
+  } # Fin Control 3 - input_busqueda
+  ############################################################################
+  
+  
+  # # # Modificaciones, Controles 4, y base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "mini"  
+      mini <- na.omit(input_base)
+      
+      # Vemos que mini tenga filas
+      if (nrow(mini) == 0) {
+        cat("Error percentiles: 'mini' sin filas", "\n")
+        output_cadena <- FALSE
+      }
+      
+    } # Fin if Si todo va OK...
+    ####################################################
+    
+    # Si algo no esta OK...
+    if (output_cadena == FALSE){
+      mini <- as.data.frame(mtcars[1])
+      colnames(mini) <- "No Data"
+      cat("Error mp: 'mini' externo agregado (NO DATA)", "\n")
+    } # Fin si algo no esta OK
+    ### #####################################################
+    
+    mini_vector <- mini[,1]
+    
+    ###  
+  } # Fin Modificaciones y Controles 2
+  ############################################################################
+  
+  
+  
+  # # # Percentiles
+  {
+    ###
+    
+    # Si tiene al menos un dato... y es numerica
+    nombres_columnas <- c("Variable", paste0(input_busqueda, "%"), "n")
+    tabla_percentiles <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla_percentiles) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla_percentiles[1,1] <- colnames(input_base)
+    tabla_percentiles[1, c(2:(ncol(tabla_percentiles)-1))] <- percentiles
+    tabla_percentiles[1,ncol(tabla_percentiles)] <- length(mini_vector)
+    
+    
+    ###
+  } # Fin Percentiles
+  ##############################################################
+  
+  
+  
+  # # # Mis Tablas
+  {
+    ###
+    
+    mis_tablas <- list(tabla_percentiles)
+    names(mis_tablas) <- c("tabla_percentiles")
+    
+    ###  
+  } # Fin Mis Tablas
+  ###########################################################################
+  
+  
+  # Cambios "NO DATA" o "Errores"
+  {
+    ###
+    
+    # Si no es valido trabajar... Y estamos en "NO DATA"
+    if (output_cadena == FALSE) {
+      
+      cambio1 <- "Sin datos en la Columna"
+      cambio2 <- "Modificar input_decimales"
+      cambio3 <- "Modificar input_busqueda"
+      
+      # Damos aviso si es algo de los datos o los decimales
+      
+      # Por defecto, el cambio indicado es el cambio1
+      cambio_aplicado <- cambio1
+      
+      # Si esta bien el 1, y esta mal el dos...
+      if (veredicto1 == TRUE && veredicto2 == FALSE) cambio_aplicado <- cambio2
+      
+      # Si esta bien el 2, y esta mal el 3...
+      if (veredicto2 == TRUE && veredicto3 == FALSE) cambio_aplicado <- cambio3
+      
+      
+      # Cambiamos los valores por avisos
+      for (n in 1:length(mis_tablas)) {
+        
+        esta_tabla <- mis_tablas[[n]]
+        
+        estas_dimensiones <- dim(esta_tabla)
+        tabla_no_data <- as.data.frame(matrix(cambio_aplicado, estas_dimensiones[1], estas_dimensiones[2]))
+        colnames(tabla_no_data) <- colnames(esta_tabla)
+        esta_tabla <- tabla_no_data
+        
+        
+        mis_tablas[[n]]  <- esta_tabla
+        
+      } # Fin for n
+      
+    }
+    
+    ###   
+  } # Fin Cambios "NO DATA" o "Errores"
+  ##################################################
+  
+  
+  
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- list(mis_tablas, output_cadena, input_originales)
+    names(salida) <- c("percentiles", "output_cadena", "input_originales")
+    
+    return(salida)
+    
+    ###  
+  } # Salida
+  ############################################################################   
+  
+  
+  
+} # Fin CUANTILES
 

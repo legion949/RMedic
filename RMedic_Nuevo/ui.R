@@ -56,12 +56,19 @@ fluidPage (
   div(id = "MySidebar", sidebarPanel(OpcionesDeCarga)), 
   mainPanel(        
   fluidRow(
-            column(1),
+            column(1,
+                   actionButton("MiniButton", "",
+                                icon("bars"), 
+                                width = "75px",
+                                style ="color: #fff; background-color: #337ab7; 
+                                border-color: #2e6da4; height:65px;
+                                font-size:200%")),
             column(10, 
-                   uiOutput("RMedicSoft"),
+                   uiOutput("RMedicSoft")
+                   ),
             column(1)
           )
-          )
+          
 )
 )
 

@@ -189,6 +189,9 @@ function(input, output, session) {
     shinyjs::toggle(id = "MySidebar")
   })
 
+  observeEvent(input$MiniButton, {
+    shinyjs::toggle(id = "MySidebar")
+  })
   
   RMedic_general <- reactiveVal(T)
   reseteo_conteo <- reactiveVal(0)
@@ -246,7 +249,8 @@ function(input, output, session) {
       ),
       actionButton("reset", "Quitar CIE", icon("paper-plane"), 
                    style="color: #fff; background-color: #337ab7; border-color: #2e6da4"),
-      actionButton("cargar", "Aplicar CIE", class = "btn-warning")
+      actionButton("cargar", "Aplicar CIE", icon("paper-plane"), #class = "btn-warning", 
+                   style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
       
     )
     
@@ -259,7 +263,10 @@ function(input, output, session) {
   
   zocalo_CIE <- reactive({
     
-    if(!is.null(input$cie_columna)) paste0("<b>CIE: </b>", input$cie_columna) else NULL
+    if(!is.null(input$cie_columna)) paste0("<b>CIE: </b>", input$cie_columna, " - Columna ",
+                                           MyLetter(ListBase = BaseSalida(), 
+                                                    the_col = input$cie_columna),"<br/>",
+                                           "<b>Categoría del CIE: </b>", input$cie_categoria) else NULL
     
   })
   
@@ -1098,7 +1105,8 @@ function(input, output, session) {
     variables_tablas[1] <- input$var1_tablas
     tipo_variables_tablas[1] <- input$tipo_var1_tablas
     eyes_tablas[1] <- AllEyesOnMe(ListBase = BaseSalida(), the_col = input$var1_tablas)
-    zocalo_tablas[1] <- paste0("<b>Variable 1:</b> ", input$var1_tablas)
+    zocalo_tablas[1] <- paste0("<b>Variable 1:</b> ", input$var1_tablas, " - Columna ", 
+                               MyLetter(ListBase = BaseSalida(), the_col = input$var1_tablas))
     
     if (tipo_variables_tablas[1] == "Categórica") numeros_tipo_variables_tablas[1] <- 1 else
       if (tipo_variables_tablas[1] == "Numérica") numeros_tipo_variables_tablas[1] <- 10
@@ -1124,7 +1132,8 @@ function(input, output, session) {
                 eyes_tablas[2] <- AllEyesOnMe(ListBase = BaseSalida(), the_col = input$var2_tablas)
                 
                
-                zocalo_tablas[2] <- paste0("<b>Variable 2:</b> ", input$var2_tablas)
+                zocalo_tablas[2] <- paste0("<b>Variable 2:</b> ", input$var2_tablas, " - Columna ", 
+                                           MyLetter(ListBase = BaseSalida(), the_col = input$var2_tablas))
                 
                 
                 if (tipo_variables_tablas[2] == "Categórica") numeros_tipo_variables_tablas[2] <- 1 else
@@ -1182,7 +1191,8 @@ function(input, output, session) {
       cat("eyes_tablas: ", eyes_tablas, "\n")
       cat("zocalo_tablas: ", zocalo_tablas, "\n\n\n")
       
-      my_exit <- list(ok_tablas, variables_tablas, tipo_variables_tablas, caso_tablas,
+      my_exit <- list(ok_tablas, variables_tablas, tipo_variables_tablas, 
+                      caso_tablas,
                       eyes_tablas, zocalo_tablas)
       
       my_exit
@@ -1207,6 +1217,7 @@ function(input, output, session) {
       
     })
     
+    
     output$zocalo_Tablas <- renderText({
       
       if (Variables_Tablas()[[1]]) {
@@ -1220,7 +1231,171 @@ function(input, output, session) {
         } else return(NULL)
     })
     
-    # Tablas para 1 variable cualitativa
+    
+    armado <- Sys.time()
+    armado <- gsub("-" ,"_" , armado)
+    armado <- gsub(" " ,"__" , armado)
+    armado <- gsub(":" ,"_" , armado)
+    
+    armado 
+    output$download_excel <- downloadHandler(
+      filename = function() {
+        paste0("RMedic - ", MyDate(), ".xlsx")
+      },
+      content = function(file) {
+        my_workbook <- createWorkbook()
+        
+        addWorksheet(
+          wb = my_workbook,
+          sheetName = paste0("RMedic - Prueba")
+        )
+        
+        setColWidths(
+          my_workbook,
+          1,
+          cols = 1:10,
+          widths = rep(20, 10)
+        )
+        
+        writeData(
+          my_workbook,
+          sheet = 1,
+          c(
+            c("RMedic - HOLA ARN!!!! - VLL!!!", paste0("Descarga fecha: ", Sys.time()))
+          ),
+          startRow = 2,
+          startCol = 1
+        )
+        
+        addStyle(
+          my_workbook,
+          sheet = 1,
+          style = createStyle(
+            fontSize = 24,
+            textDecoration = "bold"
+          ),
+          rows = c(2,3),
+          cols = 1
+        )
+        
+        writeData(
+          my_workbook,
+          sheet = 1,
+          c(
+            "Medidas de Posición"
+          ),
+          startRow = 5,
+          startCol = 1
+        )
+        
+        addStyle(
+          my_workbook,
+          sheet = 1,
+          style = createStyle(
+            fontSize = 24,
+            textDecoration = "bold"
+          ),
+          rows = c(5,9,13,17),
+          cols = 1
+        )
+        
+        writeData(
+          my_workbook,
+          sheet = 1,
+          pack_tabla_1c_goku()[[1]],
+          startRow = 6,
+          startCol = 1
+        )
+        #############################
+        writeData(
+          my_workbook,
+          sheet = 1,
+          c(
+            "Medidas de Dispersión"
+          ),
+          startRow = 9,
+          startCol = 1
+        )
+        writeData(
+          my_workbook,
+          sheet = 1,
+          pack_tabla_1c_goku()[[2]],
+          startRow = 10,
+          startCol = 1
+        )
+        #############################
+        
+        #############################
+        writeData(
+          my_workbook,
+          sheet = 1,
+          c(
+            "Percentiles"
+          ),
+          startRow = 13,
+          startCol = 1
+        )
+        writeData(
+          my_workbook,
+          sheet = 1,
+          pack_tabla_1c_goku()[[3]],
+          startRow = 14,
+          startCol = 1
+        )
+        #############################
+        
+        #############################
+        writeData(
+          my_workbook,
+          sheet = 1,
+          c(
+            "Intervalos de Confianza"
+          ),
+          startRow = 17,
+          startCol = 1
+        )
+        writeData(
+          my_workbook,
+          sheet = 1,
+          pack_tabla_1c_goku()[[4]],
+          startRow = 18,
+          startCol = 1
+        )
+        #############################
+        
+        addStyle(
+          my_workbook,
+          sheet = 1,
+          style = createStyle(
+            fontSize = 13,
+            fgFill = "#1a5bc4",
+            halign = "center",
+            fontColour = "#ffffff"
+          ),
+          rows = c(6, 10, 14, 18),
+          cols = 1:6,
+          gridExpand = TRUE
+        )
+        
+        #c(2,6,10,14)
+        addStyle(
+          my_workbook,
+          sheet = 1,
+          style = createStyle(
+            fontSize = 13,
+            fgFill = "#7dafff",
+            halign = "center",
+          ),
+          rows = c(7, 11, 15, 19:21),
+          cols = 1:6,
+          gridExpand = TRUE
+        )
+        
+        saveWorkbook(my_workbook, file)
+      }
+    )
+    
+    # Tablas para 1 variable cualitativa - Reactiave()!
     {
     ### 
   
@@ -1251,10 +1426,43 @@ function(input, output, session) {
     ###########################################################
     
     
+    
+    # 1 Variable Cuantitativa
+    {
+      ###
+      
+      pack_tabla_1c_goku <- reactive({
+        if (Variables_Tablas()[[1]]) {
+          
+          aver <- list()
+          
+          # Medidas de Posicion
+          aver[[1]] <-  mp(Base_Tablas()[[1]], input$decimales_tablas)$mp$tabla1_mp
+          
+          # Medidas de Dispersion      
+          aver[[2]] <- md(Base_Tablas()[[1]], input$decimales_tablas)$md$tabla1_md
+          
+          # Percentiles
+          aver[[3]] <- percentiles(Base_Tablas()[[1]], input_busqueda = c(1, 5, 10, 25, 50, 75, 90, 95, 99), input$decimales_tablas)$percentiles$tabla_percentiles
+          
+          # Intervalos de Confianza para la media
+          aver[[4]] <- mp(Base_Tablas()[[1]], input$decimales_tablas)$mp$tabla3_mp
+          
+          return(aver)
+          
+        } else return(NULL)
+      })
+      ###
+    } # Fin Variable Categorica
+    ################################################################################
+    
+    
+    
   
   #    output$tabla_1q_df_goku <- renderTable(digits=decimales_goku(), align= "c",{
   observe(
-      output$tabla_1q_df_goku <- renderTable(digits = input$decimales_tablas,align= "c",{
+      output$tabla_1q_df_goku <- renderTable(digits = input$decimales_tablas,
+                                             align= "c",{
         
         if(!is.null(tabla_1q_df_goku())) {
           tabla <- tabla_1q_df_goku()
@@ -1265,7 +1473,139 @@ function(input, output, session) {
       })
   )
     
+    observe(
+    output$tabla_1q_df2_ic90_goku <- renderTable(digits=input$decimales_tablas, 
+                                                 align= "c",{
+
+      if(!is.null(tabla_1q_df2_goku())) {
+        tabla_1q_df2_goku()[[1]]
+      } else return(NULL)
+    })
+    )
+    # 
+    # 
+    observe(
+      output$tabla_1q_df2_ic95_goku <- renderTable(digits=input$decimales_tablas,
+                                                   align= "c",{
+
+        if(!is.null(tabla_1q_df2_goku())) {
+          tabla_1q_df2_goku()[[2]]
+        } else return(NULL)
+      })
+    )
+    # 
+    # 
+    # 
+    observe(
+      output$tabla_1q_df2_ic99_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
+
+        if(!is.null(tabla_1q_df2_goku())) {
+          tabla_1q_df2_goku()[[3]]
+        } else return(NULL)
+      })
+    )
     
+    
+    ##########
+    # 1 Variable Numerica (C)
+    {
+      observe( 
+        # Medidas de Posicion
+        output$tabla_1c_mp_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
+          
+          if(!is.null(pack_tabla_1c_goku())) {
+            pack_tabla_1c_goku()[[1]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(
+        # Medidas de Dispersion
+        output$tabla_1c_md_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
+          
+          if(!is.null(pack_tabla_1c_goku())) {
+            pack_tabla_1c_goku()[[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      # Percentiles
+      observe(
+        output$tabla_1c_cuant_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
+          
+          if(!is.null(pack_tabla_1c_goku())) {
+            pack_tabla_1c_goku()[[3]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      # IC
+      observe( 
+        output$tabla_1c_ic_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
+          
+          if(!is.null(pack_tabla_1c_goku())) {
+            pack_tabla_1c_goku()[[4]]
+          } else return(NULL)
+        })
+      )
+      
+    }
+    ################################################################################
+    
+    #######################
+    
+    output$salida_TABLAS_RMedic <- renderUI ({
+      
+      if(!is.null(Variables_Tablas())) {
+        if(Variables_Tablas()[[1]]) {
+          
+        if (Variables_Tablas()[[4]] == 1) {
+          
+      div(
+        h3("Variables Seleccionadas"), 
+        htmlOutput("zocalo_Tablas"),
+        br(),
+        h3("Distribución de Frecuencias"),
+        uiOutput("tabla_1q_df_goku"), br(),
+        h3("Intervalos de Confianza del 90%"),
+        uiOutput("tabla_1q_df2_ic90_goku"), br(),
+        h3("Intervalos de Confianza del 95%"),
+        uiOutput("tabla_1q_df2_ic95_goku"), br(),
+        h3("Intervalos de Confianza del 99%"),
+        uiOutput("tabla_1q_df2_ic99_goku")
+      )
+        }  else 
+          if (Variables_Tablas()[[4]] == 2) {
+            
+            div(
+              h3("Variables Seleccionadas"), 
+              
+              fluidRow(
+                column(6,htmlOutput("zocalo_Tablas")),
+                column(6,  downloadButton("download_excel", 
+                                          "Download RMedic",
+                                          width = "350px",
+                                          style ="color: #fff; background-color: #337ab7; 
+                                                  border-color: #2e6da4; height:100px;
+                                                  font-size:300%")
+                       )
+                ),             
+              br(),
+              h3("Medidas de Posición"),
+              uiOutput("tabla_1c_mp_goku"), br(),
+              h3("Medidas de Dispersión"),
+              uiOutput("tabla_1c_md_goku"), br(),
+              h3("Percentiles"),
+              uiOutput("tabla_1c_cuant_goku"), br(),
+              h3("Intervalos de Confianza"),
+              uiOutput("tabla_1c_ic_goku")
+            )
+          }  else return(NULL)
+        }  else return(NULL)
+       }  else return(NULL)
+    })
     
     menuTABLAS <- reactive({
       
@@ -1296,12 +1636,9 @@ function(input, output, session) {
           h3("Menú para Tablas Descriptivas"),
           eval(parse(text = gsub("_control", "_tablas",TextUI_Variables))),
           br(),
-          h3("Variables Seleccionadas"), 
-          htmlOutput("zocalo_Tablas"),
+          uiOutput("salida_TABLAS_RMedic"),
           br(),
-          
-          tableOutput("tabla_1q_df_goku"),
-               tableOutput("Base_Tablas")
+          br()
                 
         )
         
