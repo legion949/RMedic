@@ -64,6 +64,10 @@ fluidPage (
                                 border-color: #2e6da4; height:65px;
                                 font-size:200%")),
             column(10, 
+                   br(), tabsetPanel(id ="AVER",
+                     tabPanel("1", value = 1),
+                     tabPanel("2", value = 2)
+                   ), br(),
                    uiOutput("RMedicSoft")
                    ),
             column(1)

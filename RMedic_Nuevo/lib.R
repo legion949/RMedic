@@ -1566,3 +1566,19 @@ percentiles <- function(input_base=NULL, input_busqueda = NULL, input_decimales 
   
 } # Fin CUANTILES
 
+
+#################
+
+paso_detalle <- function(detalle) {
+  
+  
+  if (!is.null(detalle)) {
+    if (detalle != "") {
+      
+      
+      paso <- TRUE
+      
+      
+    } else paso <- FALSE
+  } else paso <- FALSE
+}

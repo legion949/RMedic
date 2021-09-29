@@ -2,175 +2,7 @@
 source("lib.R")
 
 #source("uiCode.R")
-
-nombres1 <- c("Orden Original", "Alfabético Ascendente", "Alfabético Descendente")
-opciones_carga1 <- namel(nombres1)
-
-nombres3 <- c("Categórica", "Numérica")
-opciones_carga3 <- namel(nombres3)
-# nombres3 <- c("Categórica", "Numérica")
-# opciones_carga3 <- c(1, 7)
-# names(opciones_carga3) <- nombres3
-
-TextServer_Variables <- '
-        # Update Menu1  
-        nombres1 <- c("Orden Original", "Alfabético Ascendente", "Alfabético Descendente")
-        opciones_carga1 <- namel(nombres1)
-        
-        # Update Menu2  
-        nombres2_original <- colnames(_MY_BASE_)
-        opciones_carga2 <- OpcionesDeColumnas(nombres2_original)
-        
-        nombres3 <- c("Categórica", "Numérica")
-        opciones_carga3 <- namel(nombres3) 
-        
-        
-           observeEvent(_MENU1_, {
-          
-          
-          nuevo_orden <- c(1:length(nombres2_original))
-          if (_MENU1_ == "Alfabético Ascendente")  nuevo_orden <- order(nombres2_original, decreasing = F) else
-            if (_MENU1_ == "Alfabético Descendente") nuevo_orden <- order(nombres2_original, decreasing = T)
-            
-            opciones_carga2 <- opciones_carga2[nuevo_orden]
-      
-            
-            updateSelectInput(session, 
-                              inputId = "_ONLY_NAME_INPUT_VAR1_",
-                              label = "Variable 1",
-                              choices=  c("Seleccione una variable..." = "", opciones_carga2),
-                              selected = NA)  
-            
-            updateSelectInput(session, 
-                              inputId = "_ONLY_NAME_INPUT_VAR2_",
-                              label = "Variable 2",
-                              choices=  c("Seleccione una variable..." = "", opciones_carga2),
-                              selected = NA) 
-            
-            ###########
-            updateRadioButtons(session,
-                               inputId = "_ONLY_NAME_INPUT_TIPO_VAR1_",
-                               label = "Tipo de Variable1",
-                               choices = opciones_carga3,
-                               selected = opciones_carga3[1])
-                               
-            updateRadioButtons(session,
-                               inputId = "_ONLY_NAME_INPUT_TIPO_VAR2_",
-                               label = "Tipo de Variable2",
-                               choices = opciones_carga3,
-                               selected = opciones_carga3[1])  
-            ############
-        })
-        
-        
-           observeEvent(_INPUT_VAR1_, {
-          
-          if(AllEyesOnMe(ListBase = _THE_LISTBASE_, the_col = _INPUT_VAR1_)) {
-            
-            my_option <- 1
-            if (is.numeric(_THE_LISTBASE_[[1]][,_INPUT_VAR1_])) my_option <- 2
-            updateRadioButtons(session,
-                               inputId = "_ONLY_NAME_INPUT_TIPO_VAR1_",
-                               label = "Tipo de Variable1",
-                               choices = opciones_carga3,
-                               selected = opciones_carga3[my_option])
-            
-            # 
-            
-          }
-        })
-        
-        
-        
-           observeEvent(_INPUT_VAR2_, {
-          
-          if(AllEyesOnMe(ListBase = _THE_LISTBASE_, the_col = _INPUT_VAR2_)) {
-            
-            my_option <- 1
-            if (is.numeric(_MY_BASE_[,_INPUT_VAR2_])) my_option <- 2
-            updateRadioButtons(session,
-                               inputId = "_ONLY_NAME_INPUT_TIPO_VAR2_",
-                               label = "Tipo de Variable2",
-                               choices = opciones_carga3,
-                               selected = opciones_carga3[my_option])
-            
-            # 
-            
-          }
-          
-          
-          
-        })
-        ##################################################
-        '
-
-
-
-TextUI_Variables <- 'div(
-  fluidRow(
-    column(4,
-           # Menu1: Orden de las seleccion de variables         
-           selectInput(inputId = "menu1_control",
-                       label = "Orden de las variables",
-                       choices = opciones_carga1,                                                    selected = opciones_carga1[1]
-           )
-    ),
-    column(4, 
-           selectInput(inputId = "qtty_var_control",
-                       label = "Cantidad de Variables",
-                       choices = c("Seleccione..." = "", "Una" = 1, "Dos" = 2)
-           )
-    ),           
-    column(4, 
-           numericInput(inputId = "decimales_control", 
-                        label = "Decimales:", 
-                        min = 0,  max = 100, step = 1, value = 2
-           )
-    )
-  ) # End FluidRow
-  ,br(),
-  fluidRow(
-    conditionalPanel(condition = "input.qtty_var_control != \'\'",
-                     conditionalPanel(condition = "input.qtty_var_control >= 1",
-                                      fluidRow(
-                                        column(4,
-                                               selectInput(inputId = "var1_control",
-                                                           label = "Variable 1",
-                                                           choices=c("Seleccione una variable..." = "", opciones_carga2),
-                                                           selected = NA
-                                               )
-                                        ),
-                                        column(4,
-                                               radioButtons(inputId = "tipo_var1_control",
-                                                            label = "Tipo de Variable1",
-                                                            choices = opciones_carga3,
-                                                            selected = opciones_carga3[1]
-                                               )
-                                        )
-                                      ) # End FluidRow
-                     ), # End ConditionalPanel
-                     conditionalPanel(condition = "input.qtty_var_control >= 2",
-                                      fluidRow(
-                                        column(4,
-                                               selectInput(inputId = "var2_control",
-                                                           label = "Variable 2",
-                                                           choices=c("Seleccione una variable..." = "", opciones_carga2),
-                                                           selected = NA
-                                               )
-                                        ),
-                                        column(4,
-                                               radioButtons(inputId = "tipo_var2_control",
-                                                            label = "Tipo de Variable2",
-                                                            choices = opciones_carga3,
-                                                            selected = opciones_carga3[1]
-                                               )
-                                        )
-                                      ) # End FluidRow
-                     ) #End conditionalPanel
-    ) #End conditionalPanel
-  ) # End FluidRow
-  
-)'
+source("script/PreServerCode.R")
 
 
 function(input, output, session) {
@@ -276,7 +108,7 @@ function(input, output, session) {
     
     # Reset selected step
     # # RMedic_general(F)
-    
+    # freezeReactiveValue(input, "cie_especificaciones")
     updateRadioButtons(session, inputId = "cie_especificaciones", 
                        label = "Especificaciones", 
                        choices = c("Todas las filas" = 1, 
@@ -642,375 +474,7 @@ function(input, output, session) {
   
   
   # Seccion 03 - Base de Datos
-  {
-  ###
-    
-  MyFileName <- reactive({
-    
- 
-    
-    if(!is.null(input$FileTypePicker)){
-      
-      if(!is.null(Control01())) {
-        if(Control01()[[1]]) {
-          
-          if(input$FileTypePicker == "Excel") { 
-            
-            if (!is.null(input$xls_file)) my_file <- input$xls_file[[1]] else return(NULL)
-            
-            
-          } else 
-            if(input$FileTypePicker == "CSV") { 
-              
-              if (!is.null(input$csv_file)) my_file <- input$csv_file[[1]] else return(NULL)
-              
-              
-            } else 
-              if(input$FileTypePicker == "Ejemplos") { 
-                
-                
-                if (!is.null(input$ejemplo_file)) my_file <- input$ejemplo_file else return(NULL)
-                
-                
-              } else return(NULL)
-          
-          
-          # Return of the king...
-          return(my_file)
-          
-        } else return(NULL)  
-      } else return(NULL)
-    } else return(NULL)
-    
-    
-    
-  })
-  
-  
-  # Carga de la Toda la base de datos
-  Base01 <- reactive({
-    
-    if(!is.null(input$FileTypePicker)){
-      
-      if(!is.null(Control01())) {
-        if(Control01()[[1]]) {
-          
-          if(input$FileTypePicker == "Excel") { 
-            
-            if (!is.null(input$xls_file)) {
-              
-              # Detalles varios...
-              inFile <- input$xls_file
-              
-              # La direccion del archivo...
-              temporal_file <- inFile$datapath
-              
-              # cat("inFile: ", inFile, "\n" )
-              # cat("archivo: ", archivo, "\n" )
-              # cat("archivo2: ", input$xls_file[[1]], "\n" )
-              # cat("temporal_file: ", temporal_file, "\n" )
-              
-              # 1) DataSet
-              library(readxl)
-              DataSet <- as.data.frame(read_excel(temporal_file, col_names= TRUE, sheet = 1, trim_ws = FALSE))
-              
-              } else return(NULL)
-            
-            } else
-              if(input$FileTypePicker == "CSV") { 
-                
-                if (!is.null(input$csv_file)) {
-                  
-                  # Detalles varios de direccion
-                  inFile <- input$csv_file
-                  
-                  # La carga de datos formato CSV
-                  DataSet <- read.csv(inFile$datapath, header=input$header, sep=input$sep, dec=input$dec, quote=input$quote)
-                  
-                } else return(NULL)
-                
-              } else 
-                if(input$FileTypePicker == "Ejemplos") { 
-                  
-                  
-                  if (!is.null(input$ejemplo_file)) {
-                    
-                    
-                    # cat("ejemplo_file: ", input$ejemplo_file, "\n")
-                    # La carga de datos formato CSV
-                    DataSet <- eval(parse(text = input$ejemplo_file))
-          
-                  }  else return(NULL)
-                }  else return(NULL)
-                  
-                  # Salida
-                  my_exit <- list(DataSet)
-                  return(my_exit)
-                
-        } else return(NULL)
-        
-          } else return(NULL)
-      
-          } else return(NULL)
-    
-    
-  })
-
-  Base02 <- reactive({
-    
-    if(!is.null(Base01())){
-      
-      if(!is.null(Control02())){
-        
-        if(!is.null(Control03())){
-          
-          mi_filtro <- Base01()[[1]][,input$cie_columna]
-          dt_filtro <- mi_filtro == input$cie_categoria
-          base2 <- Base01()[[1]][dt_filtro, ]
-          
-          my_exit <- list(base2)
-          return(my_exit)
-          
-        } else return(NULL)
-        
-      } else return(NULL)
-    } else return(NULL)   
-    
-    
-    
-  })
-  
-  
-  BaseSalida <- reactive({
-    
-    if (!is.null(Base01())) {
-      
-      if(input$cie_especificaciones == 1) Base01() else
-        if((input$cie_especificaciones == 2) && (!is.null(Base02()))) Base02()
-      
-    } else return(NULL)    
-  })
-  
-  
-  output$TextBase_Alert01 <- renderText({
-    if (!is.null(Control01())) {
-      # Tab01_Base()[[3]]
-      Control01()[[2]]
-      #  "AVER"
-    } else return(NULL)
-  })
-  
-  
-  output$TextBase_Alert02 <- renderText({
-    if (!is.null(Control02())) {
-      # Tab01_Base()[[3]]
-      Control02()[[2]]
-      #  "AVER"
-    } else return(NULL)
-  })
-  
-  output$TextBase_Alert03 <- renderText({
-    if (!is.null(Control03())) {
-      # Tab01_Base()[[3]]
-      Control03()[[2]]
-      #  "AVER"
-    } else return(NULL)
-  })
-  
-  output$TextBase_Alert04 <- renderText({
-    if (!is.null(Control04())) {
-      
-      Control04()[[2]]
-      
-    } else return(NULL)
-  })
-  
-  output$TextBase_Alert05 <- renderText({
-    if (!is.null(Control05())) {
-      
-      Control05()[[2]]
-      
-    } else return(NULL)
-  })
-  
-  
-  output$TextBase_InfoDataSet <- renderUI({
-    
-    texto_salida <- c()
-    
-    if (!is.null(Base01())) {
-      if(RMedic_general()){
-        
-        
-        texto_completo01 <- c("<b>Base:</b> _mi_archivo_ <br/>
-                           <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
-                           <b>Unidades (Filas o repeticiones):</b> _nrowBase01_ unidades.<br/>")
-        
-        texto_salida <- texto_completo01
-        
-        
-        
-        if (!is.null(Base02()) && !is.null(input$cie_categoria)) {
-          
-          texto_completo02 <- c("
-                            <b>Base:</b> _mi_archivo_ <br/>
-                            <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
-                            <b>Unidades totales (Filas totales o repeticiones totales):</b> _nrowBase01_ unidades.<br/>
-                            <br/>
-                            <b>Criterio de Inclusión Estadístico (CIE):</b> _mi_CIE_.<br/>
-                            <b>Categoría de Inclusión:</b> la categoría seleccionada es '_mi_categoria_'.<br/>
-                            <b>Unidades seleccionadas (Filas seleccionadas o repeticiones seleccionadas):</b> _nrowBase02_ de _nrowBase01_ unidades.<br/>
-                              ")
-          
-          agregado01 <- c("
-                        <b>Nota Importante:</b> aplicando el criterio de inclusión estadístico sobre las
-                        _nrowBase01_ unidades totales son seleccionadas e ingresan efectivamente a
-                        tablas, gráficos y test estadístisticos solo _nrowBase02_ unidades. Estas _nrowBase02_ unidades
-                        presentan la categoría '_mi_categoria_' en el CIE _mi_CIE_.
-                        ")
-          
-          agregado02 <- c("
-                        <b>Nota Importante:</b> Todas las unidades responden a la misma
-                        categoría de inclusión. Trabajar con este criterio de inclusión
-                        o directamente con el total de la base de datos, es lo mismo.
-                        ")
-          
-          texto_salida <- texto_completo02
-          
-          if(nrow(Base01()[[1]]) != nrow(Base02()[[1]])) texto_salida <- paste0(texto_salida, "<br/>", agregado01) else texto_salida <- paste0(texto_salida, "<br/>", agregado02)
-          
-          
-          
-          dt_col <- colnames(Base02()[[1]]) == input$cie_columna
-          #   cat(input$cie_categoria, "\n")
-          #   cat(dt_col, "\n")
-          orden_col <- c(1:length(dt_col))[dt_col]
-          armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
-                           num2let(orden_col), "'")
-          
-          #  armado <- "AVERRERRRRR"
-          texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
-          
-          texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
-          texto_salida <- gsub("_nrowBase02_", nrow(Base02()[[1]]), texto_salida)
-          
-        }
-        
-        #  HTML(paste(t1, t2, sep = '<br/>'))
-        
-        
-        texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
-        texto_salida <- gsub("_ncolBase01_", ncol(Base01()[[1]]),texto_salida)
-        texto_salida <- gsub("_nrowBase01_", nrow(Base01()[[1]]),texto_salida)
-        
-        mi_salida <- HTML(texto_salida)
-        mi_salida
-      } else return(NULL)
-    } else return(NULL)
-  })
-  
-  
-  output$TextBase_Intro <- renderText({
-    if (!is.null(Base01())) {
-      if(RMedic_general()){
-        "Visualización de la Base de Datos"
-      } else return(NULL)
-    } else return(NULL)
-  })
-  
-  
-  
-  output$BASE_SALIDA <- renderDataTable({
-    
-    if (status_BaseSalida()) {
-      
-      #cat("RMedic_general(): ", RMedic_general(), "\n")
-      if(RMedic_general()){
-        
-        
-        
-        #   rownames(mi_base) <- rep("", nrow(mi_base))
-        # mi_base
-        #  cantidad_columnas <-  ncol(Tab01_Base()[[2]][3])
-        # cantidad_columnas <-  ncol(mi_base)
-        # 
-        # sketch = htmltools::withTags(table(
-        #   class = 'display',
-        #   thead(
-        #     tr(
-        #        lapply(num2let(c(1:(cantidad_columnas)), th, colspan = 1)
-        #      ),
-        #      tr(
-        #        lapply(c(colnames(mi_base)), th)
-        #      )
-        #    )
-        #  )
-        # ))
-        
-        
-        
-        #container = sketch,
-        datatable(BaseSalida()[[1]], rownames = F,  options = list(
-          initComplete = JS(
-            "function(settings, json) {",
-            "$(this.api().table().header()).css({'background-color': '#fff', 'color': '#000'});",
-            "}"), language = list(
-              search = "Búsqueda:",
-              lengthMenu = "Mostrar _MENU_ registros",
-              info = "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
-              infoFiltered = "(filtrados de un total de _MAX_ registros)",
-              paginate = list(previous =    "Anterior", `next` = "Siguiente")
-            )
-        ))
-        
-        
-        # sketch = htmltools::withTags(table(
-        #   tableHeader(iris),
-        #   tableFooter(iris)
-        # ))
-        # datatable(
-        #   head(iris, 10),
-        #   container = sketch, options = list(pageLength = 5, dom = 'tip'), rownames = FALSE
-        # )
-      } else return(NULL)
-    } else return(NULL)
-  })
-  
-  
-  menuBASE <- reactive({
-    
-    
-    tabs <- list()
-    
-    tabs[[1]] <-    tabPanel(title = "Base de Datos", 
-                             icon = icon("user-md"), 
-                             value = 1,
-                             br(),
-                             fluidRow(
-                               #   column(4, OpcionesDeCarga),
-                               column(8, 
-                                      h3(textOutput("TextBase_Alert01")), 
-                                      h3(textOutput("TextBase_Alert02")), 
-                                      h3(textOutput("TextBase_Alert03")),
-                                      h3(textOutput("TextBase_Alert04")),
-                                      h3(htmlOutput("TextBase_Alert05")),
-                                      htmlOutput("TextBase_InfoDataSet"), br(),
-                                      h3(textOutput("TextBase_Intro")),
-                                      dataTableOutput('BASE_SALIDA')
-                               ),
-                               
-                             ),
-                             br(), br()
-    )
-    
-    tabs
-    
-  })
-  
-  ###
-  } # End Seccion 03
-  #############################################
-  
+  source("script/01_BaseDeDatos/ServerBaseDeDatos.R", local = T)
   
   
   # Seccion 04 - Control de RMedic
@@ -1184,12 +648,12 @@ function(input, output, session) {
     
   
       #tipo_variables_tablas
-      cat("variables_tablas: ",variables_tablas, "\n")
-      cat("tipo_variables_tablas: ", tipo_variables_tablas, "\n")
-      cat("numeros_tipo_variables_tablas: ", numeros_tipo_variables_tablas, "\n")
-      cat("caso_tablas: ", caso_tablas, "\n")
-      cat("eyes_tablas: ", eyes_tablas, "\n")
-      cat("zocalo_tablas: ", zocalo_tablas, "\n\n\n")
+      # cat("variables_tablas: ",variables_tablas, "\n")
+      # cat("tipo_variables_tablas: ", tipo_variables_tablas, "\n")
+      # cat("numeros_tipo_variables_tablas: ", numeros_tipo_variables_tablas, "\n")
+      # cat("caso_tablas: ", caso_tablas, "\n")
+      # cat("eyes_tablas: ", eyes_tablas, "\n")
+      # cat("zocalo_tablas: ", zocalo_tablas, "\n\n\n")
       
       my_exit <- list(ok_tablas, variables_tablas, tipo_variables_tablas, 
                       caso_tablas,
@@ -1202,22 +666,7 @@ function(input, output, session) {
       
     })
     
-    Base_Tablas <- reactive({
-      
-        if (Variables_Tablas()[[1]]) {
-      list(na.omit(BaseSalida()[[1]][Variables_Tablas()[[2]]]))
-      } else return(NULL)
-    })
-   
-   
-     
-    output$Base_Tablas <- renderTable({
-      
-      Base_Tablas()[[1]]
-      
-    })
-    
-    
+  
     output$zocalo_Tablas <- renderText({
       
       if (Variables_Tablas()[[1]]) {
@@ -1232,12 +681,6 @@ function(input, output, session) {
     })
     
     
-    armado <- Sys.time()
-    armado <- gsub("-" ,"_" , armado)
-    armado <- gsub(" " ,"__" , armado)
-    armado <- gsub(":" ,"_" , armado)
-    
-    armado 
     output$download_excel <- downloadHandler(
       filename = function() {
         paste0("RMedic - ", MyDate(), ".xlsx")
@@ -1302,7 +745,7 @@ function(input, output, session) {
         writeData(
           my_workbook,
           sheet = 1,
-          pack_tabla_1c_goku()[[1]],
+          Reactive_tabla_1c_RMedic()[[1]],
           startRow = 6,
           startCol = 1
         )
@@ -1319,7 +762,7 @@ function(input, output, session) {
         writeData(
           my_workbook,
           sheet = 1,
-          pack_tabla_1c_goku()[[2]],
+          Reactive_tabla_1c_RMedic()[[2]],
           startRow = 10,
           startCol = 1
         )
@@ -1338,7 +781,7 @@ function(input, output, session) {
         writeData(
           my_workbook,
           sheet = 1,
-          pack_tabla_1c_goku()[[3]],
+          Reactive_tabla_1c_RMedic()[[3]],
           startRow = 14,
           startCol = 1
         )
@@ -1357,7 +800,7 @@ function(input, output, session) {
         writeData(
           my_workbook,
           sheet = 1,
-          pack_tabla_1c_goku()[[4]],
+          Reactive_tabla_1c_RMedic()[[4]],
           startRow = 18,
           startCol = 1
         )
@@ -1395,166 +838,72 @@ function(input, output, session) {
       }
     )
     
-    # Tablas para 1 variable cualitativa - Reactiave()!
-    {
-    ### 
-  
-# observeEvent(input$decimales_control,{ 
-    tabla_1q_df_goku <- reactive({
-      if (Variables_Tablas()[[1]]) {
-        
-        
-    #    df01(BASE_goku(), decimales_goku())$df01$DF2
-        df01(Base_Tablas()[[1]], input$decimales_tablas)$df01$DF2
- 
-      } else return(NULL)
-    })
-# })
-
-
-    tabla_1q_df2_goku <- reactive({
-      if (Variables_Tablas()[[1]]) {
-        
-        
-      #  df01(BASE_goku(), decimales_goku())$df01$IC
-        df01(Base_Tablas()[[1]], input$decimales_tablas)$df01$IC
-      } else return(NULL)
-    })
-    
-    ###
-    }
-    ###########################################################
+    # Generacion de Tablas...
+    # # # q, c, qq, cc, qc...
+    # # # Objetos Reactivos y Outputs...
+    source("script/03_Tablas/TablasRMedic.R", local = T)
     
     
+     
     
-    # 1 Variable Cuantitativa
+    # 2 Variable Categoricas (QQ)
     {
       ###
       
-      pack_tabla_1c_goku <- reactive({
-        if (Variables_Tablas()[[1]]) {
+      pack_tabla_2q_df_RMedic <- reactive({
+        if (paso_BASE(Base_Tablas())) {
           
-          aver <- list()
           
-          # Medidas de Posicion
-          aver[[1]] <-  mp(Base_Tablas()[[1]], input$decimales_tablas)$mp$tabla1_mp
-          
-          # Medidas de Dispersion      
-          aver[[2]] <- md(Base_Tablas()[[1]], input$decimales_tablas)$md$tabla1_md
-          
-          # Percentiles
-          aver[[3]] <- percentiles(Base_Tablas()[[1]], input_busqueda = c(1, 5, 10, 25, 50, 75, 90, 95, 99), input$decimales_tablas)$percentiles$tabla_percentiles
-          
-          # Intervalos de Confianza para la media
-          aver[[4]] <- mp(Base_Tablas()[[1]], input$decimales_tablas)$mp$tabla3_mp
-          
-          return(aver)
+          df02(Base_Tablas()[[1]], input$decimales_tablas)$df02
           
         } else return(NULL)
       })
       ###
-    } # Fin Variable Categorica
+    } # Fin 2 Variable Categoricas (QQ)
     ################################################################################
     
     
+    # 2 Variable Cuantitativas - Objetos Reactivos
+    {
+      ###
+      
+      pack_tabla_2c_RMedic <- reactive({
+        if (paso_BASE(Base_Tablas())) {
+          
+          
+          MINIBASE <- Base_Tablas()[[1]]
+          estos_decimales <- input$decimales_tablas
+          
+          
+          salida <- list()
+          
+          # Medidas de Posicion simultaneas
+          salida[[1]] <-   mps(MINIBASE, estos_decimales)$mps$tabla1_mps
+          
+          # Medidas de Dispersion simultaneas
+          salida[[2]] <-   mds(MINIBASE, estos_decimales)$mds$tabla1_mds
+          
+          # Percentiles Simultaneos
+          salida[[3]] <-   percentiles2(MINIBASE, estos_decimales, input_busqueda = c(5, 10, 90, 95))$perc2$tabla_per2
+          
+          # Intervalos de confianza simultaneos
+          salida[[4]] <-   mps(MINIBASE, estos_decimales)$mps$tabla3_mps
+          
+          return(salida)
+          
+        } else return(NULL)
+      })
+      ###
+    } # Fin 2 Varaibles Cuantitativas - Objetos Reactivos
+    ################################################################################
     
   
-  #    output$tabla_1q_df_goku <- renderTable(digits=decimales_goku(), align= "c",{
-  observe(
-      output$tabla_1q_df_goku <- renderTable(digits = input$decimales_tablas,
-                                             align= "c",{
-        
-        if(!is.null(tabla_1q_df_goku())) {
-          tabla <- tabla_1q_df_goku()
-          tabla[,2] <- as.character(tabla[,2])
-          tabla[,3] <- as.character(tabla[,3])
-          tabla
-        } else return(NULL)
-      })
-  )
-    
-    observe(
-    output$tabla_1q_df2_ic90_goku <- renderTable(digits=input$decimales_tablas, 
-                                                 align= "c",{
 
-      if(!is.null(tabla_1q_df2_goku())) {
-        tabla_1q_df2_goku()[[1]]
-      } else return(NULL)
-    })
-    )
-    # 
-    # 
-    observe(
-      output$tabla_1q_df2_ic95_goku <- renderTable(digits=input$decimales_tablas,
-                                                   align= "c",{
 
-        if(!is.null(tabla_1q_df2_goku())) {
-          tabla_1q_df2_goku()[[2]]
-        } else return(NULL)
-      })
-    )
-    # 
-    # 
-    # 
-    observe(
-      output$tabla_1q_df2_ic99_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
 
-        if(!is.null(tabla_1q_df2_goku())) {
-          tabla_1q_df2_goku()[[3]]
-        } else return(NULL)
-      })
-    )
+   
     
-    
-    ##########
-    # 1 Variable Numerica (C)
-    {
-      observe( 
-        # Medidas de Posicion
-        output$tabla_1c_mp_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
-          
-          if(!is.null(pack_tabla_1c_goku())) {
-            pack_tabla_1c_goku()[[1]]
-          } else return(NULL)
-        })
-      )
-      
-      observe(
-        # Medidas de Dispersion
-        output$tabla_1c_md_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
-          
-          if(!is.null(pack_tabla_1c_goku())) {
-            pack_tabla_1c_goku()[[2]]
-          } else return(NULL)
-        })
-      )
-      
-      
-      # Percentiles
-      observe(
-        output$tabla_1c_cuant_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
-          
-          if(!is.null(pack_tabla_1c_goku())) {
-            pack_tabla_1c_goku()[[3]]
-          } else return(NULL)
-        })
-      )
-      
-      
-      # IC
-      observe( 
-        output$tabla_1c_ic_goku <- renderTable(digits=input$decimales_tablas, align= "c",{
-          
-          if(!is.null(pack_tabla_1c_goku())) {
-            pack_tabla_1c_goku()[[4]]
-          } else return(NULL)
-        })
-      )
-      
-    }
-    ################################################################################
-    
-    #######################
+   
     
     output$salida_TABLAS_RMedic <- renderUI ({
       
@@ -1567,14 +916,14 @@ function(input, output, session) {
         h3("Variables Seleccionadas"), 
         htmlOutput("zocalo_Tablas"),
         br(),
-        h3("Distribución de Frecuencias"),
-        uiOutput("tabla_1q_df_goku"), br(),
-        h3("Intervalos de Confianza del 90%"),
-        uiOutput("tabla_1q_df2_ic90_goku"), br(),
-        h3("Intervalos de Confianza del 95%"),
-        uiOutput("tabla_1q_df2_ic95_goku"), br(),
-        h3("Intervalos de Confianza del 99%"),
-        uiOutput("tabla_1q_df2_ic99_goku")
+        h3(Reactive_tabla_1q_RMedic()[[1]][[1]]),
+        tableOutput("Salida_tabla_1q_RMedic_01"), br(),
+        h3(Reactive_tabla_1q_RMedic()[[2]][[1]]),
+        tableOutput("Salida_tabla_1q_RMedic_02"), br(),
+        h3(Reactive_tabla_1q_RMedic()[[3]][[1]]),
+        tableOutput("Salida_tabla_1q_RMedic_03"), br(),
+        h3(Reactive_tabla_1q_RMedic()[[4]][[1]]),
+        tableOutput("Salida_tabla_1q_RMedic_04")
       )
         }  else 
           if (Variables_Tablas()[[4]] == 2) {
@@ -1593,14 +942,15 @@ function(input, output, session) {
                        )
                 ),             
               br(),
-              h3("Medidas de Posición"),
-              uiOutput("tabla_1c_mp_goku"), br(),
-              h3("Medidas de Dispersión"),
-              uiOutput("tabla_1c_md_goku"), br(),
-              h3("Percentiles"),
-              uiOutput("tabla_1c_cuant_goku"), br(),
-              h3("Intervalos de Confianza"),
-              uiOutput("tabla_1c_ic_goku")
+
+              h3(Reactive_tabla_1c_RMedic()[[1]][[1]]),
+              uiOutput("Salida_tabla_1c_RMedic_01"), br(),
+              h3(Reactive_tabla_1c_RMedic()[[2]][[1]]),
+              uiOutput("Salida_tabla_1c_RMedic_02"), br(),
+              h3(Reactive_tabla_1c_RMedic()[[3]][[1]]),
+              uiOutput("Salida_tabla_1c_RMedic_03"), br(),
+              h3(Reactive_tabla_1c_RMedic()[[4]][[1]]),
+              uiOutput("Salida_tabla_1c_RMedic_04"), br(),
             )
           }  else return(NULL)
         }  else return(NULL)
@@ -1797,6 +1147,19 @@ function(input, output, session) {
   ##################################
   
   
+  
+################
+  
+ # Cargamos el codigo Server de Planeta - Objetos Reactivos
+ source("script/ServerPlaneta.R", local = T) 
+  
+  
+  
+ 
+  
+  
+############################  
+  
   observe(output[["RMedicSoft"]] <- renderUI({
     
     # tabs1 <- menuBASE()
@@ -1818,4 +1181,7 @@ function(input, output, session) {
     
   }))
   
+  
+  # observe(cat(input$PanelRMedic, "\n"))
+  # observe(cat(input$AVER, "\n"))
 }
