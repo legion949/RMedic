@@ -3848,7 +3848,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     # Si hay algun problema...
     if (output_cadena == FALSE){
       minibase <- as.data.frame(mtcars[2])
-      minibase[1] <- as.factor(as.character(minibase[,1]))
+      if(!is.factor(minibase[1])) minibase[1] <- as.factor(as.character(minibase[,1]))
       colnames(minibase) <- "No Data"
       cat("Error df01: 'minibase' externo agregado (NO DATA)", "\n")
     } # Fin if si hay problemas
@@ -3867,7 +3867,8 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     # Si hay algun problema...
     if (output_cadena == FALSE){
       minibase <- as.data.frame(mtcars[2])
-      minibase[1] <- as.factor(as.character(minibase[,1]))
+      if(!is.factor(minibase[1])) minibase[1] <- as.factor(as.character(minibase[,1]))
+      
       colnames(minibase) <- "No Data"
       cat("Error df01: 'minibase' externo agregado (NO DATA)", "\n")
     } # Fin if si hay problemas
@@ -3886,9 +3887,12 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     if (output_cadena) {
       
       # Si cumple todo... Falta que sea de tipo factor.
-      minibase[1] <- as.factor(as.character(minibase[,1]))
+      if(!is.factor(minibase[,1])) minibase[,1] <- as.factor(as.character(minibase[,1]))
       
+      lvl1 <- sort(levels(input_base[,1]))
+      lvl2 <- sort(levels(minibase[,1]))
       
+      if(identical(lvl1, lvl2)) minibase[,1] <- factor(minibase[,1], levels = levels(input_base[,1]))
       
       
     } # Fin if Si todo va OK...
@@ -4086,11 +4090,15 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
 
 ########################
 
-RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
+RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL,
+                             input_min = NULL, input_max = NULL, input_breaks = NULL,
+                             input_side = NULL) {
   
   # Default values
   if (is.null(input_decimales)) input_decimales <- 2
   if (is.null(input_cadena)) input_cadena <- T
+  
+  
   
   # # # Control 1 - input_base
   {
@@ -4168,6 +4176,19 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   }
   ############################################################################
   
+  
+  # More default values
+  {
+    ###
+    
+    if(is.null(input_min))  input_min <- min(mini_vector) 
+    if(is.null(input_max))  input_max <- max(mini_vector)
+    if(is.null(input_breaks))  input_breaks <- nclass.Sturges(mini_vector)
+    if(is.null(input_side))  input_side <- T
+    
+    ###
+  } # Fin More default values
+  #################################################
   
   
   # Tabla 1 - Medidas Resumen
@@ -4410,17 +4431,47 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   #############################################################
   
   
+  
+  
+  # Tabla 8: Tabla de Frecuencias
+  {
+    ###
+    
+    diferencia <- input_max - input_min
+    rango <- diferencia/input_breaks
+    
+    cortes <- input_min + c(0:input_breaks)*rango
+    cortes
+    
+    info <- cut(mini_vector, breaks = cortes , right = input_side, 
+                include.lowest = T)  
+    
+    dim(info) <- c(length(info), 1)
+    info <- as.data.frame(info)
+    
+    tabla8 <- RMedic_1q_tablas(input_base = info, input_decimales = input_decimales)[[1]]
+    
+    # Pasamos la ultima fila como primera
+  #  if(input_side) tabla8 <- tabla8[c(nrow(tabla8), (1:(nrow(tabla8)-1))), ]
+    
+    ###  
+  } # Fin Tabla 8 Tabla de Frecuencias
+  ######################################################
+  
+  
   # Mis Tablas
   {
     ###
-    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7)
+    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7,
+                       tabla8)
     names(mis_tablas) <- c("Medidas Resumen", 
                            "Medidas de Posición",
                            "Medidas de Dispersión", 
                            "Cuartiles",
                            "Deciles",
                            "Percentiles",
-                           "Intervalo de Confianza (IC) para la media")
+                           "Intervalo de Confianza (IC) para la media",
+                           "Distribución de Frecuencias")
     
     ###    
   }
@@ -4477,7 +4528,6 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   
   
 }
-
 ##############
 CifrasPerfectas <- function(cifras = NULL, digitos = 2){
   
