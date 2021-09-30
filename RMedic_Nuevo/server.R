@@ -1225,7 +1225,7 @@ function(input, output, session) {
         if (Variables_Tablas()[[1]]) {
           
           
-         salida <-  RMedic_1q(Base_Planeta(), decimales_planeta())
+         salida <-  RMedic_1q_tablas(Base_Planeta(), decimales_planeta())
           salida[[1]][,2] <- as.character(salida[[1]][,2])
           salida[[1]][,3] <- as.character(salida[[1]][,3])
           
@@ -1234,20 +1234,7 @@ function(input, output, session) {
         } else return(NULL)
       })
       
-      
-      # observe({
-      # lapply(1:length(Reactive_tabla_1q_RMedic()), function(i) {
-      #   outputId <- paste0("prueba", i)
-      #   output[[outputId]] <- renderText(i)
-      # })
-      # })
-      
-      # observe(
-      #   if (Variables_Tablas()[[1]]) {
-      #  cantidad <- length(Reactive_tabla_1q_RMedic()) 
-      #   } else return(NULL)
-      # )
-      
+   
     observe(
         output$Salida_tabla_1q_RMedic_01 <- renderTable(digits = decimales_planeta(),
                                                         align= "c",{
@@ -1336,37 +1323,9 @@ function(input, output, session) {
       Reactive_tabla_1c_RMedic <- reactive({
         if (Variables_Tablas()[[1]]) {
           
-          aver <- list()
           
-          # Medidas Resumen
-          aver[[1]] <-  list("Medidas Resumen", 
-                             mp(Base_Planeta(), decimales_planeta())$mp$tabla1_mp
-          )
-          
-          # Medidas de Posicion
-          aver[[2]] <-  list("Medidas de Posición", 
-                             mp(Base_Planeta(), decimales_planeta())$mp$tabla1_mp
-          )
-          
-          # Medidas de Dispersion      
-          aver[[3]] <- list("Medidas de Dispersión",
-                            md(Base_Planeta(), decimales_planeta())$md$tabla1_md
-          )
-          
-          # Percentiles
-          aver[[4]] <- list("Percentiles", 
-                            percentiles(Base_Planeta(), 
-                                        input_busqueda = c(1, 5, 10, 25, 50, 75, 90, 95, 99), 
-                                        input$decimales_tablas)$percentiles$tabla_percentiles
-          )
-          
-          # Intervalos de Confianza para la media
-          aver[[5]] <- list("Intervalos de Confianza para la media",
-                            mp(Base_Planeta(), decimales_planeta())$mp$tabla3_mp
-          )
-          
-          return(aver)
-          
+          RMedic_1c_tablas(Base_Planeta(), decimales_planeta())
+            
         } else return(NULL)
       })
       
@@ -1378,7 +1337,7 @@ function(input, output, session) {
           output$Salida_tabla_1c_RMedic_01 <- renderTable(digits=decimales_planeta(), align= "c",{
             
             if(!is.null(Reactive_tabla_1c_RMedic())) {
-              Reactive_tabla_1c_RMedic()[[1]][[2]]
+              Reactive_tabla_1c_RMedic()[[1]]
             } else return(NULL)
           })
         )
@@ -1390,7 +1349,7 @@ function(input, output, session) {
           output$Salida_tabla_1c_RMedic_02 <- renderTable(digits=decimales_planeta(), align= "c",{
             
             if(!is.null(Reactive_tabla_1c_RMedic())) {
-              Reactive_tabla_1c_RMedic()[[2]][[2]]
+              Reactive_tabla_1c_RMedic()[[2]]
             } else return(NULL)
           })
         )
@@ -1400,7 +1359,7 @@ function(input, output, session) {
           output$Salida_tabla_1c_RMedic_03 <- renderTable(digits=decimales_planeta(), align= "c",{
             
             if(!is.null(Reactive_tabla_1c_RMedic())) {
-              Reactive_tabla_1c_RMedic()[[3]][[2]]
+              Reactive_tabla_1c_RMedic()[[3]]
             } else return(NULL)
           })
         )
@@ -1411,7 +1370,7 @@ function(input, output, session) {
           output$Salida_tabla_1c_RMedic_04 <- renderTable(digits=decimales_planeta(), align= "c",{
             
             if(!is.null(Reactive_tabla_1c_RMedic())) {
-              Reactive_tabla_1c_RMedic()[[4]][[2]]
+              Reactive_tabla_1c_RMedic()[[4]]
             } else return(NULL)
           })
         )
@@ -1428,9 +1387,56 @@ function(input, output, session) {
         )
         
       
-      
+        # IC
+        observe( 
+          output$Salida_tabla_1c_RMedic_06 <- renderTable(digits= decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[6]]
+            } else return(NULL)
+          })
+        )
         
   
+        # IC
+        observe( 
+          output$Salida_tabla_1c_RMedic_07 <- renderTable(digits= decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[7]]
+            } else return(NULL)
+          })
+        )
+        
+        
+        
+        output$MegaSalida_tabla_1c_RMedic <- renderUI ({
+          
+          if(!is.null(Reactive_tabla_1c_RMedic())) {
+            
+            div(
+              
+              lapply(1:length(Reactive_tabla_1c_RMedic()), function(i) {
+                nombre_fusion <- paste0('Salida_tabla_1c_RMedic_', CifrasPerfectas(i)) 
+                div(
+                  h3(names(Reactive_tabla_1c_RMedic())[i]),
+                  tableOutput(nombre_fusion), br()
+                )
+              })
+              
+              # h3(names(Reactive_tabla_1q_RMedic())[1]),
+              # tableOutput("Salida_tabla_1q_RMedic_01"), br(),
+              # h3(names(Reactive_tabla_1q_RMedic())[2]),
+              # tableOutput("Salida_tabla_1q_RMedic_02"), br(),
+              # h3(names(Reactive_tabla_1q_RMedic())[3]),
+              # tableOutput("Salida_tabla_1q_RMedic_03"), br(),
+              # h3(names(Reactive_tabla_1q_RMedic())[4]),
+              # tableOutput("Salida_tabla_1q_RMedic_04")
+            )
+            
+          } else return(NULL)
+        })
+        
         
       ###
     } # Fin Tablas para 1 variable categorica (c) - Reactiave()!
@@ -2210,15 +2216,7 @@ function(input, output, session) {
                        )
                 ),             
               br(),
-
-              h3(Reactive_tabla_1c_RMedic()[[1]][[1]]),
-              uiOutput("Salida_tabla_1c_RMedic_01"), br(),
-              h3(Reactive_tabla_1c_RMedic()[[2]][[1]]),
-              uiOutput("Salida_tabla_1c_RMedic_02"), br(),
-              h3(Reactive_tabla_1c_RMedic()[[3]][[1]]),
-              uiOutput("Salida_tabla_1c_RMedic_03"), br(),
-              h3(Reactive_tabla_1c_RMedic()[[4]][[1]]),
-              uiOutput("Salida_tabla_1c_RMedic_04"), br()
+              uiOutput("MegaSalida_tabla_1c_RMedic")
             )
           }  else 
             if(Variables_Tablas()[[4]] == 3) { 

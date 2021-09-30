@@ -3800,7 +3800,7 @@ percentiles3 <- function(input_base = NULL, input_busqueda = NULL, input_decimal
 ################
 
 
-RMedic_1q <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
+RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
   
   # Default values
   if (is.null(input_decimales)) input_decimales <- 2
@@ -3939,7 +3939,7 @@ RMedic_1q <- function(input_base = NULL, input_decimales = NULL, input_cadena = 
     
     rotulo <- paste0("Variable: ", colnames(minibase))
     tabla01 <- as.data.frame(tabla01)
-    nombres_tabla01 <- c(rotulo, "FA", "Total", "Cociente", "FR", "%", "%(FA)")
+    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
     colnames(tabla01) <- nombres_tabla01
     
     numericas <- c(2, 3, 5)
@@ -4086,7 +4086,399 @@ RMedic_1q <- function(input_base = NULL, input_decimales = NULL, input_cadena = 
 
 ########################
 
+RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) {
+  
+  # Default values
+  if (is.null(input_decimales)) input_decimales <- 2
+  if (is.null(input_cadena)) input_cadena <- T
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    # 1- Es nulo
+    # 2- No es un data.frame
+    # 3- Tiene cero columnas
+    # 4- Tienes más de 1 columna
+    # 5- No tiene filas (nrow(input_base))
+    
+    veredicto1 <- control_1c(input_base = input_base, input_cadena = input_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  
+  # # # minibase y Control 2 -  base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "minibase"  
+      minibase <- na.omit(input_base)
+      mini_vector <- minibase[,1]
+      
+      # Vemos que minibase tenga filas
+      if (nrow(minibase) == 0) {
+        cat("Error df01: 'input_base' posee solo celdas vacias.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      # minibase sea numerica
+      if (!is.numeric(minibase[,1])) {
+        cat("Error df01: 'input_base' debe ser numerico.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      
+    } # Fin if Si todo va OK...
+    ###################################################
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase <- as.data.frame(mtcars[1])
+      colnames(minibase) <- "No Data"
+      cat("Error df01: 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    
+    ### 
+  } # Fin Control 2 -  base "NO DATA"
+  ################################################################
+  
+  
+  # # # SandBox en caso de no ser valido
+  {
+    ###
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase <- as.data.frame(mtcars[2])
+      minibase[1] <- as.factor(as.character(minibase[,1]))
+      colnames(minibase) <- "No Data"
+      cat("Error df01: 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    ###  
+  }
+  ############################################################################
+  
+  
+  
+  # Tabla 1 - Medidas Resumen
+  {
+    ###
+    
+    nombres_elementos <- c("Variable", "Media", "Desvío Estándard", "n")
+    tabla1 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+    colnames(tabla1) <- nombres_elementos
+    
+    
+    # Media
+    media <- mean(mini_vector)
+    media <- round2(media, input_decimales)
+    
+    # Maximo
+    desvio <- sd(mini_vector)
+    desvio <- round2(desvio, input_decimales)
+    
+    # Cantidad de Datos
+    n_muestra <- length(mini_vector)
+    
+    
+    tabla1[1,1] <- colnames(minibase)
+    tabla1[1,2] <- media
+    tabla1[1,3] <- desvio
+    tabla1[1,4] <- n_muestra
+    
+    ###
+  } # Fin Tabla 1 - Medidas Resumen
+  ############################################################
+  
+  
+  # Tabla 2 - Medidas Posicion
+  {
+    ###
+    
+    
+    nombres_elementos <- c("Variable", "Mínimo", "Media", "Mediana", "Máximo", "n")
+    tabla2 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+    colnames(tabla2) <- nombres_elementos
+    
+    
+    
+    minimo <- min(mini_vector)
+    minimo <- round2(minimo, input_decimales)
+    
+    # Media
+    media <- mean(mini_vector)
+    media <- round2(media, input_decimales)
+    
+    # Mediana
+    mediana <- median(mini_vector)
+    mediana <- round2(mediana, input_decimales)
+    
+    
+    # Maximo
+    maximo <- max(mini_vector)
+    maximo <- round2(maximo, input_decimales)
+    
+    # Cantidad de Datos
+    n_muestra <- length(mini_vector)
+    
+    
+    tabla2[1,1] <- colnames(minibase)
+    tabla2[1,2] <- minimo
+    tabla2[1,3] <- media
+    tabla2[1,4] <- mediana
+    tabla2[1,5] <- maximo
+    tabla2[1,6] <- n_muestra
+    
+    ###
+  } # Fin Tabla 2 - Medidas Posicion
+  ############################################################
+  
+  
+  # Tabla 3 - Medidas Dispersion 
+  {
+    ###
+    
+    
+    nombres_elementos <- c("Variable", "Varianza", "Desvío Estándard", "Error Estándard", "Coeficiente de Variación", "n")
+    
+    tabla3 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+    colnames(tabla3) <- nombres_elementos
+    
+    
+    # Varianza
+    varianza <- var(mini_vector)
+    varianza <- round2(varianza, input_decimales)
+    
+    # Desvio
+    desvio <- sd(mini_vector)
+    
+    # Tamanio muestral
+    n_muestra <- length(mini_vector)
+    
+    # Error estandard
+    ee <- desvio/sqrt(n_muestra)
+    
+    # Media
+    media <- mean(mini_vector)
+    
+    # Coeficiente de Variacion
+    cv <- desvio/media
+    
+    
+    # Primero sacamos el desvio...
+    # Sin redondear el desvio, lo usamos para sacar el error estandard...
+    # Y luego redondeamos los dos.
+    # Esto es para sacar mejor al EE... por que sino sacas el DE... lo redondeas...
+    # lo usas para sacar el EE y lo volves a redondear.
+    # Lo mismo con el CV.
+    
+    desvio <- round2(desvio, input_decimales)
+    ee <- round2(ee, input_decimales)
+    cv <- round2(cv, input_decimales)
+    
+    
+    
+    tabla3[,1] <- colnames(minibase)
+    tabla3[,2] <- varianza
+    tabla3[,3] <- desvio
+    tabla3[,4] <- ee
+    tabla3[,5] <- cv
+    tabla3[,6] <- n_muestra
+    
+    ###
+  } # Fin Tabla 3 - Medidas Dispersion 
+  ############################################################
+  
+  
+  
+  # Tabla 4 - Cuartiles
+  {
+    
+    input_busqueda = c(25, 50, 75)
+    nombres_columnas <- c("Variable", paste0(c("Q1", "Q2", "Q3"), 
+                                             paste0("(", input_busqueda, "%", ")")), "n")
+    
+    tabla4 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla4) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla4[1,1] <- colnames(minibase)
+    tabla4[1, c(2:(ncol(tabla4)-1))] <- percentiles
+    tabla4[1,ncol(tabla4)] <- nrow(minibase)
+    
+  } # End Tabla 4 - Cuartiles
+  ###########################################################
+  
+  
+  # Tabla 5 - Deciles
+  {
+    
+    input_busqueda <- c(10, 20, 30, 40, 50, 60, 70, 80, 90)
+    nombres_columnas <- c("Variable", paste0( "D",input_busqueda, " (", input_busqueda, "%)"), "n")
+    
+    tabla5 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla5) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla5[1,1] <- colnames(minibase)
+    tabla5[1, c(2:(ncol(tabla5)-1))] <- percentiles
+    tabla5[1,ncol(tabla5)] <- nrow(minibase)
+    
+  } # End Tabla 5 - Deciles
+  ###########################################################
+  
+  
+  # Tabla 6 - Percentiles
+  {
+    
+    input_busqueda <- c(1, 5, 10, 25, 50, 75, 90, 95, 99)
+    nombres_columnas <- c("Variable", paste0( "P",input_busqueda, " (", input_busqueda, "%)"), "n")
+    
+    tabla6 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla6) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla6[1,1] <- colnames(minibase)
+    tabla6[1, c(2:(ncol(tabla6)-1))] <- percentiles
+    tabla6[1,ncol(tabla6)] <- nrow(minibase)
+    
+  } # End Tabla 6 - Percentiles
+  ###########################################################
+  
+  
+  
+  
+  # Tabla 7: Intervalos de Confianza
+  {
+    ###
+    
+    
+    alfa <- c(0.10, 0.05, 0.01)
+    nombres_columnas <- c("Variable", "Media", "Confianza", "Límite Inferior IC", "Límite Superior IC", "n")
+    tabla7 <- as.data.frame(matrix(NA, length(alfa), length(nombres_columnas)))
+    colnames(tabla7) <- nombres_columnas
+    
+    for (n in 1:nrow(tabla7)) {
+      
+      este_alfa <- alfa[n]
+      este_alfa_2 <- este_alfa/2
+      gl <- n_muestra - 1
+      
+      
+      desvio <- sd(mini_vector)
+      desvio <- round2(desvio, input_decimales)
+      
+      t_li <- qt(este_alfa_2, df = gl, lower.tail = TRUE)
+      t_ld <- qt((1-este_alfa_2), df = gl, lower.tail = TRUE)
+      
+      brazo <- t_ld*(desvio/sqrt(n_muestra))
+      brazo <- round2(brazo, input_decimales)
+      
+      media_li <- media - brazo
+      media_ld <- media + brazo
+      
+      tabla7[n, 1] <- colnames(input_base)
+      tabla7[n, 2] <- media
+      tabla7[n, 3] <- paste0((1-este_alfa)*100, "%")
+      tabla7[n, 4] <- media_li
+      tabla7[n, 5] <- media_ld
+      tabla7[n, 6] <- n_muestra
+      
+    } # Fin for n
+    
+    
+    
+    
+    
+    
+    
+    ###  
+  } # Fin Tabla 7
+  #############################################################
+  
+  
+  # Mis Tablas
+  {
+    ###
+    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7)
+    names(mis_tablas) <- c("Medidas Resumen", 
+                           "Medidas de Posición",
+                           "Medidas de Dispersión", 
+                           "Cuartiles",
+                           "Deciles",
+                           "Percentiles",
+                           "Intervalo de Confianza (IC) para la media")
+    
+    ###    
+  }
+  ##########################################################################
+  
+  
+  
+  
+  
+  
+  # # # Cambios "NO DATA" o "Errores"
+  {
+    ###
+    
+    
+    # Si hay errores... Y estamos en "NO DATA"
+    if (output_cadena == FALSE) {
+      
+      
+      # Cambiamos los valores por avisos
+      for (n in 1:length(mis_tablas)) {
+        
+        esta_tabla <- mis_tablas[[n]]
+        estas_dimensiones <- dim(esta_tabla)
+        tabla_no_data <- as.data.frame(matrix("Sin datos", estas_dimensiones[1], estas_dimensiones[2]))
+        colnames(tabla_no_data) <- colnames(esta_tabla)
+        esta_tabla <- tabla_no_data
+        
+        mis_tablas[[n]]  <- esta_tabla
+        
+      } # Fin for n
+      
+    } # Fin if si hay errores...
+    #############################################################
+    
+    
+    ###   
+  } # Fin Cambios "NO DATA" o "Errores"
+  ##################################################
+  
+  
+  
+  # # # Salida
+  {
+    ###
+    
+    return(mis_tablas)
+    
+    
+    ###  
+  } # Fin Salida
+  ##################
+  
+  
+  
+}
 
+##############
 CifrasPerfectas <- function(cifras = NULL, digitos = 2){
   
   cifras_perfectas <- rep(NA, length(cifras))
