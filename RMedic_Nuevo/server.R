@@ -474,7 +474,379 @@ function(input, output, session) {
   
   
   # Seccion 03 - Base de Datos
-  source("script/01_BaseDeDatos/ServerBaseDeDatos.R", local = T)
+  # source("script/01_BaseDeDatos/ServerBaseDeDatos.R", local = T)
+  # Seccion 03 - Base de Datos
+  {
+    ###
+    
+    MyFileName <- reactive({
+      
+      
+      
+      if(!is.null(input$FileTypePicker)){
+        
+        if(!is.null(Control01())) {
+          if(Control01()[[1]]) {
+            
+            if(input$FileTypePicker == "Excel") { 
+              
+              if (!is.null(input$xls_file)) my_file <- input$xls_file[[1]] else return(NULL)
+              
+              
+            } else 
+              if(input$FileTypePicker == "CSV") { 
+                
+                if (!is.null(input$csv_file)) my_file <- input$csv_file[[1]] else return(NULL)
+                
+                
+              } else 
+                if(input$FileTypePicker == "Ejemplos") { 
+                  
+                  
+                  if (!is.null(input$ejemplo_file)) my_file <- input$ejemplo_file else return(NULL)
+                  
+                  
+                } else return(NULL)
+            
+            
+            # Return of the king...
+            return(my_file)
+            
+          } else return(NULL)  
+        } else return(NULL)
+      } else return(NULL)
+      
+      
+      
+    })
+    
+    
+    # Carga de la Toda la base de datos
+    Base01 <- reactive({
+      
+      if(!is.null(input$FileTypePicker)){
+        
+        if(!is.null(Control01())) {
+          if(Control01()[[1]]) {
+            
+            if(input$FileTypePicker == "Excel") { 
+              
+              if (!is.null(input$xls_file)) {
+                
+                # Detalles varios...
+                inFile <- input$xls_file
+                
+                # La direccion del archivo...
+                temporal_file <- inFile$datapath
+                
+                # cat("inFile: ", inFile, "\n" )
+                # cat("archivo: ", archivo, "\n" )
+                # cat("archivo2: ", input$xls_file[[1]], "\n" )
+                # cat("temporal_file: ", temporal_file, "\n" )
+                
+                # 1) DataSet
+                library(readxl)
+                DataSet <- as.data.frame(read_excel(temporal_file, col_names= TRUE, sheet = 1, trim_ws = FALSE))
+                
+              } else return(NULL)
+              
+            } else
+              if(input$FileTypePicker == "CSV") { 
+                
+                if (!is.null(input$csv_file)) {
+                  
+                  # Detalles varios de direccion
+                  inFile <- input$csv_file
+                  
+                  # La carga de datos formato CSV
+                  DataSet <- read.csv(inFile$datapath, header=input$header, sep=input$sep, dec=input$dec, quote=input$quote)
+                  
+                } else return(NULL)
+                
+              } else 
+                if(input$FileTypePicker == "Ejemplos") { 
+                  
+                  
+                  if (!is.null(input$ejemplo_file)) {
+                    
+                    
+                    # cat("ejemplo_file: ", input$ejemplo_file, "\n")
+                    # La carga de datos formato CSV
+                    DataSet <- eval(parse(text = input$ejemplo_file))
+                    
+                  }  else return(NULL)
+                }  else return(NULL)
+            
+            # Salida
+            my_exit <- list(DataSet)
+            return(my_exit)
+            
+          } else return(NULL)
+          
+        } else return(NULL)
+        
+      } else return(NULL)
+      
+      
+    })
+    
+    Base02 <- reactive({
+      
+      if(!is.null(Base01())){
+        
+        if(!is.null(Control02())){
+          
+          if(!is.null(Control03())){
+            
+            mi_filtro <- Base01()[[1]][,input$cie_columna]
+            dt_filtro <- mi_filtro == input$cie_categoria
+            base2 <- Base01()[[1]][dt_filtro, ]
+            
+            my_exit <- list(base2)
+            return(my_exit)
+            
+          } else return(NULL)
+          
+        } else return(NULL)
+      } else return(NULL)   
+      
+      
+      
+    })
+    
+    
+    BaseSalida <- reactive({
+      
+      if (!is.null(Base01())) {
+        
+        if(input$cie_especificaciones == 1) Base01() else
+          if((input$cie_especificaciones == 2) && (!is.null(Base02()))) Base02()
+        
+      } else return(NULL)    
+    })
+    
+  
+    
+    
+    output$TextBase_Alert01 <- renderText({
+      if (!is.null(Control01())) {
+        # Tab01_Base()[[3]]
+        Control01()[[2]]
+        #  "AVER"
+      } else return(NULL)
+    })
+    
+    
+    output$TextBase_Alert02 <- renderText({
+      if (!is.null(Control02())) {
+        # Tab01_Base()[[3]]
+        Control02()[[2]]
+        #  "AVER"
+      } else return(NULL)
+    })
+    
+    output$TextBase_Alert03 <- renderText({
+      if (!is.null(Control03())) {
+        # Tab01_Base()[[3]]
+        Control03()[[2]]
+        #  "AVER"
+      } else return(NULL)
+    })
+    
+    output$TextBase_Alert04 <- renderText({
+      if (!is.null(Control04())) {
+        
+        Control04()[[2]]
+        
+      } else return(NULL)
+    })
+    
+    output$TextBase_Alert05 <- renderText({
+      if (!is.null(Control05())) {
+        
+        Control05()[[2]]
+        
+      } else return(NULL)
+    })
+    
+    
+    output$TextBase_InfoDataSet <- renderUI({
+      
+      texto_salida <- c()
+      
+      if (!is.null(Base01())) {
+        if(RMedic_general()){
+          
+          
+          texto_completo01 <- c("<b>Base:</b> _mi_archivo_ <br/>
+                           <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
+                           <b>Unidades (Filas o repeticiones):</b> _nrowBase01_ unidades.<br/>")
+          
+          texto_salida <- texto_completo01
+          
+          
+          
+          if (!is.null(Base02()) && !is.null(input$cie_categoria)) {
+            
+            texto_completo02 <- c("
+                            <b>Base:</b> _mi_archivo_ <br/>
+                            <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
+                            <b>Unidades totales (Filas totales o repeticiones totales):</b> _nrowBase01_ unidades.<br/>
+                            <br/>
+                            <b>Criterio de Inclusión Estadístico (CIE):</b> _mi_CIE_.<br/>
+                            <b>Categoría de Inclusión:</b> la categoría seleccionada es '_mi_categoria_'.<br/>
+                            <b>Unidades seleccionadas (Filas seleccionadas o repeticiones seleccionadas):</b> _nrowBase02_ de _nrowBase01_ unidades.<br/>
+                              ")
+            
+            agregado01 <- c("
+                        <b>Nota Importante:</b> aplicando el criterio de inclusión estadístico sobre las
+                        _nrowBase01_ unidades totales son seleccionadas e ingresan efectivamente a
+                        tablas, gráficos y test estadístisticos solo _nrowBase02_ unidades. Estas _nrowBase02_ unidades
+                        presentan la categoría '_mi_categoria_' en el CIE _mi_CIE_.
+                        ")
+            
+            agregado02 <- c("
+                        <b>Nota Importante:</b> Todas las unidades responden a la misma
+                        categoría de inclusión. Trabajar con este criterio de inclusión
+                        o directamente con el total de la base de datos, es lo mismo.
+                        ")
+            
+            texto_salida <- texto_completo02
+            
+            if(nrow(Base01()[[1]]) != nrow(Base02()[[1]])) texto_salida <- paste0(texto_salida, "<br/>", agregado01) else texto_salida <- paste0(texto_salida, "<br/>", agregado02)
+            
+            
+            
+            dt_col <- colnames(Base02()[[1]]) == input$cie_columna
+            #   cat(input$cie_categoria, "\n")
+            #   cat(dt_col, "\n")
+            orden_col <- c(1:length(dt_col))[dt_col]
+            armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
+                             num2let(orden_col), "'")
+            
+            #  armado <- "AVERRERRRRR"
+            texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
+            
+            texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
+            texto_salida <- gsub("_nrowBase02_", nrow(Base02()[[1]]), texto_salida)
+            
+          }
+          
+          #  HTML(paste(t1, t2, sep = '<br/>'))
+          
+          
+          texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
+          texto_salida <- gsub("_ncolBase01_", ncol(Base01()[[1]]),texto_salida)
+          texto_salida <- gsub("_nrowBase01_", nrow(Base01()[[1]]),texto_salida)
+          
+          mi_salida <- HTML(texto_salida)
+          mi_salida
+        } else return(NULL)
+      } else return(NULL)
+    })
+    
+    
+    output$TextBase_Intro <- renderText({
+      if (!is.null(Base01())) {
+        if(RMedic_general()){
+          "Visualización de la Base de Datos"
+        } else return(NULL)
+      } else return(NULL)
+    })
+    
+    
+    
+    output$BASE_SALIDA <- renderDataTable({
+      
+      if (status_BaseSalida()) {
+        
+        #cat("RMedic_general(): ", RMedic_general(), "\n")
+        if(RMedic_general()){
+          
+          
+          
+          #   rownames(mi_base) <- rep("", nrow(mi_base))
+          # mi_base
+          #  cantidad_columnas <-  ncol(Tab01_Base()[[2]][3])
+          # cantidad_columnas <-  ncol(mi_base)
+          # 
+          # sketch = htmltools::withTags(table(
+          #   class = 'display',
+          #   thead(
+          #     tr(
+          #        lapply(num2let(c(1:(cantidad_columnas)), th, colspan = 1)
+          #      ),
+          #      tr(
+          #        lapply(c(colnames(mi_base)), th)
+          #      )
+          #    )
+          #  )
+          # ))
+          
+          
+          
+          #container = sketch,
+          datatable(BaseSalida()[[1]], rownames = F,  options = list(
+            initComplete = JS(
+              "function(settings, json) {",
+              "$(this.api().table().header()).css({'background-color': '#fff', 'color': '#000'});",
+              "}"), language = list(
+                search = "Búsqueda:",
+                lengthMenu = "Mostrar _MENU_ registros",
+                info = "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+                infoFiltered = "(filtrados de un total de _MAX_ registros)",
+                paginate = list(previous =    "Anterior", `next` = "Siguiente")
+              )
+          ))
+          
+          
+          # sketch = htmltools::withTags(table(
+          #   tableHeader(iris),
+          #   tableFooter(iris)
+          # ))
+          # datatable(
+          #   head(iris, 10),
+          #   container = sketch, options = list(pageLength = 5, dom = 'tip'), rownames = FALSE
+          # )
+        } else return(NULL)
+      } else return(NULL)
+    })
+    
+    
+    menuBASE <- reactive({
+      
+      
+      tabs <- list()
+      
+      tabs[[1]] <-    tabPanel(title = "Base de Datos", 
+                               icon = icon("user-md"), 
+                               value = 1,
+                               br(),
+                               fluidRow(
+                                 #   column(4, OpcionesDeCarga),
+                                 column(8, 
+                                        h3(textOutput("TextBase_Alert01")), 
+                                        h3(textOutput("TextBase_Alert02")), 
+                                        h3(textOutput("TextBase_Alert03")),
+                                        h3(textOutput("TextBase_Alert04")),
+                                        h3(htmlOutput("TextBase_Alert05")),
+                                        htmlOutput("TextBase_InfoDataSet"), br(),
+                                        h3(textOutput("TextBase_Intro")),
+                                        dataTableOutput('BASE_SALIDA')
+                                 ),
+                                 
+                               ),
+                               br(), br()
+      )
+      
+      tabs
+      
+    })
+    
+    ###
+  } # End Seccion 03
+  #############################################
+  
   
   
   # Seccion 04 - Control de RMedic
@@ -841,7 +1213,229 @@ function(input, output, session) {
     # Generacion de Tablas...
     # # # q, c, qq, cc, qc...
     # # # Objetos Reactivos y Outputs...
-    source("script/03_Tablas/TablasRMedic.R", local = T)
+    # source("script/03_Tablas/TablasRMedic.R", local = T)
+    
+    
+    # Tablas para 1 variable numerica (c) - Reactiave()!
+    {
+      ### 
+      
+      
+      Reactive_tabla_1q_RMedic <- reactive({
+        if (Variables_Tablas()[[1]]) {
+          
+          
+         salida <-  RMedic_1q(Base_Planeta(), decimales_planeta())
+          salida[[1]][,2] <- as.character(salida[[1]][,2])
+          salida[[1]][,3] <- as.character(salida[[1]][,3])
+          
+          salida
+          
+        } else return(NULL)
+      })
+      
+      
+      # observe({
+      # lapply(1:length(Reactive_tabla_1q_RMedic()), function(i) {
+      #   outputId <- paste0("prueba", i)
+      #   output[[outputId]] <- renderText(i)
+      # })
+      # })
+      
+      # observe(
+      #   if (Variables_Tablas()[[1]]) {
+      #  cantidad <- length(Reactive_tabla_1q_RMedic()) 
+      #   } else return(NULL)
+      # )
+      
+    observe(
+        output$Salida_tabla_1q_RMedic_01 <- renderTable(digits = decimales_planeta(),
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                           # Reactive_tabla_1q_RMedic()[[1]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[1]]
+                                                            
+                                                          } else return(NULL)
+                                                        })
+      )
+      
+      observe(
+        output$Salida_tabla_1q_RMedic_02 <- renderTable(digits=decimales_planeta(), 
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                            # Reactive_tabla_1q_RMedic()[[2]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[2]]
+                                                          } else return(NULL)
+                                                        })
+      )
+      # 
+      # 
+      observe(
+        output$Salida_tabla_1q_RMedic_03 <- renderTable(digits=decimales_planeta(),
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                            # Reactive_tabla_1q_RMedic()[[3]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[3]]
+                                                          } else return(NULL)
+                                                        })
+      )
+      # 
+      # 
+      # 
+      observe(
+        output$Salida_tabla_1q_RMedic_04 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_1q_RMedic())) {
+           #  Reactive_tabla_1q_RMedic()[[4]][[2]]
+            Reactive_tabla_1q_RMedic()[[4]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      output$MegaSalida_tabla_1q_RMedic <- renderUI ({
+        
+        if(!is.null(Reactive_tabla_1q_RMedic())) {
+          
+          div(
+            
+            lapply(1:length(Reactive_tabla_1q_RMedic()), function(i) {
+              nombre_fusion <- paste0('Salida_tabla_1q_RMedic_', CifrasPerfectas(i)) 
+              div(
+                h3(names(Reactive_tabla_1q_RMedic())[i]),
+                tableOutput(nombre_fusion), br()
+              )
+            })
+            
+            # h3(names(Reactive_tabla_1q_RMedic())[1]),
+            # tableOutput("Salida_tabla_1q_RMedic_01"), br(),
+            # h3(names(Reactive_tabla_1q_RMedic())[2]),
+            # tableOutput("Salida_tabla_1q_RMedic_02"), br(),
+            # h3(names(Reactive_tabla_1q_RMedic())[3]),
+            # tableOutput("Salida_tabla_1q_RMedic_03"), br(),
+            # h3(names(Reactive_tabla_1q_RMedic())[4]),
+            # tableOutput("Salida_tabla_1q_RMedic_04")
+          )
+          
+        } else return(NULL)
+      })
+      
+      
+      ###
+    } # End Tablas para 1 variable numerica (q) - Reactiave()!
+    ###########################################################
+    
+    
+    # Tablas para 1 variable categorica (c) - Reactiave()!
+    {
+      ###
+      
+      Reactive_tabla_1c_RMedic <- reactive({
+        if (Variables_Tablas()[[1]]) {
+          
+          aver <- list()
+          
+          # Medidas Resumen
+          aver[[1]] <-  list("Medidas Resumen", 
+                             mp(Base_Planeta(), decimales_planeta())$mp$tabla1_mp
+          )
+          
+          # Medidas de Posicion
+          aver[[2]] <-  list("Medidas de Posición", 
+                             mp(Base_Planeta(), decimales_planeta())$mp$tabla1_mp
+          )
+          
+          # Medidas de Dispersion      
+          aver[[3]] <- list("Medidas de Dispersión",
+                            md(Base_Planeta(), decimales_planeta())$md$tabla1_md
+          )
+          
+          # Percentiles
+          aver[[4]] <- list("Percentiles", 
+                            percentiles(Base_Planeta(), 
+                                        input_busqueda = c(1, 5, 10, 25, 50, 75, 90, 95, 99), 
+                                        input$decimales_tablas)$percentiles$tabla_percentiles
+          )
+          
+          # Intervalos de Confianza para la media
+          aver[[5]] <- list("Intervalos de Confianza para la media",
+                            mp(Base_Planeta(), decimales_planeta())$mp$tabla3_mp
+          )
+          
+          return(aver)
+          
+        } else return(NULL)
+      })
+      
+
+
+        
+        observe( 
+          # Medidas de Posicion
+          output$Salida_tabla_1c_RMedic_01 <- renderTable(digits=decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[1]][[2]]
+            } else return(NULL)
+          })
+        )
+        
+        
+        
+        observe( 
+          # Medidas de Posicion
+          output$Salida_tabla_1c_RMedic_02 <- renderTable(digits=decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[2]][[2]]
+            } else return(NULL)
+          })
+        )
+        
+        observe(
+          # Medidas de Dispersion
+          output$Salida_tabla_1c_RMedic_03 <- renderTable(digits=decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[3]][[2]]
+            } else return(NULL)
+          })
+        )
+        
+        
+        # Percentiles
+        observe(
+          output$Salida_tabla_1c_RMedic_04 <- renderTable(digits=decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[4]][[2]]
+            } else return(NULL)
+          })
+        )
+        
+        
+        # IC
+        observe( 
+          output$Salida_tabla_1c_RMedic_05 <- renderTable(digits= decimales_planeta(), align= "c",{
+            
+            if(!is.null(Reactive_tabla_1c_RMedic())) {
+              Reactive_tabla_1c_RMedic()[[5]]
+            } else return(NULL)
+          })
+        )
+        
+      
+      
+        
+  
+        
+      ###
+    } # Fin Tablas para 1 variable categorica (c) - Reactiave()!
+    ################################################################################
+    
     
     
      
@@ -850,56 +1444,737 @@ function(input, output, session) {
     {
       ###
       
-      pack_tabla_2q_df_RMedic <- reactive({
-        if (paso_BASE(Base_Tablas())) {
+   
+      
+      Reactive_tabla_2q_RMedic <- reactive({
+        if (paso_BASE(Base_Planeta())) {
           
           
-          df02(Base_Tablas()[[1]], input$decimales_tablas)$df02
+          general <- df02(Base_Planeta(), decimales_planeta())$df02
           
+          
+          armado <- list()
+          
+          #Clasico
+          armado[[1]] <- list("Frecuencias Absolutas",
+                              general[[1]][[1]])
+          
+          armado[[2]] <- list("Cociente al Total",
+                              general[[1]][[2]])
+          
+          armado[[3]] <- list("Frecuencias Relativas al Total",
+                              general[[1]][[3]])
+          
+     
+          armado[[4]] <- list("Porcentajes al Total",
+                              general[[1]][[4]])
+          
+          # Al total
+          armado[[5]] <- list("Frecuencias Absolutas",
+                              general[[2]][[1]])
+          
+          armado[[6]] <- list("Cociente al Total",
+                              general[[2]][[2]])
+          
+          armado[[7]] <- list("Frecuencias Relativas al Total",
+                              general[[2]][[3]])
+          
+          
+          armado[[8]] <- list("Porcentajes al Total",
+                              general[[2]][[5]])
+          
+          # Al Por Fila
+          armado[[9]] <- list("Frecuencias Absolutas por Filas",
+                              general[[3]][[1]])
+          
+          armado[[10]] <- list("Cociente por Filas",
+                              general[[3]][[2]])
+          
+          armado[[11]] <- list("Frecuencias Relativas por Filas",
+                              general[[3]][[3]])
+          
+          
+          armado[[12]] <- list("Porcentajes por Filas",
+                              general[[3]][[5]])
+          
+          # Al Por Columna
+          armado[[13]] <- list("Frecuencias Absolutas por Columnas",
+                              general[[4]][[1]])
+          
+          armado[[14]] <- list("Cociente por Columnas",
+                               general[[4]][[2]])
+          
+          armado[[15]] <- list("Frecuencias Relativas por Columnas",
+                               general[[4]][[3]])
+          
+          
+          armado[[16]] <- list("Porcentajes por Columnas",
+                               general[[4]][[5]])
+          
+          # Simple Entrada
+          armado[[17]] <- list("Simple Entrada",
+                               general[[6]])
+          
+          
+          armado
         } else return(NULL)
       })
+      
+      
+      output$Menu_tabla_2q_RMedic <- renderUI({
+        tabsetPanel(id= "kayak",
+                    tabPanel("Clásico", value = 1),
+                    tabPanel("Por filas", value = 3),
+                    tabPanel("Por columnas", value = 4),
+                    tabPanel("Al Total", value = 2),
+                    tabPanel("Simple entrada", value = 5)
+        )
+      })
+      
+      # Clasico...
+      {
+      ###
+        
+      # # Frecuencias Absolutas
+      observe(  
+        output$Salida_tabla_2q_RMedic_01 <- renderTable(digits=0, rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[1]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      # # Cociente al Total
+      observe(  
+        output$Salida_tabla_2q_RMedic_02 <- renderTable(digits=decimales_planeta(),rownames = TRUE, align= "c", {
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[2]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      # # Frecuencias Relativas al Total
+      observe(  
+        output$Salida_tabla_2q_RMedic_03 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[3]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      # # Porcentajes al Total
+      observe(  
+        output$Salida_tabla_2q_RMedic_04 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[4]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      ###
+      } # End Clasico
+      ##########################
+      
+      # Al total...
+      {
+      ###
+        
+      observe(  
+        output$Salida_tabla_2q_RMedic_05 <- renderTable(digits=0, rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[5]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_06 <- renderTable(digits=decimales_planeta(),rownames = TRUE, align= "c", {
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[6]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_07 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[7]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_08 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[8]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      ###
+      } # End Al Total
+      ###########################################
+      
+      # Por filas...
+      {
+      ###
+        
+      observe(  
+        output$Salida_tabla_2q_RMedic_09 <- renderTable(digits=0, rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[9]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_10 <- renderTable(digits=decimales_planeta(),rownames = TRUE, align= "c", {
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[10]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_11 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[11]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_12 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[12]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      ###
+      } # End por FIlas
+      ###########################################
+      
+      
+      # Por columnas...
+      {
+      ###
+        
+      observe(  
+        output$Salida_tabla_2q_RMedic_13 <- renderTable(digits=0, rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[13]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_14 <- renderTable(digits=decimales_planeta(),rownames = TRUE, align= "c", {
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[14]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_15 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[15]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe(  
+        output$Salida_tabla_2q_RMedic_16 <- renderTable(digits=decimales_planeta(), rownames = TRUE, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[16]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      ###
+      } # End Por Columna
+      #############################################################
+      
+      # Simple Entrada
+      {
+      ###
+        
+      observe(  
+        output$Salida_tabla_2q_RMedic_17 <- renderTable(digits=decimales_planeta(), rownames = T, align= "c",{
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            Reactive_tabla_2q_RMedic()[[17]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      ###
+      } # End Simple Entrada
+      #############################################################
+      
+      
+      # DF QQ PACK
+      observe(  
+        output$MegaSalida_tabla_2q_RMedic <- renderUI({
+          
+          if(!is.null(Reactive_tabla_2q_RMedic())) {
+            if(!is.null(input$kayak)) {
+              
+              
+              # Al total
+              if(input$kayak == 1) {
+                div(
+                  #h3("Frecuencias Absolutas"),
+                  h3(Reactive_tabla_2q_RMedic()[[1]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_01"), br(),
+                  
+                  #h3("Cociente al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[2]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_02"), br(),
+                  
+                  # h3("Frecuencias Relativas al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[3]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_03"),  br(),
+                  
+                  # h3("Porcentajes al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[4]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_04")
+                )
+                
+                # Al total  
+              } else  if(input$kayak == 2) {
+                div(
+                  # h3("Frecuencias Absolutas"),
+                  h3(Reactive_tabla_2q_RMedic()[[5]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_05"), br(),
+                  
+                  # h3("Cociente al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[6]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_06"), br(),
+                  
+                  # h3("Frecuencias Relativas al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[7]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_07"), br(),
+                  
+                  # h3("Porcentajes al Total"),
+                  h3(Reactive_tabla_2q_RMedic()[[8]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_08")
+                )
+                
+                # por filas  
+              } else    if(input$kayak == 3) {
+                div(
+                  # h3("Frecuencias Absolutas por Filas"),
+                  h3(Reactive_tabla_2q_RMedic()[[9]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_09"), br(),
+                  
+                  # h3("Cociente por Filas"),
+                  h3(Reactive_tabla_2q_RMedic()[[10]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_10"), br(),
+                  
+                  # h3("Frecuencias Relativas por Filas"),
+                  h3(Reactive_tabla_2q_RMedic()[[11]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_11"), br(),
+                  
+                  # h3("Porcentajes por Filas"),
+                  h3(Reactive_tabla_2q_RMedic()[[12]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_12")
+                )
+                
+                # Por columnas
+              } else    if(input$kayak == 4) {
+                div(
+                  # h3("Frecuencias Absolutas por Columnas"),
+                  h3(Reactive_tabla_2q_RMedic()[[13]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_13"), br(),
+                  
+                  # h3("Cociente por Columnas"),
+                  h3(Reactive_tabla_2q_RMedic()[[14]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_14"), br(),
+                  
+                  # h3("Frecuencias Relativas por Columnas"),
+                  h3(Reactive_tabla_2q_RMedic()[[15]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_15"), br(),
+                  
+                  # h3("Porcentajes por Columnas"),
+                  h3(Reactive_tabla_2q_RMedic()[[16]][[1]]),
+                  ref2q_planeta()[1], br(),
+                  ref2q_planeta()[2], br(),
+                  tableOutput("Salida_tabla_2q_RMedic_16")
+                )
+                
+                # Simple entrada  
+              } else  if(input$kayak == 5) {
+                div(
+                  # h3("Simple Entrada"),
+                  h3(Reactive_tabla_2q_RMedic()[[17]][[1]]),
+                  tableOutput("Salida_tabla_2q_RMedic_17")
+                )
+                
+                
+              } else return(NULL)
+              
+            } else return(NULL)
+          } else return(NULL)
+        })
+      )
+      
       ###
     } # Fin 2 Variable Categoricas (QQ)
     ################################################################################
     
     
-    # 2 Variable Cuantitativas - Objetos Reactivos
+    # 2 Variable Numericass (CC)
     {
       ###
       
-      pack_tabla_2c_RMedic <- reactive({
-        if (paso_BASE(Base_Tablas())) {
+      Reactive_tabla_2c_RMedic <- reactive({
+        if (paso_BASE(Base_Planeta())) {
           
           
-          MINIBASE <- Base_Tablas()[[1]]
-          estos_decimales <- input$decimales_tablas
+          MINIBASE <- Base_Planeta()
+          estos_decimales <- decimales_planeta()
           
           
           salida <- list()
           
           # Medidas de Posicion simultaneas
-          salida[[1]] <-   mps(MINIBASE, estos_decimales)$mps$tabla1_mps
+          salida[[1]] <-   list("Medidas Resumen",
+                                mps(MINIBASE, estos_decimales)$mps$tabla1_mps
+          )
+          
+          # Medidas de Posicion simultaneas
+          salida[[2]] <-   list("Medidas de Posición",
+                                mps(MINIBASE, estos_decimales)$mps$tabla1_mps
+                                )
           
           # Medidas de Dispersion simultaneas
-          salida[[2]] <-   mds(MINIBASE, estos_decimales)$mds$tabla1_mds
+          salida[[3]] <-    list("Medidas de Dispersión",
+                                 mds(MINIBASE, estos_decimales)$mds$tabla1_mds
+                                )
           
           # Percentiles Simultaneos
-          salida[[3]] <-   percentiles2(MINIBASE, estos_decimales, input_busqueda = c(5, 10, 90, 95))$perc2$tabla_per2
+          salida[[4]] <-    list("Percentiles",
+                                 percentiles2(MINIBASE, estos_decimales, 
+                                              input_busqueda = c(5, 10, 90, 95))$perc2$tabla_per2
+                                 )
           
           # Intervalos de confianza simultaneos
-          salida[[4]] <-   mps(MINIBASE, estos_decimales)$mps$tabla3_mps
+          salida[[5]] <-    list("Intervalos de Confianza del 90%",
+                                 mps(MINIBASE, estos_decimales)$mps$tabla3_mps[[1]]
+                                 )
+          
+          # Intervalos de confianza simultaneos
+          salida[[6]] <-    list("Intervalos de Confianza del 95%",
+                                 mps(MINIBASE, estos_decimales)$mps$tabla3_mps[[2]]
+          )
+          
+          # Intervalos de confianza simultaneos
+          salida[[7]] <-    list("Intervalos de Confianza del 99%",
+                                 mps(MINIBASE, estos_decimales)$mps$tabla3_mps[[3]]
+          )
           
           return(salida)
           
         } else return(NULL)
       })
+      
+      # Medidas Resumen
+      observe( 
+         output$Salida_tabla_2c_RMedic_01 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[1]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      # Medidas de Posicion
+      observe( 
+        
+        output$Salida_tabla_2c_RMedic_02 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[2]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      # Medidas de Dispersion
+      observe(
+        output$Salida_tabla_2c_RMedic_03 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[3]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      # Percentiles
+      observe(
+        output$Salida_tabla_2c_RMedic_04 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[4]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+ 
+      # IC de la Media 90%     
+      observe( 
+         output$Salida_tabla_2c_RMedic_05 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[5]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      # IC de la Media 95%      
+      observe( 
+        output$Salida_tabla_2c_RMedic_06 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[6]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      # IC de la Media 99%
+      observe( 
+        output$Salida_tabla_2c_RMedic_07 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_2c_RMedic())) {
+            Reactive_tabla_2c_RMedic()[[7]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      output$MegaSalida_tabla_2c_RMedic <- renderUI ({
+        
+        if(!is.null(Reactive_tabla_2c_RMedic())) {
+          
+        div(
+          #h3("Medidas Resumen"),
+          h3(Reactive_tabla_2c_RMedic()[[1]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_01"), br(),
+          
+          #h3("Medidas de Posición"),
+          h3(Reactive_tabla_2c_RMedic()[[2]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_02"), br(),
+          
+          #h3("Medidas de Dispersión"),
+          h3(Reactive_tabla_2c_RMedic()[[3]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_03"), br(),
+          
+          #h3("Percentiles"),
+          h3(Reactive_tabla_2c_RMedic()[[4]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_04"), br(),
+          
+          #h3("Intervalo de Confianza del 90%"),
+          h3(Reactive_tabla_2c_RMedic()[[5]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_05"), br(),
+          
+          #h3("Intervalo de Confianza del 95%"),
+          h3(Reactive_tabla_2c_RMedic()[[6]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_06"), br(),
+          
+          #h3("Intervalo de Confianza del 99%"),
+          h3(Reactive_tabla_2c_RMedic()[[7]][[1]]),
+          tableOutput("Salida_tabla_2c_RMedic_07")
+        )
+          
+        } else return(NULL)
+      })
+      
+       
       ###
-    } # Fin 2 Varaibles Cuantitativas - Objetos Reactivos
+    } # Fin 2 Variable Numericass (CC)
     ################################################################################
     
   
 
-
+    # 2 Variables... Q y C
+    {
+      ###
+      
+      Reactive_tabla_qc_RMedic <- reactive({
+        if (paso_BASE(Base_Planeta())) {
+          
+          
+          MINIBASE <- na.omit(Base_Planeta())
+          estos_decimales <- decimales_planeta()
+          
+          
+          
+          salida <- list()
+          
+          salida[[1]] <-  list("Medidas Resumen Particionadas",
+                               mpp(input_base = MINIBASE, input_decimales = estos_decimales)$mpp$tabla1_mpp
+                               )
+          
+          salida[[2]] <-  list("Medidas de Posición Particionadas",
+                               mpp(input_base = MINIBASE, input_decimales = estos_decimales)$mpp$tabla1_mpp
+                              )
+          
+          salida[[3]] <-  list("Medidas de Dispersión Particionadas",
+                               mdp(input_base = MINIBASE, input_decimales = estos_decimales)$mdp$tabla1_mdp
+                               )
+          
+          salida[[4]] <-  list("Percentiles Particionados",
+                               percentiles3(input_base = MINIBASE, input_decimales = estos_decimales, input_busqueda = c(5, 10, 90, 95))$perc3$tabla1_percp  
+                              )
+          
+          salida[[5]] <-  list("Intervalo de Confianza del 90% Particionados",
+                               mpp(input_base = MINIBASE, input_decimales = estos_decimales)$mpp$tabla3_icp2[[1]]
+                              )
+          
+          salida[[6]] <-  list("Intervalo de Confianza del 95% Particionados",
+                               mpp(input_base = MINIBASE, input_decimales = estos_decimales)$mpp$tabla3_icp2[[2]]
+                              )
+          
+          salida[[7]] <-  list("Intervalo de Confianza del 99% Particionados",
+                               mpp(input_base = MINIBASE, input_decimales = estos_decimales)$mpp$tabla3_icp2[[3]]
+                              ) 
+          
+          salida
+          
+        } else return(NULL)
+      })
+      
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_01 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[1]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_02 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[2]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_03 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[3]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_04 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[4]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_05 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[5]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_06 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[6]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      observe( 
+        # Medidas de Posicion Particionada
+        output$Salida_tabla_qc_RMedic_07 <- renderTable(digits=decimales_planeta(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_qc_RMedic())) {
+            Reactive_tabla_qc_RMedic()[[7]][[2]]
+          } else return(NULL)
+        })
+      )
+      
+      
+    
+      
+      ###
+    } # Fin  2 Variables... Q y C
+    ################################################################################
+    
 
    
     
@@ -916,14 +2191,7 @@ function(input, output, session) {
         h3("Variables Seleccionadas"), 
         htmlOutput("zocalo_Tablas"),
         br(),
-        h3(Reactive_tabla_1q_RMedic()[[1]][[1]]),
-        tableOutput("Salida_tabla_1q_RMedic_01"), br(),
-        h3(Reactive_tabla_1q_RMedic()[[2]][[1]]),
-        tableOutput("Salida_tabla_1q_RMedic_02"), br(),
-        h3(Reactive_tabla_1q_RMedic()[[3]][[1]]),
-        tableOutput("Salida_tabla_1q_RMedic_03"), br(),
-        h3(Reactive_tabla_1q_RMedic()[[4]][[1]]),
-        tableOutput("Salida_tabla_1q_RMedic_04")
+        uiOutput("MegaSalida_tabla_1q_RMedic")
       )
         }  else 
           if (Variables_Tablas()[[4]] == 2) {
@@ -950,9 +2218,51 @@ function(input, output, session) {
               h3(Reactive_tabla_1c_RMedic()[[3]][[1]]),
               uiOutput("Salida_tabla_1c_RMedic_03"), br(),
               h3(Reactive_tabla_1c_RMedic()[[4]][[1]]),
-              uiOutput("Salida_tabla_1c_RMedic_04"), br(),
+              uiOutput("Salida_tabla_1c_RMedic_04"), br()
             )
-          }  else return(NULL)
+          }  else 
+            if(Variables_Tablas()[[4]] == 3) { 
+              
+              var.opts <- c(input$var1_tablas, input$var2_tablas)
+              
+              div(
+                selectInput(inputId = "orden_var_tablas", 
+                            label = "En filas",
+                            choices = c("Seleccione una" = "", var.opts),
+                            selected = var.opts[1]),
+                h3("Tablas de Contingencia"),
+                uiOutput("Menu_tabla_2q_RMedic"),
+                uiOutput("MegaSalida_tabla_2q_RMedic")
+              )
+              
+              
+              } else 
+                if(Variables_Tablas()[[4]] == 4) { 
+                  
+                  var.opts <- c(input$var1_tablas, input$var2_tablas)
+                  
+                  div(
+                    selectInput(inputId = "orden_var_tablas", 
+                                label = "Eje X...",
+                                choices = c("Seleccione una" = "", var.opts),
+                                selected = var.opts[1]),
+                   # h3("Tablas de Contingencia"),
+                   # uiOutput("Menu_tabla_2q_RMedic"),
+                    uiOutput("MegaSalida_tabla_2c_RMedic")
+                  )
+                  
+                  
+                } else 
+                  if(Variables_Tablas()[[4]] == 5) { 
+                    
+                   
+                    
+                 
+                     uiOutput("MegaSalida_tabla_qc_RMedic")
+                
+                    
+                    
+                  } else return(NULL)
         }  else return(NULL)
        }  else return(NULL)
     })
@@ -1149,12 +2459,323 @@ function(input, output, session) {
   
   
 ################
-  
+
+  # Seccion 08 -  Planeta
+  {
+  ###
+    
  # Cargamos el codigo Server de Planeta - Objetos Reactivos
- source("script/ServerPlaneta.R", local = T) 
+ # source("script/ServerPlaneta.R", local = T) 
+  # Cantidad de Variables
+  qtty_var_planeta <- reactive({
+    
+    if (!is.null(input$PanelRMedic)) {
+      
+      if(input$PanelRMedic == 3) { 
+        if(paso_detalle(input$qtty_var_tablas))     as.numeric(input$qtty_var_tablas)
+        
+        
+        
+        
+        
+        
+      } else  if(input$PanelRMedic == 4) {
+        if(paso_detalle(input$qtty_var_graf))    as.numeric(input$qtty_var_graf)
+        
+        
+        
+      } else  if(input$PanelRMedic == 5) {
+        if(paso_detalle(input$qtty_var_ho))    as.numeric(input$qtty_var_ho)
+        
+        
+        
+      } else return(NULL)
+      
+    } else return(NULL)
+    
+    
+  })
+  
+  # Decimales que usara
+  decimales_planeta <- reactive({
+    
+    if (!is.null(input$PanelRMedic)) {
+      
+      if(input$PanelRMedic == 3) { 
+        if(!is.null(input$decimales_tablas))     as.numeric(input$decimales_tablas)
+        
+        
+      } else  if(input$PanelRMedic == 4) {
+        if(!is.null(input$decimales_graf))    as.numeric(input$decimales_graf)
+        
+        
+        
+      } else  if(input$PanelRMedic == 5) {
+        if(!is.null(input$decimales_ho))    as.numeric(input$decimales_ho)
+        
+        
+        
+      } else return(NULL)
+      
+    } else return(NULL)
+    
+    
+  })
   
   
+  # Variable de Goku + Tipo de Var
+  engarce_planeta <- reactive({
+    
+    var_planeta <- NULL
+    tipo_var_planeta <- NULL
+    
+    # Si cargo el menu general...
+    if (!is.null(input$PanelRMedic)) {
+      
+      # Si esta en la pestania 3 "TABLAS"
+      if(input$PanelRMedic == 3) { 
+        
+        # Si hay una cantidad de variables seleccionada
+        if (paso_detalle(input$qtty_var_tablas)) {
+          
+          var_planeta <- rep(NA, input$qtty_var_tablas)
+          var_planeta <- na.omit(var_planeta)
+          
+          
+          tipo_var_planeta <- rep(NA, input$qtty_var_tablas)
+          tipo_var_planeta <- na.omit(tipo_var_planeta)
+          
+          
+          # Si la cantidad de variables es == 1
+          if (as.numeric(input$qtty_var_tablas) == 1){
+            if (paso_detalle(input$var1_tablas)) {
+              
+              var_planeta <- c(input$var1_tablas)
+              tipo_var_planeta <- c(input$tipo_var1_tablas)
+              
+            } else return(NULL)
+            
+            # Si la cantidad de variables es == 2
+          } else   if (as.numeric(input$qtty_var_tablas == 2)) {
+            
+            # Si ya selecciono las dos variables...
+            if (paso_detalle(input$var1_tablas) && paso_detalle(input$var2_tablas)) {
+              
+              # Y de las dos variables se sabe de que tipo son...
+              if (paso_detalle(input$tipo_var1_tablas) && paso_detalle(input$tipo_var2_tablas)) {
+                
+                var_planeta <- c(input$var1_tablas, input$var2_tablas)
+                tipo_var_planeta <- c(input$tipo_var1_tablas, input$tipo_var2_tablas)
+                
+                # Si las dos variables son del mismo tipo...
+                if (input$tipo_var1_tablas == input$tipo_var2_tablas) {
+                  
+                  # Si el orden_var es igual a la 2da variable...
+                  if (paso_detalle(input$orden_var_tablas) && input$orden_var_tablas == input$var2_tablas) {
+                    
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  } 
+                  
+                  # Si las variables son de diferente tipo...
+                } else if (input$tipo_var1_tablas != input$tipo_var2_tablas) {
+                  
+                  # Si la 2da variable es categorica... cambiamos el orden de las cosas...
+                  if (input$tipo_var1_tablas == "Categórica") {
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  }
+                } else return(NULL)
+              } else return(NULL)   
+            } else return(NULL)
+          } else return(NULL)
+        } else return(NULL)
+        
+      } else      if(input$PanelRMedic == 4) { 
+        
+        # Si hay una cantidad de variables seleccionada
+        if (paso_detalle(input$qtty_var_graf)) {
+          
+          var_planeta <- rep(NA, input$qtty_var_graf)
+          var_planeta <- na.omit(var_planeta)
+          
+          
+          tipo_var_planeta <- rep(NA, input$qtty_var_graf)
+          tipo_var_planeta <- na.omit(tipo_var_planeta)
+          
+          
+          # Si la cantidad de variables es == 1
+          if (as.numeric(input$qtty_var_graf) == 1){
+            if (paso_detalle(input$var1_graf)) {
+              
+              var_planeta <- c(input$var1_graf)
+              tipo_var_planeta <- c(input$tipo_var1_graf)
+              
+            } else return(NULL)
+            
+            # Si la cantidad de variables es == 2
+          } else   if (as.numeric(input$qtty_var_graf == 2)) {
+            
+            # Si ya selecciono las dos variables...
+            if (paso_detalle(input$var1_graf) && paso_detalle(input$var2_graf)) {
+              
+              # Y de las dos variables se sabe de que tipo son...
+              if (paso_detalle(input$tipo_var1_graf) && paso_detalle(input$tipo_var2_graf)) {
+                
+                var_planeta <- c(input$var1_graf, input$var2_graf)
+                tipo_var_planeta <- c(input$tipo_var1_graf, input$tipo_var2_graf)
+                
+                # Si las dos variables son del mismo tipo...
+                if (input$tipo_var1_graf == input$tipo_var2_graf) {
+                  
+                  # Si el orden_var es igual a la 2da variable...
+                  if (paso_detalle(input$orden_var_graf) && input$orden_var_graf == input$var2_graf) {
+                    
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  } 
+                  
+                  # Si las variables son de diferente tipo...
+                } else if (input$tipo_var1_graf != input$tipo_var2_graf) {
+                  
+                  # Si la 2da variable es categorica... cambiamos el orden de las cosas...
+                  if (input$tipo_var1_graf == "Categórica") {
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  }
+                } else return(NULL)
+              } else return(NULL)   
+            } else return(NULL)
+          } else return(NULL)
+        } else return(NULL)
+        
+      } else      if(input$PanelRMedic == 5) { 
+        
+        # Si hay una cantidad de variables seleccionada
+        if (paso_detalle(input$qtty_var_ho)) {
+          
+          var_planeta <- rep(NA, input$qtty_var_ho)
+          var_planeta <- na.omit(var_planeta)
+          
+          
+          tipo_var_planeta <- rep(NA, input$qtty_var_ho)
+          tipo_var_planeta <- na.omit(tipo_var_planeta)
+          
+          
+          # Si la cantidad de variables es == 1
+          if (as.numeric(input$qtty_var_ho) == 1){
+            if (paso_detalle(input$var1_ho)) {
+              
+              var_planeta <- c(input$var1_ho)
+              tipo_var_planeta <- c(input$tipo_var1_ho)
+              
+            } else return(NULL)
+            
+            # Si la cantidad de variables es == 2
+          } else   if (as.numeric(input$qtty_var_ho == 2)) {
+            
+            # Si ya selecciono las dos variables...
+            if (paso_detalle(input$var1_ho) && paso_detalle(input$var2_ho)) {
+              
+              # Y de las dos variables se sabe de que tipo son...
+              if (paso_detalle(input$tipo_var1_ho) && paso_detalle(input$tipo_var2_ho)) {
+                
+                var_planeta <- c(input$var1_ho, input$var2_ho)
+                tipo_var_planeta <- c(input$tipo_var1_ho, input$tipo_var2_ho)
+                
+                # Si las dos variables son del mismo tipo...
+                if (input$tipo_var1_ho == input$tipo_var2_ho) {
+                  
+                  # Si el orden_var es igual a la 2da variable...
+                  if (paso_detalle(input$orden_var_ho) && input$orden_var_ho == input$var2_ho) {
+                    
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  } 
+                  
+                  # Si las variables son de diferente tipo...
+                } else if (input$tipo_var1_ho != input$tipo_var2_ho) {
+                  
+                  # Si la 2da variable es categorica... cambiamos el orden de las cosas...
+                  if (input$tipo_var1_ho == "Categórica") {
+                    var_planeta <- var_planeta[c(2,1)]
+                    tipo_var_planeta <- tipo_var_planeta[c(2,1)]
+                    
+                  }
+                } else return(NULL)
+              } else return(NULL)   
+            } else return(NULL)
+          } else return(NULL)
+        } else return(NULL)
+        
+      } else  return(NULL)
+      
+      
+    } else return(NULL)
+    
+    # Sale una lista con dos objetos...
+    list(var_planeta, tipo_var_planeta)
+    
+  })
   
+  # Variable de Goku
+  var_planeta <- reactive({
+    engarce_planeta()[[1]]
+  })
+  
+  
+  # Tipo Variable de Goku
+  tipo_var_planeta <- reactive({
+    engarce_planeta()[[2]]
+  })
+  
+  
+  # Variable y letra de las variables seleccionadas
+  detalle_planeta <- reactive({
+    
+    detalle <- c("", "")
+    
+    if (length(var_planeta()) >= 1)  detalle[1] <- paste0("Variable 1: ", id_var(var_planeta()[1], colnames(BaseSalida()[[1]])))  
+    if (length(var_planeta()) >= 2)  detalle[2] <- paste0("Variable 2: ", id_var(var_planeta()[2], colnames(BaseSalida()[[1]])))  
+    
+    detalle
+    
+  })
+  
+  
+  # Para 2Q... Quien va en filas y quien en columnas
+  ref2q_planeta <- reactive({
+    
+    detalle <- c("", "")
+    
+    if (length(var_planeta()) >= 1)  detalle[1] <- paste0("En filas: ", id_var(var_planeta()[1], colnames(BaseSalida()[[1]])))  
+    if (length(var_planeta()) >= 2)  detalle[2] <- paste0("En columnas: ", id_var(var_planeta()[2], colnames(BaseSalida()[[1]])))  
+    
+    detalle
+    
+  })
+  
+  
+  # Base de datos seleccionada
+  Base_Planeta <- reactive({
+    
+    if (status_BaseSalida()) {
+      if (!is.null(var_planeta())) {
+        
+        BaseSalida()[[1]][var_planeta()]
+        
+      } else return(NULL)
+    } else return(NULL)
+  })   
+  
+  ###
+  } # End Seccion 08 - Planeta
+  ##################################
  
   
   
@@ -1162,12 +2783,7 @@ function(input, output, session) {
   
   observe(output[["RMedicSoft"]] <- renderUI({
     
-    # tabs1 <- menuBASE()
-    # tabs2 <- menuCONTROL()
-    # tabs3 <- menuDESCRIPTIVAS()
-    # tabs4 <- menuGRAFICOS()
-    # tabs5 <- menuHO()
-    # tabs6 <- menuSOBREVIDA()
+
     # do.call(tabsetPanel,  c(id="goku", tabs1,tabs2, tabs3, tabs4, tabs5, tabs6))
     do.call(tabsetPanel,  c(id="PanelRMedic", 
                             menuBASE(),
@@ -1185,3 +2801,6 @@ function(input, output, session) {
   # observe(cat(input$PanelRMedic, "\n"))
   # observe(cat(input$AVER, "\n"))
 }
+
+
+

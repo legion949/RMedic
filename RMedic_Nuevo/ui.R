@@ -52,7 +52,10 @@ fluidPage (
  
   br()
     ,
-  
+
+ 
+ textOutput("prueba1"),
+ textOutput("prueba2"),
   div(id = "MySidebar", sidebarPanel(OpcionesDeCarga)), 
   mainPanel(        
   fluidRow(
