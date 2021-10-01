@@ -797,7 +797,7 @@ function(input, output, session) {
           #   tableFooter(iris)
           # ))
           # datatable(
-          #   head(iris, 10),
+          #   head(iris, ),
           #   container = sketch, options = list(pageLength = 5, dom = 'tip'), rownames = FALSE
           # )
         } else return(NULL)
@@ -920,6 +920,7 @@ function(input, output, session) {
       eyes_tablas <- c(NA, NA)
       zocalo_tablas <- c(NA, NA)
   
+    #  cat("input$PanelRMedic: ", input$PanelRMedic, "\n")
       
   
       if(!is.null(input$qtty_var_tablas)) {
@@ -1030,6 +1031,7 @@ function(input, output, session) {
       
     })
     
+  
   
     output$zocalo_Tablas <- renderText({
       
@@ -1214,15 +1216,17 @@ function(input, output, session) {
       
       
       Reactive_tabla_1q_RMedic <- reactive({
-        if (Variables_Tablas()[[1]]) {
+      #  if (Variables_Tablas()[[1]]) {
+        if (!is.null(pos_planeta())) {
           
-          
+       #   cat("Hola", "\n")
          salida <-  RMedic_1q_tablas(Base_Planeta(), decimales_planeta())
           salida[[1]][,2] <- as.character(salida[[1]][,2])
           salida[[1]][,3] <- as.character(salida[[1]][,3])
           
           salida
           
+       #   cat("Chau", "\n")
         } else return(NULL)
       })
       
@@ -1313,9 +1317,14 @@ function(input, output, session) {
       ###
       
       Reactive_tabla_1c_RMedic <- reactive({
-        if (Variables_Tablas()[[1]]) {
+       # if (Variables_Tablas()[[1]]) {
+        if (!is.null(pos_planeta())) {
+          if(!is.null(Base_Planeta())){
           
-          
+       #   cat("Hola", "\n")
+       #   cat(colnames(Base_Planeta()), "\n")
+       #   cat(nrow(Base_Planeta()), "\n")
+        #  cat(sum(is.na(Base_Planeta())), "\n\n")
           tablas <- RMedic_1c_tablas(input_base = Base_Planeta(),
                                      input_decimales = decimales_planeta(),
                                      input_min = input$x_min,
@@ -1325,8 +1334,10 @@ function(input, output, session) {
                                        )
           tablas[[8]][,2] <- as.character(tablas[[8]][,2])
           tablas[[8]][,3] <- as.character(tablas[[8]][,3])
-          
+       #   cat("CAHU", "\n")
           tablas
+          
+          } else return(NULL)
         } else return(NULL)
       })
       
@@ -2235,11 +2246,14 @@ function(input, output, session) {
     
     output$salida_TABLAS_RMedic <- renderUI ({
       
-      if(!is.null(Variables_Tablas())) {
-        if(Variables_Tablas()[[1]]) {
-          
-        if (Variables_Tablas()[[4]] == 1) {
-          
+      # if(!is.null(Variables_Tablas())) {
+      #   if(Variables_Tablas()[[1]]) {
+      #     
+      # if(!is.null(ok_planeta())) {
+      #   if(ok_planeta()) {
+      #   if (Variables_Tablas()[[4]] == 1) {
+      if (!is.null(pos_planeta())) {
+        if (pos_planeta() == 1) {
       div(
         h3("Variables Seleccionadas"), 
         htmlOutput("zocalo_Tablas"),
@@ -2247,7 +2261,8 @@ function(input, output, session) {
         uiOutput("MegaSalida_tabla_1q_RMedic")
       )
         }  else 
-          if (Variables_Tablas()[[4]] == 2) {
+         # if (Variables_Tablas()[[4]] == 2) {
+          if (pos_planeta() == 2) {
             
             div(
               h3("Variables Seleccionadas"), 
@@ -2267,9 +2282,10 @@ function(input, output, session) {
               uiOutput("Controlador_1c_RMedic")
             )
           }  else 
-            if(Variables_Tablas()[[4]] == 3) { 
-              
-              var.opts <- c(input$var1_tablas, input$var2_tablas)
+           # if(Variables_Tablas()[[4]] == 3) { 
+            if (pos_planeta() == 3) {
+             # var.opts <- c(input$var1_tablas, input$var2_tablas)
+              var.opts <- colnames(Base_Planeta())
               
               div(
                 selectInput(inputId = "orden_var_tablas", 
@@ -2283,8 +2299,8 @@ function(input, output, session) {
               
               
               } else 
-                if(Variables_Tablas()[[4]] == 4) { 
-                  
+                #if(Variables_Tablas()[[4]] == 4) { 
+                if (pos_planeta() == 4) {
                   var.opts <- c(input$var1_tablas, input$var2_tablas)
                   
                   div(
@@ -2299,8 +2315,8 @@ function(input, output, session) {
                   
                   
                 } else 
-                  if(Variables_Tablas()[[4]] == 5) { 
-                    
+                 # if(Variables_Tablas()[[4]] == 5) { 
+                  if (pos_planeta() == 5) {
                    
                     
                  
@@ -2310,7 +2326,9 @@ function(input, output, session) {
                     
                   } else return(NULL)
         }  else return(NULL)
-       }  else return(NULL)
+      #   }  else return(NULL)
+      # }  else return(NULL)
+     #  }  else return(NULL)
     })
     
     menuTABLAS <- reactive({
@@ -2542,6 +2560,7 @@ function(input, output, session) {
     
   })
   
+
   # Decimales que usara
   decimales_planeta <- reactive({
     
@@ -2567,14 +2586,19 @@ function(input, output, session) {
     
     
   })
+
+  
+ 
   
   
+  ###############
   # Variable de Goku + Tipo de Var
   engarce_planeta <- reactive({
     
     var_planeta <- NULL
     tipo_var_planeta <- NULL
     
+  #  cat("input$PanelRMedic2222: ", input$PanelRMedic, "\n")
     # Si cargo el menu general...
     if (!is.null(input$PanelRMedic)) {
       
@@ -2584,18 +2608,17 @@ function(input, output, session) {
         # Si hay una cantidad de variables seleccionada
         if (paso_detalle(input$qtty_var_tablas)) {
           
-          var_planeta <- rep(NA, input$qtty_var_tablas)
-          var_planeta <- na.omit(var_planeta)
-          
-          
-          tipo_var_planeta <- rep(NA, input$qtty_var_tablas)
-          tipo_var_planeta <- na.omit(tipo_var_planeta)
+          var_planeta <- c()
+          tipo_var_planeta <- c()
           
           
           # Si la cantidad de variables es == 1
           if (as.numeric(input$qtty_var_tablas) == 1){
+            
+            # Si hay algo cargado en var1_tablas
             if (paso_detalle(input$var1_tablas)) {
               
+              # Agendamos a var1_tablas
               var_planeta <- c(input$var1_tablas)
               tipo_var_planeta <- c(input$tipo_var1_tablas)
               
@@ -2769,9 +2792,15 @@ function(input, output, session) {
     
   })
   
+ 
+  # Variable de Goku + Tipo de Var
+
+
+
+  
   # Variable de Goku
   var_planeta <- reactive({
-    engarce_planeta()[[1]]
+   engarce_planeta()[[1]]
   })
   
   
@@ -2779,6 +2808,31 @@ function(input, output, session) {
   tipo_var_planeta <- reactive({
     engarce_planeta()[[2]]
   })
+  
+  pos_planeta <- reactive({
+    
+    if(!is.null(tipo_var_planeta())) {
+ 
+      tipo_var_planeta <-   tipo_var_planeta()
+    numero_pos <- rep(NA, length(tipo_var_planeta))
+    
+    for (k in 1:length(tipo_var_planeta)) {
+      if (tipo_var_planeta[k] == "Categórica") numero_pos[k] <- 1 else
+        if (tipo_var_planeta[k] == "Numérica") numero_pos[k] <- 10
+      
+    }
+    
+    posibles_sumas <- c(1, 10, 2, 20, 11)
+    orden_suma <- c(1:length(posibles_sumas))
+    the_suma <- sum(numero_pos)
+    dt_suma <- posibles_sumas == the_suma
+    
+    the_orden <- orden_suma[dt_suma]
+    
+    the_orden
+    } else return(NULL)
+  })
+  
   
   
   # Variable y letra de las variables seleccionadas
