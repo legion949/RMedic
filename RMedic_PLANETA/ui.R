@@ -60,7 +60,8 @@ fluidPage (
                                 border-color: #2e6da4; height:65px;
                                 font-size:200%")),
             column(10, 
-                  uiOutput("RMedicSoft")
+                  uiOutput("RMedicSoft"), br(),
+                  tableOutput("BasePlaneta")
                    ),
             column(1)
           )

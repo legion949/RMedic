@@ -113,19 +113,19 @@ TextUI_Variables <- 'div(
   fluidRow(
     column(4,
            # Menu1: Orden de las seleccion de variables         
-           selectInput(inputId = "menu1_control",
+           selectInput(inputId = "menu1_tablas",
                        label = "Orden de las variables",
                        choices = opciones_carga1,                                                    selected = opciones_carga1[1]
            )
     ),
     column(4, 
-           selectInput(inputId = "qtty_var_control",
+           selectInput(inputId = "qtty_var_tablas",
                        label = "Cantidad de Variables",
                        choices = c("Seleccione..." = "", "Una" = 1, "Dos" = 2)
            )
     ),           
     column(4, 
-           numericInput(inputId = "decimales_control", 
+           numericInput(inputId = "decimales_tablas", 
                         label = "Decimales:", 
                         min = 0,  max = 100, step = 1, value = 2
            )
@@ -133,18 +133,18 @@ TextUI_Variables <- 'div(
   ) # End FluidRow
   ,br(),
   fluidRow(
-    conditionalPanel(condition = "input.qtty_var_control != \'\'",
-                     conditionalPanel(condition = "input.qtty_var_control >= 1",
+    conditionalPanel(condition = "input.qtty_var_tablas != \'\'",
+                     conditionalPanel(condition = "input.qtty_var_tablas >= 1",
                                       fluidRow(
                                         column(4,
-                                               selectInput(inputId = "var1_control",
+                                               selectInput(inputId = "var1_tablas",
                                                            label = "Variable 1",
                                                            choices=c("Seleccione una variable..." = "", opciones_carga2),
                                                            selected = NA
                                                )
                                         ),
                                         column(4,
-                                               radioButtons(inputId = "tipo_var1_control",
+                                               radioButtons(inputId = "tipo_var1_tablas",
                                                             label = "Tipo de Variable1",
                                                             choices = opciones_carga3,
                                                             selected = opciones_carga3[1]
@@ -152,17 +152,17 @@ TextUI_Variables <- 'div(
                                         )
                                       ) # End FluidRow
                      ), # End ConditionalPanel
-                     conditionalPanel(condition = "input.qtty_var_control >= 2",
+                     conditionalPanel(condition = "input.qtty_var_tablas >= 2",
                                       fluidRow(
                                         column(4,
-                                               selectInput(inputId = "var2_control",
+                                               selectInput(inputId = "var2_tablas",
                                                            label = "Variable 2",
                                                            choices=c("Seleccione una variable..." = "", opciones_carga2),
                                                            selected = NA
                                                )
                                         ),
                                         column(4,
-                                               radioButtons(inputId = "tipo_var2_control",
+                                               radioButtons(inputId = "tipo_var2_tablas",
                                                             label = "Tipo de Variable2",
                                                             choices = opciones_carga3,
                                                             selected = opciones_carga3[1]

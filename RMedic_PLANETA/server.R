@@ -42,7 +42,7 @@ function(input, output, session) {
   output$OpcionesCIE_parte01 <- renderUI({
     
     
-      if(is.null(Base01()[[1]])) return(NULL)
+      if(is.null(Base01())) return(NULL)
       
       if(is.null(AspectosColumnas_BaseSalida())) return(NULL)
       
@@ -53,8 +53,8 @@ function(input, output, session) {
          
       selectInput(inputId = "cie_columna", 
                   label = "Criterio de Inclusión Estadístico (CIE) - Seleccione una variable:", 
-                  choices =  c("Seleccione un CIE..." = "", armado),
-                  selected = NA)  
+                  choices =  c("Seleccione un CIE..." = "", armado)
+                  )  
    
   
   })
@@ -161,8 +161,12 @@ function(input, output, session) {
     
     reseteo_conteo(reseteo_conteo()+1)
     
-    
-   
+    freezeReactiveValue(input, "cie_especificaciones")
+    updateRadioButtons(session, inputId = "cie_especificaciones",
+                 label = "Especificaciones",
+                 choices = c("Todas las filas" = 1,
+                             "Aplicar un Criterio de Inclusión Estadístico" = 2)
+                 )
     
   })
   
@@ -176,24 +180,19 @@ function(input, output, session) {
         RMedic_general(T)
         
         if(!is.null(Base01())) {
-        letras <- num2let(c(1:length(colnames(Base01()[[1]]))))
-        armado <- colnames(Base01()[[1]])  
-        names(armado) <- paste0("(", letras, ") - ", colnames(Base01()[[1]]))
+        letras <- num2let(c(1:length(colnames(Base01()))))
+        armado <- colnames(Base01())  
+        names(armado) <- paste0("(", letras, ") - ", colnames(Base01()))
         
         
    
+        freezeReactiveValue(input, "cie_columnas")
+        updateSelectInput(session, inputId = "cie_columna",
+                           label = "Criterio de Inclusión Estadístico (CIE) - Seleccione una variable:",
+                           choices =  c("Seleccione un CIE..." = "", armado)
+                          )
         
-        updateSelectInput(session, inputId = "cie_columna", 
-                           label = "Criterio de Inclusión Estadístico (CIE) - Seleccione una variable:", 
-                           choices =  c("Seleccione un CIE..." = "", armado),
-                           selected = NA) 
-        
-        
-        updateSelectInput(session, inputId = "cie_categoria", 
-                          label = "Categoría de Inclusión (solo una categoría):", 
-                          choices = c("Seleccione una categoría..." = "", 
-                                      levels(as.factor(Base01()[[1]][,input$cie_columna])))
-        )
+       
         
         }
         
@@ -206,6 +205,13 @@ function(input, output, session) {
     # Reset selected step
      RMedic_general(F)
     
+   
+    # freezeReactiveValue(input, "cie_categoria")
+    # updateSelectInput(session, inputId = "cie_categoria", 
+    #                   label = "Categoría de Inclusión (solo una categoría):", 
+    #                   choices = c("Seleccione una categoría..." = "", 
+    #                               levels(as.factor(Base01()[,input$cie_columna])))
+    # )
   })
   
   # Reseteo por cie_categoria
@@ -350,8 +356,8 @@ function(input, output, session) {
     if(is.null(Base01())) return(NULL)
       
       # Deteccion de detalles varios...
-      dt_ok_01 <- ncol(Base01()[[1]]) > 0
-      dt_ok_02 <- nrow(Base01()[[1]]) > 0
+      dt_ok_01 <- ncol(Base01()) > 0
+      dt_ok_02 <- nrow(Base01()) > 0
       dt_ok_03 <- sum(dt_ok_01, dt_ok_02) == 0
       dt_ok_04 <- sum(dt_ok_01, dt_ok_02) == 2
       
@@ -453,7 +459,7 @@ function(input, output, session) {
       
         # Si el CIE seleccionado pertenece a la base de datos
         # vamos a dar un TRUE y sino, sera FALSE
-        if(sum(colnames(Base01()[[1]]) == input$cie_columna) > 0) dt_ok <- TRUE else dt_ok <- FALSE
+        if(sum(colnames(Base01()) == input$cie_columna) > 0) dt_ok <- TRUE else dt_ok <- FALSE
       
         # Frases
         frase_TRUE <- ""
@@ -482,7 +488,7 @@ function(input, output, session) {
     
      
       # Categocias del CIE
-      mis_categorias <- levels(as.factor(na.omit(Base01()[[1]][,input$cie_columna])))
+      mis_categorias <- levels(as.factor(na.omit(Base01()[,input$cie_columna])))
           
       # Vemos si hay categorias y ahi vemos como sigue esto...
       dt_ok <- length(mis_categorias) > 0
@@ -597,7 +603,7 @@ function(input, output, session) {
   status_BaseSalida <- reactive({
     
     if (!is.null(BaseSalida())) {
-      if (ncol(BaseSalida()[[1]]) > 0) {
+      if (ncol(BaseSalida()) > 0) {
         
         paso <- TRUE
         
@@ -718,7 +724,7 @@ function(input, output, session) {
                 }  else return(NULL)
             
             # Salida
-            my_exit <- list(DataSet)
+            my_exit <- DataSet
             return(my_exit)
             
         
@@ -741,12 +747,12 @@ function(input, output, session) {
       if (is.null(Control06())) return(NULL)
       if (!Control06()[[1]]) return(NULL)
       
-      mi_filtro <- Base01()[[1]][,input$cie_columna]
+      mi_filtro <- Base01()[,input$cie_columna]
       dt_filtro <- mi_filtro == input$cie_categoria
       dt_filtro[is.na(dt_filtro)] <- FALSE
-      base2 <- Base01()[[1]][dt_filtro, ]
+      base2 <- Base01()[dt_filtro, ]
             
-            my_exit <- list(base2)
+            my_exit <- base2
             return(my_exit)
             
           })
@@ -779,7 +785,7 @@ function(input, output, session) {
       if (is.null(Base01())) return(NULL)
       
    
-      nombres_originales <- colnames(Base01()[[1]])
+      nombres_originales <- colnames(Base01())
       numero_orden <- c(1:length(nombres_originales))
       letras <- num2let(numero_orden)
       
@@ -796,8 +802,10 @@ function(input, output, session) {
       
       if(is.null(Control04())) return(NULL)
       if(!Control04()[[1]]) return(NULL)
-              
-      levels(as.factor(Base01()[[1]][,input$cie_columna]))
+      
+      if(sum(colnames(Base01()) == input$cie_columna) > 0) {        
+      levels(as.factor(Base01()[,input$cie_columna]))
+      } else return(NULL)
       
     })
     
@@ -872,7 +880,7 @@ function(input, output, session) {
       # Si no hay permisos... Nos vamos...
       if(!RMedic_general()) return(NULL)
           
-          
+      if(sum(colnames(Base01()) == input$cie_columna) ==  0) return(NULL)     
           # Textos varios
       {
           texto_completo01 <- c("<b>Base:</b> _mi_archivo_ <br/>
@@ -908,7 +916,7 @@ function(input, output, session) {
             # Cambiamos de texto
             texto_salida <- texto_completo02
 
-            dt_col <- colnames(Base02()[[1]]) == input$cie_columna
+            dt_col <- colnames(Base02()) == input$cie_columna
             orden_col <- c(1:length(dt_col))[dt_col]
             armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
                              num2let(orden_col), "'")
@@ -917,7 +925,7 @@ function(input, output, session) {
             texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
             
             texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
-            texto_salida <- gsub("_nrowBase02_", nrow(Base02()[[1]]), texto_salida)
+            texto_salida <- gsub("_nrowBase02_", nrow(Base02()), texto_salida)
             
           }
           
@@ -925,8 +933,8 @@ function(input, output, session) {
           
           
           texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
-          texto_salida <- gsub("_ncolBase01_", ncol(Base01()[[1]]),texto_salida)
-          texto_salida <- gsub("_nrowBase01_", nrow(Base01()[[1]]),texto_salida)
+          texto_salida <- gsub("_ncolBase01_", ncol(Base01()),texto_salida)
+          texto_salida <- gsub("_nrowBase01_", nrow(Base01()),texto_salida)
           
           mi_salida <- HTML(texto_salida)
           
@@ -970,11 +978,11 @@ function(input, output, session) {
         
         # El texto camabia de acuerdo a si efectivamnete
         # el CIE ha sacado filas de la base o no.
-        if(nrow(Base01()[[1]]) != nrow(Base02()[[1]])) texto_salida <- agregado01 else texto_salida <- agregado02
+        if(nrow(Base01()) != nrow(Base02())) texto_salida <- agregado01 else texto_salida <- agregado02
         
         
         
-        dt_col <- colnames(Base02()[[1]]) == input$cie_columna
+        dt_col <- colnames(Base02()) == input$cie_columna
         orden_col <- c(1:length(dt_col))[dt_col]
         armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
                          num2let(orden_col), "'")
@@ -982,15 +990,15 @@ function(input, output, session) {
 
         texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
         texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
-        texto_salida <- gsub("_nrowBase02_", nrow(Base02()[[1]]), texto_salida)
+        texto_salida <- gsub("_nrowBase02_", nrow(Base02()), texto_salida)
         
      
 
       
       
       texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
-      texto_salida <- gsub("_ncolBase01_", ncol(Base01()[[1]]),texto_salida)
-      texto_salida <- gsub("_nrowBase01_", nrow(Base01()[[1]]),texto_salida)
+      texto_salida <- gsub("_ncolBase01_", ncol(Base01()),texto_salida)
+      texto_salida <- gsub("_nrowBase01_", nrow(Base01()),texto_salida)
       
       }
       mi_salida <- HTML(texto_salida)
@@ -1025,7 +1033,7 @@ function(input, output, session) {
       
       # Si esta todo OK, tenemos base y hay que mostrarla, esta es!
         
-      datatable(BaseSalida()[[1]], rownames = F,  options = list(
+      datatable(BaseSalida(), rownames = F,  options = list(
             initComplete = JS(
               "function(settings, json) {",
               "$(this.api().table().header()).css({'background-color': '#fff', 'color': '#000'});",
@@ -1098,25 +1106,183 @@ function(input, output, session) {
   # Seccion 04 - Control de RMedic
   {
   ###
+    
+    var_planeta_control <- reactive({
+      
+      
+      if(is.null(input$PanelRMedic)) return(NULL)
+      if(is.null(BaseSalida())) return(NULL)
+      
+      
+      if(is.null(input$qtty_var_control)) return(NULL)
+      if(is.na(input$qtty_var_control)) return(NULL)
+      if(input$qtty_var_control == "") return(NULL)
+      
+      
+      
+      
+      variables <- c()
+      tipo_variables <- c()
+      numero_tipo <- c()
+      caso_tipo_variables <- c()
+      
+      # Todo para 1 variable
+      if(input$qtty_var_control == 1) {
+        
+        if(is.null(input$var1_control)) return(NULL)
+        if(is.na(input$var1_control)) return(NULL)
+        if(input$var1_control == "") return(NULL)
+        if(is.null(input$tipo_var1_control)) return(NULL)
+        if(is.na(input$tipo_var1_control)) return(NULL)
+        if(input$tipo_var1_control == "") return(NULL)
+        
+        variables[1] <- input$var1_control
+        tipo_variables[1] <- input$tipo_var1_control
+        
+        
+      }
+      
+      
+      # Todo para 2 variables
+      if(input$qtty_var_control == 2) {
+        
+        if(is.null(input$var1_control)) return(NULL)
+        if(is.na(input$var1_control)) return(NULL)
+        if(input$var1_control == "") return(NULL)
+        if(is.null(input$tipo_var1_control)) return(NULL)
+        if(is.na(input$tipo_var1_control)) return(NULL)
+        if(input$tipo_var1_control == "") return(NULL)
+        
+        if(is.null(input$var2_control)) return(NULL)
+        if(is.na(input$var2_control)) return(NULL)
+        if(input$var2_control == "") return(NULL)
+        if(is.null(input$tipo_var2_control)) return(NULL)
+        if(is.na(input$tipo_var2_control)) return(NULL)
+        if(input$tipo_var2_control == "") return(NULL)
+        
+        variables[1] <- c(input$var1_control)
+        variables[2] <- c(input$var2_control)
+        
+        tipo_variables[1] <- input$tipo_var1_control
+        tipo_variables[2] <- input$tipo_var2_control
+        
+        modelo_cambio <- c("Numérica", "Categórica")
+        
+        if (identical(tipo_variables, modelo_cambio)){
+          variables <- variables[c(2,1)]
+          tipo_variables <- tipo_variables[c(2,1)]
+        }
+        
+        
+      } # Fin para 2 variables
+      
+      
+      # Determinamos pos_RMedic
+      {
+        ###  
+        numero_tipo[tipo_variables == "Categórica"] <- 1
+        numero_tipo[tipo_variables == "Numérica"] <- 10
+        
+        suma_caso <- sum(numero_tipo)
+        casos_posibles <- c(1, 10, 2, 20, 11)
+        
+        # Determinamos los 5 casos para RMedic
+        # 1) 1Q =  1 puntos
+        # 2) 1C = 10 puntos
+        # 3) 2Q =  2 puntos
+        # 4) 2C = 20 puntos
+        # 5) QC o CQ = 11 puntos
+        orden_casos <- c(1:length(casos_posibles))
+        dt_caso <- suma_caso == casos_posibles
+        caso_tipo_variables[1] <- orden_casos[dt_caso]
+        
+        ###
+      }
+      ###########################################################
+      
+      
+      
+      
+      cat("Variables Control: ", variables, "\n")
+      cat("Tipo Variables Control: ", tipo_variables, "\n")
+      cat("caso_tipo_variables Control: ", caso_tipo_variables, "\n\n")   
+      #  cat("mi_opcion Control: ", mi_opcion, "\n")
+      return(list(variables, tipo_variables, caso_tipo_variables))
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+    })
+    
+    BasePlaneta_Control <- reactive({
+      
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      if(is.null(var_planeta_control())) return(NULL)
+      
+      BaseSalida()[var_planeta_control()[[1]]]
+    })
+    
+    
+    output$BasePlaneta_Control <- renderTable({
+      if(is.null(BasePlaneta_Control())) return(NULL)
+      
+      BasePlaneta_Control()
+    })
+    
     menuCONTROL <- reactive({
       
-      tabs <- list()
-        
-        
-        tabs[[1]] <-  tabPanel(
-          title = "Control", 
-          icon = icon("user-md"), 
-          value = 2,
-          h3("Menú para Control")
-               ) # End TabPanel
-        
-        
-        
-        tabs
-        
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      
+      # Generamos todas las partes del menu de seleccion para control
+      eval(parse(text = gsub("_tablas", "_control", TextServer_Variables)))
+      
+       # Generamos todas las partes del menu de seleccion
+      #   the_text_control <-  ModifyMe(the_text = TextServer_Variables, end_var = "_control")
+      #  eval(parse(text = the_text_control))
+      
+      #   eval(parse(text = gsub("_tablas", "_tablas", TextServer_Variables)))
+      
+      
+      
+      
+     
+      
+      
+      
+      
+      
     
       
-    }) 
+      tabs <- list()
+      
+      
+      tabs[[1]] <-  tabPanel(
+        title = "Control", 
+        icon = icon("user-md"), 
+        value = 2,
+        h3("Menú para Control"),
+        eval(parse(text = gsub("_tablas", "_control",TextUI_Variables))),
+        br(),
+        tableOutput("BasePlaneta_Control")
+      ) # End TabPanel
+      
+      
+      
+      tabs
+      
+    })
+    
+   
     
   ###  
   } # End Seccion 04 - Control de RMedic
@@ -1127,20 +1293,88 @@ function(input, output, session) {
   {
   ###
     
+    
+    
+    
     menuTABLAS <- reactive({
       
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      
+      # Generamos todas las partes del menu de seleccion para tablas
+      eval(parse(text = gsub("_tablas", "_tablas", TextServer_Variables)))
   
-        tabs <- list()
-        
-        
+      
+      
+      tabs <- list()
+      
         tabs[[1]] <-  tabPanel(
           title = "Tablas", 
           icon = icon("user-md"), 
           value = 3,
-          h3("Menú para Tablas")
-         
+          h3("Menú para Tablas"),
+          eval(parse(text = gsub("_tablas", "_tablas", TextUI_Variables)))
+      # div(
+      #   fluidRow(
+      #     column(4,
+      #            # Menu1: Orden de las seleccion de variables
+      #            selectInput(inputId = "menu1_tablas",
+      #                        label = "Orden de las variables",
+      #                        choices = opciones_carga1,                                                    selected = opciones_carga1[1]
+      #            )
+      #     ),
+      #     column(4,
+      #            selectInput(inputId = "qtty_var_tablas",
+      #                        label = "Cantidad de Variables",
+      #                        choices = c("Seleccione..." = "", "Una" = 1, "Dos" = 2)
+      #            )
+      #     ),
+      #     column(4,
+      #            numericInput(inputId = "decimales_tablas",
+      #                         label = "Decimales:",
+      #                         min = 0,  max = 100, step = 1, value = 2
+      #            )
+      #     )
+      #   ) # End FluidRow
+      #   ,br(),
+      #   fluidRow(
+      #     conditionalPanel(condition = "input.qtty_var_tablas != \'\'",
+      #         conditionalPanel(condition = "input.qtty_var_tablas >= 1",
+      #             fluidRow(
+      #             column(4,
+      #               selectInput(inputId = "var1_tablas",
+      #               label = "Variable 1",
+      #               choices=c("Seleccione una variable..." = "", opciones_carga2)
+      #               )
+      #             ), # End column
+      #             column(4,
+      #             conditionalPanel(condition = "input.var1_tablas != \'\'",
+      #               uiOutput("MODtipo_var1_tablas")
+      #               ) # End ConditionalPanel
+      #               ) # End Column
+      #             ) # End FluidRow
+      #             ), # End ConditionalPanel
+      #             conditionalPanel(condition = "input.qtty_var_tablas >= 2",
+      #             fluidRow(
+      #               column(4,
+      #             selectInput(inputId = "var2_tablas",
+      #             label = "Variable 2",
+      #             choices=c("Seleccione una variable..." = "", opciones_carga2)
+      #             )
+      #             ), # End Column
+      #             column(4,
+      #             conditionalPanel(condition = "input.var2_tablas != \'\'",
+      #             uiOutput("MODtipo_var2_tablas")
+      #             ) # End conditional
+      #             ) # End column
+      #             ) # End FluidRow
+      #             ) #End conditionalPanel
+      #     ) #End conditionalPanel
+      #   ) # End FluidRow
+      #   ) # End div()
                 
-        )
+        ) # End TabPanel()
         
         
         
@@ -1163,7 +1397,14 @@ function(input, output, session) {
     
     menuGRAFICOS <- reactive({
     
-        
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      
+      # Generamos todas las partes del menu de seleccion para graficos
+      eval(parse(text = gsub("_tablas", "_graficos", TextServer_Variables)))
+      
+      
         tabs <- list()
         
         
@@ -1171,7 +1412,8 @@ function(input, output, session) {
           title = "Graficos", 
           icon = icon("user-md"), 
           value = 4,
-          h3("Menú para Gráficos")
+          h3("Menú para Gráficos"),
+          eval(parse(text = gsub("_tablas", "_graficos",TextUI_Variables)))
         )
         
         
@@ -1193,14 +1435,23 @@ function(input, output, session) {
     
     menuHO <- reactive({
      
-       tabs <- list()
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      
+      # Generamos todas las partes del menu de seleccion para ho
+      eval(parse(text = gsub("_tablas", "_ho", TextServer_Variables)))
+      
+      
+      tabs <- list()
         
         
         tabs[[1]] <-  tabPanel(
           title = "Pruebas de Hipótesis", 
           icon = icon("user-md"), 
           value = 5,
-          h3("Menú para Ho")
+          h3("Menú para Ho"),
+          eval(parse(text = gsub("_tablas", "_ho",TextUI_Variables)))
         )
         
         
@@ -1220,6 +1471,10 @@ function(input, output, session) {
     ###
     
     menuSOBREVIDA <- reactive({
+      
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
       
         tabs <- list()
         
@@ -1247,7 +1502,162 @@ function(input, output, session) {
   
   
   
-################
+  # Seccion 09 - Planeta
+  {
+  ###
+    
+    var_planeta <- reactive({
+      
+      if(is.null(input$PanelRMedic)) return(NULL)
+      if(is.null(BaseSalida())) return(NULL)
+      if(input$PanelRMedic == 1) return(NULL)
+      
+      variables <- c()
+      tipo_variables <- c()
+      numero_tipo <- c()
+      caso_tipo_variables <- c()
+      
+      mis_opciones <- c("_base" = 1, 
+                        "_control" = 2,
+                        "_tablas" = 3,
+                        "_graficos" = 4,
+                        "_ho" = 5,
+                        "_sobrevida" = 6)
+      
+
+     
+      if(input$PanelRMedic >= 2 && input$PanelRMedic <= 5) {
+        
+        dt_mi_opcion <- mis_opciones == input$PanelRMedic
+        mi_opcion <- names(mis_opciones)[dt_mi_opcion]
+        
+  
+        if(is.null(input$qtty_var_tablas)) return(NULL)
+        if(is.na(input$qtty_var_tablas)) return(NULL)
+        if(input$qtty_var_tablas == "") return(NULL)
+        
+          # Todo para 1 variable
+          if(input$qtty_var_tablas == 1) {
+              
+            if(is.null(input$var1_tablas)) return(NULL)
+            if(is.na(input$var1_tablas)) return(NULL)
+            if(input$var1_tablas == "") return(NULL)
+            if(is.null(input$tipo_var1_tablas)) return(NULL)
+            if(is.na(input$tipo_var1_tablas)) return(NULL)
+            if(input$tipo_var1_tablas == "") return(NULL)
+            
+            variables[1] <- input$var1_tablas
+            tipo_variables[1] <- input$tipo_var1_tablas
+            
+
+          }
+        
+        
+          # Todo para 2 variables
+          if(input$qtty_var_tablas == 2) {
+          
+          if(is.null(input$var1_tablas)) return(NULL)
+          if(is.na(input$var1_tablas)) return(NULL)
+          if(input$var1_tablas == "") return(NULL)
+          if(is.null(input$tipo_var1_tablas)) return(NULL)
+          if(is.na(input$tipo_var1_tablas)) return(NULL)
+          if(input$tipo_var1_tablas == "") return(NULL)
+          
+          if(is.null(input$var2_tablas)) return(NULL)
+          if(is.na(input$var2_tablas)) return(NULL)
+          if(input$var2_tablas == "") return(NULL)
+          if(is.null(input$tipo_var2_tablas)) return(NULL)
+          if(is.na(input$tipo_var2_tablas)) return(NULL)
+          if(input$tipo_var2_tablas == "") return(NULL)
+          
+          variables[1] <- c(input$var1_tablas)
+          variables[2] <- c(input$var2_tablas)
+          
+          tipo_variables[1] <- input$tipo_var1_tablas
+          tipo_variables[2] <- input$tipo_var2_tablas
+          
+          modelo_cambio <- c("Numérica", "Categórica")
+
+          if (identical(tipo_variables, modelo_cambio)){
+            variables <- variables[c(2,1)]
+            tipo_variables <- tipo_variables[c(2,1)]
+          }
+          
+         
+        } # Fin para 2 variables
+        
+          
+          # Determinamos pos_RMedic
+        {
+        ###  
+        numero_tipo[tipo_variables == "Categórica"] <- 1
+        numero_tipo[tipo_variables == "Numérica"] <- 10
+        
+        suma_caso <- sum(numero_tipo)
+        casos_posibles <- c(1, 10, 2, 20, 11)
+        
+        # Determinamos los 5 casos para RMedic
+        # 1) 1Q =  1 puntos
+        # 2) 1C = 10 puntos
+        # 3) 2Q =  2 puntos
+        # 4) 2C = 20 puntos
+        # 5) QC o CQ = 11 puntos
+        orden_casos <- c(1:length(casos_posibles))
+        dt_caso <- suma_caso == casos_posibles
+        caso_tipo_variables[1] <- orden_casos[dt_caso]
+        
+        ###
+        }
+        ###########################################################
+        
+        
+     
+       
+    cat("Variables: ", variables, "\n")
+    cat("Tipo Variables: ", tipo_variables, "\n")
+    cat("caso_tipo_variables: ", caso_tipo_variables, "\n\n")   
+    cat("mi_opcion: ", mi_opcion, "\n")
+    return(list(variables, tipo_variables, caso_tipo_variables))
+        
+         
+         cat("mi_opcion: ", mi_opcion, "\n")
+    #     texto_modificado <- gsub("_tablas", mi_opcion, texto_previo)
+    #     eval(parse(text = texto_modificado))
+       } else return(NULL)
+        
+      
+      
+     
+      
+     
+      
+    })
+      
+    
+ 
+       
+    
+    BasePlaneta <- reactive({
+      
+      # Si no hay status de BaseSalida(), nos vamos...
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      if(is.null(var_planeta())) return(NULL)
+
+      BaseSalida()[var_planeta()[[1]]]
+    })
+    
+    
+    output$BasePlaneta <- renderTable({
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida()) return(NULL)
+      if(is.null(var_planeta())) return(NULL)
+      BasePlaneta()
+    })
+  ###  
+  } # End Seccion 09 - Planeta
+  #################################################
+
 
   
   
