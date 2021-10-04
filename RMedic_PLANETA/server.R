@@ -17,6 +17,22 @@ function(input, output, session) {
     shinyjs::toggle(id = "MySidebar")
   })
   
+  
+  observeEvent(input$showpanel, {
+    
+    if(input$showpanel == TRUE) {
+      removeCssClass("Main", "col-sm-12")
+      addCssClass("Main", "col-sm-8")
+      shinyjs::show(id = "Sidebar")
+      shinyjs::enable(id = "Sidebar")
+    }
+    else {
+      removeCssClass("Main", "col-sm-8")
+      addCssClass("Main", "col-sm-12")
+      shinyjs::hide(id = "Sidebar")
+    }
+  })
+  
   RMedic_general <- reactiveVal(T)
   reseteo_conteo <- reactiveVal(0)
   
@@ -1203,10 +1219,10 @@ function(input, output, session) {
       
       
       
-      cat("Variables Control: ", variables, "\n")
-      cat("Tipo Variables Control: ", tipo_variables, "\n")
-      cat("caso_tipo_variables Control: ", caso_tipo_variables, "\n\n")   
-      #  cat("mi_opcion Control: ", mi_opcion, "\n")
+      # cat("Variables Control: ", variables, "\n")
+      # cat("Tipo Variables Control: ", tipo_variables, "\n")
+      # cat("caso_tipo_variables Control: ", caso_tipo_variables, "\n\n")   
+      # #  cat("mi_opcion Control: ", mi_opcion, "\n")
       return(list(variables, tipo_variables, caso_tipo_variables))
       
       
@@ -1223,9 +1239,31 @@ function(input, output, session) {
     BasePlaneta_Control <- reactive({
       
       # Si no hay status de BaseSalida(), nos vamos...
-      if(is.null(status_BaseSalida())) return(NULL)
-      if(!status_BaseSalida()) return(NULL)
-      if(is.null(var_planeta_control())) return(NULL)
+      if(is.null(status_BaseSalida())) { cat("Va la 1", "\n") 
+        return(NULL)} 
+      if(!status_BaseSalida()) { cat("Va la 2", "\n") 
+        return(NULL)} 
+      if(is.null(var_planeta_control())) { cat("Va la 3", "\n") 
+        return(NULL)}
+      
+      # Todo para 2 variables
+      if(input$qtty_var_control == 1) {
+        if(var_planeta_control()[1] != input$tipo_var1_control) { cat("Va la 4", "\n") 
+          return(NULL)}
+      }
+      
+      # Todo para 2 variables
+      if(input$qtty_var_control == 2) {
+        if(var_planeta_control()[[2]][1] != input$tipo_var1_control) { cat("Va la 5", "\n") 
+          return(NULL)} 
+        if(var_planeta_control()[[2]][2] != input$tipo_var2_control) { cat("Va la 6", "\n") 
+          return(NULL)}
+      }
+      
+      cat("var_planeta_control()[[1]]: ", var_planeta_control()[[1]], "\n")
+      cat("var_planeta_control()[[2]]: ", var_planeta_control()[[2]], "\n")
+      cat("input$tipo_var1_control: ", input$tipo_var1_control, "\n")
+      cat("input$tipo_var2_control: ", input$tipo_var2_control, "\n")
       
       BaseSalida()[var_planeta_control()[[1]]]
     })
@@ -1501,163 +1539,40 @@ function(input, output, session) {
   ##################################
   
   
-  
-  # Seccion 09 - Planeta
+  # Seccion 09 - Batalla Naval
   {
-  ###
+    ###
     
-    var_planeta <- reactive({
-      
-      if(is.null(input$PanelRMedic)) return(NULL)
-      if(is.null(BaseSalida())) return(NULL)
-      if(input$PanelRMedic == 1) return(NULL)
-      
-      variables <- c()
-      tipo_variables <- c()
-      numero_tipo <- c()
-      caso_tipo_variables <- c()
-      
-      mis_opciones <- c("_base" = 1, 
-                        "_control" = 2,
-                        "_tablas" = 3,
-                        "_graficos" = 4,
-                        "_ho" = 5,
-                        "_sobrevida" = 6)
-      
-
-     
-      if(input$PanelRMedic >= 2 && input$PanelRMedic <= 5) {
-        
-        dt_mi_opcion <- mis_opciones == input$PanelRMedic
-        mi_opcion <- names(mis_opciones)[dt_mi_opcion]
-        
-  
-        if(is.null(input$qtty_var_tablas)) return(NULL)
-        if(is.na(input$qtty_var_tablas)) return(NULL)
-        if(input$qtty_var_tablas == "") return(NULL)
-        
-          # Todo para 1 variable
-          if(input$qtty_var_tablas == 1) {
-              
-            if(is.null(input$var1_tablas)) return(NULL)
-            if(is.na(input$var1_tablas)) return(NULL)
-            if(input$var1_tablas == "") return(NULL)
-            if(is.null(input$tipo_var1_tablas)) return(NULL)
-            if(is.na(input$tipo_var1_tablas)) return(NULL)
-            if(input$tipo_var1_tablas == "") return(NULL)
-            
-            variables[1] <- input$var1_tablas
-            tipo_variables[1] <- input$tipo_var1_tablas
-            
-
-          }
-        
-        
-          # Todo para 2 variables
-          if(input$qtty_var_tablas == 2) {
-          
-          if(is.null(input$var1_tablas)) return(NULL)
-          if(is.na(input$var1_tablas)) return(NULL)
-          if(input$var1_tablas == "") return(NULL)
-          if(is.null(input$tipo_var1_tablas)) return(NULL)
-          if(is.na(input$tipo_var1_tablas)) return(NULL)
-          if(input$tipo_var1_tablas == "") return(NULL)
-          
-          if(is.null(input$var2_tablas)) return(NULL)
-          if(is.na(input$var2_tablas)) return(NULL)
-          if(input$var2_tablas == "") return(NULL)
-          if(is.null(input$tipo_var2_tablas)) return(NULL)
-          if(is.na(input$tipo_var2_tablas)) return(NULL)
-          if(input$tipo_var2_tablas == "") return(NULL)
-          
-          variables[1] <- c(input$var1_tablas)
-          variables[2] <- c(input$var2_tablas)
-          
-          tipo_variables[1] <- input$tipo_var1_tablas
-          tipo_variables[2] <- input$tipo_var2_tablas
-          
-          modelo_cambio <- c("Numérica", "Categórica")
-
-          if (identical(tipo_variables, modelo_cambio)){
-            variables <- variables[c(2,1)]
-            tipo_variables <- tipo_variables[c(2,1)]
-          }
-          
-         
-        } # Fin para 2 variables
-        
-          
-          # Determinamos pos_RMedic
-        {
-        ###  
-        numero_tipo[tipo_variables == "Categórica"] <- 1
-        numero_tipo[tipo_variables == "Numérica"] <- 10
-        
-        suma_caso <- sum(numero_tipo)
-        casos_posibles <- c(1, 10, 2, 20, 11)
-        
-        # Determinamos los 5 casos para RMedic
-        # 1) 1Q =  1 puntos
-        # 2) 1C = 10 puntos
-        # 3) 2Q =  2 puntos
-        # 4) 2C = 20 puntos
-        # 5) QC o CQ = 11 puntos
-        orden_casos <- c(1:length(casos_posibles))
-        dt_caso <- suma_caso == casos_posibles
-        caso_tipo_variables[1] <- orden_casos[dt_caso]
-        
-        ###
-        }
-        ###########################################################
-        
-        
-     
-       
-    cat("Variables: ", variables, "\n")
-    cat("Tipo Variables: ", tipo_variables, "\n")
-    cat("caso_tipo_variables: ", caso_tipo_variables, "\n\n")   
-    cat("mi_opcion: ", mi_opcion, "\n")
-    return(list(variables, tipo_variables, caso_tipo_variables))
-        
-         
-         cat("mi_opcion: ", mi_opcion, "\n")
-    #     texto_modificado <- gsub("_tablas", mi_opcion, texto_previo)
-    #     eval(parse(text = texto_modificado))
-       } else return(NULL)
-        
-      
-      
-     
-      
-     
-      
-    })
-      
-    
- 
-       
-    
-    BasePlaneta <- reactive({
+    menuBATALLA <- reactive({
       
       # Si no hay status de BaseSalida(), nos vamos...
       if(is.null(status_BaseSalida())) return(NULL)
       if(!status_BaseSalida()) return(NULL)
-      if(is.null(var_planeta())) return(NULL)
-
-      BaseSalida()[var_planeta()[[1]]]
-    })
+      
+      tabs <- list()
+      
+      
+      tabs[[1]] <-  tabPanel(
+        title = "Batalla Naval", 
+        icon = icon("user-md"), 
+        value = 7,
+        h3("Batalla Naval")
+        
+        
+      )
+      
+      
+      
+      tabs
+      
+      
+      
+    }) 
     
-    
-    output$BasePlaneta <- renderTable({
-      if(is.null(status_BaseSalida())) return(NULL)
-      if(!status_BaseSalida()) return(NULL)
-      if(is.null(var_planeta())) return(NULL)
-      BasePlaneta()
-    })
-  ###  
-  } # End Seccion 09 - Planeta
-  #################################################
-
+    ###  
+  } # End Seccion 07 - Ho
+  ##################################
+  
 
   
   
@@ -1669,6 +1584,7 @@ function(input, output, session) {
     # do.call(tabsetPanel,  c(id="goku", tabs1,tabs2, tabs3, tabs4, tabs5, tabs6))
     do.call(tabsetPanel,  c(id="PanelRMedic", 
                             menuBASE(),
+                            menuBATALLA(),
                             menuCONTROL() ,
                            menuTABLAS() ,
                            menuGRAFICOS() ,
