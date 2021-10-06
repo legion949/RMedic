@@ -76,16 +76,16 @@ AllEyesOnMe <- function(Base = NULL, the_col = NULL) {
   dt_ok
 }
 
-MyLetter <- function(ListBase = NULL, the_col = NULL) {
+MyLetter <- function(Base = NULL, the_col = NULL) {
   
   
   dt_ok <- FALSE
   
-  if(!is.null(ListBase))
+  if(!is.null(Base))
     if(!is.null(the_col))
       if(the_col != "")
-        if(sum(colnames(ListBase[[1]]) == the_col) > 0)
-          dt_col <- colnames(ListBase[[1]]) == the_col
+        if(sum(colnames(Base) == the_col) > 0)
+          dt_col <- colnames(Base) == the_col
           pos_col <- c(1:length(dt_col))
           the_col <- pos_col[dt_col]
           my_letter <- num2let(the_col)
