@@ -5,7 +5,19 @@ source("lib.R")
 source("script/PreServerCode.R")
 
 
-function(input, output, session) {
+## UI part of the module
+mk_obj_ui <- function(id) {
+  ns <- NS(id)
+  # downloadButton(ns("download_btn"), label = "Download")
+  htmlOutput(ns("MyZocalo"))
+}
+
+
+
+
+
+
+server <- function(input, output, session) {
   
 
 
@@ -1080,17 +1092,8 @@ function(input, output, session) {
     
     })
     
-    # 
-    # output$placeholder01 <- renderText({ c("input$FileTypePicker: ", input$FileTypePicker, "\n",
-    #                                        "input$xls_file: ", input$xls_file, "\n",
-    #                                        "input$csv_file: ", input$csv_file, "\n",
-    #                                        "input$ejemplo_file: ", input$ejemplo_file, "\n",
-    #                                        "input$cie_especificaciones: ", input$cie_especificaciones, "\n",
-    #                                        "input$cie_columna: ", input$cie_columna, "\n",
-    #                                        "input$cie_categoria: ", input$cie_categoria, "\n",
-    #                                        "RMedic_general(): ", RMedic_general(),"\n",
-    #                                        "reseteo_conteo(): ", reseteo_conteo (), "\n") })
-    # 
+
+    
     menuBASE <- reactive({
       
       
@@ -1100,9 +1103,7 @@ function(input, output, session) {
                                icon = icon("user-md"), 
                                value = 1,
                                br(),
-                               # verbatimTextOutput("placeholder01", placeholder = TRUE),
                                fluidRow(
-                                 #   column(4, OpcionesDeCarga),
                                  column(8, 
                                         h3(textOutput("TextBase_Alert01")), 
                                         h3(textOutput("TextBase_Alert02")), 
@@ -1137,7 +1138,7 @@ function(input, output, session) {
   ###
     
     # Objetos Reactivos
-    var_planeta_control <- reactive({
+    VarPlaneta_control <- reactive({
       
       
       if(is.null(input$PanelRMedic)) return(NULL)
@@ -1196,6 +1197,8 @@ function(input, output, session) {
         tipo_variables[1] <- input$tipo_var1_control
         tipo_variables[2] <- input$tipo_var2_control
         
+        
+        # Rotacion!
         modelo_cambio <- c("Numérica", "Categórica")
         
         if (identical(tipo_variables, modelo_cambio)){
@@ -1247,70 +1250,75 @@ function(input, output, session) {
       
     })
     
-    BasePlaneta_Control <- reactive({
+    BasePlaneta_control <- reactive({
       
       # Si no hay status de BaseSalida(), nos vamos...
-      if(is.null(status_BaseSalida())) { cat("Va la 1", "\n") 
-        return(NULL)} 
-      if(!status_BaseSalida()) { cat("Va la 2", "\n") 
-        return(NULL)} 
-      if(is.null(var_planeta_control())) { cat("Va la 3", "\n") 
-        return(NULL)}
+      if(is.null(status_BaseSalida())) return(NULL)
+      if(!status_BaseSalida())  return(NULL)
+      if(is.null(VarPlaneta_control())) return(NULL)
       
       # Todo para 2 variables
       if(input$qtty_var_control == 1) {
-        if(var_planeta_control()[[2]][1] != input$tipo_var1_control) { 
-          cat("Va la 4", "\n")
-          cat("Va la 4", "\n")
-          cat("Va la 4", "\n")
-          return(NULL)}
+        if(VarPlaneta_control()[[2]][1] != input$tipo_var1_control) return(NULL)
       }
       
+
       # Todo para 2 variables
       if(input$qtty_var_control == 2) {
-        if(var_planeta_control()[[2]][1] != input$tipo_var1_control) { cat("Va la 5", "\n") 
-          return(NULL)} 
-        if(var_planeta_control()[[2]][2] != input$tipo_var2_control) { cat("Va la 6", "\n") 
-          return(NULL)}
-      }
+
+        armado_interno <- c(input$tipo_var1_control, input$tipo_var2_control)
+        caso_rotacion <- c("Numérica", "Categórica")
+        
+        rotamos <- identical(armado_interno, caso_rotacion)
+        
+        if(rotamos) armado_interno <- armado_interno[c(2,1)]
+        
+             if(VarPlaneta_control()[[2]][1] != armado_interno[1]) { 
+               return(NULL)} 
+             
+             if(VarPlaneta_control()[[2]][2] != armado_interno[2]) { 
+               return(NULL)}
+          
+          
+        }
+        
+       
+     
       
-      # cat("var_planeta_control()[[1]]: ", var_planeta_control()[[1]], "\n")
-      # cat("var_planeta_control()[[2]]: ", var_planeta_control()[[2]], "\n")
-      # cat("input$tipo_var1_control: ", input$tipo_var1_control, "\n")
-      # cat("input$tipo_var2_control: ", input$tipo_var2_control, "\n")
+      #Return Exitoso
+      return(BaseSalida()[VarPlaneta_control()[[1]]])
       
-      BaseSalida()[var_planeta_control()[[1]]]
     })
     
-    zocaloPlaneta_Control <- reactive({
+    ZocaloPlaneta_control <- reactive({
       
-      if(is.null(var_planeta_control())) return(NULL)
+      if(is.null(VarPlaneta_control())) return(NULL)
       
       # Preparamos el armado
       armado <- list()
       
-      if(length(var_planeta_control()[[1]]) == 1) {
+      if(length(VarPlaneta_control()[[1]]) == 1) {
       
-        armado[[1]] <- paste0("<b>Variable 1: </b>", var_planeta_control()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0("<b>Variable 1: </b>", VarPlaneta_control()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_control))
         
-        armado[[2]] <- paste0("Variable 1: ", var_planeta_control()[[1]][1], " - Columna ",
+        armado[[2]] <- paste0("Variable 1: ", VarPlaneta_control()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_control))
 
       }
       
       
-      if(length(var_planeta_control()[[1]]) == 2) {
+      if(length(VarPlaneta_control()[[1]]) == 2) {
         
-        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", var_planeta_control()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", VarPlaneta_control()[[1]][1], " - Columna ",
                                       MyLetter(Base = BaseSalida(), the_col = input$var1_control)),
                               "<br/>",
-                              paste0("<b>Variable 2: </b>", var_planeta_control()[[1]][2]), " - Columna ",
+                              paste0("<b>Variable 2: </b>", VarPlaneta_control()[[1]][2]), " - Columna ",
                                       MyLetter(Base = BaseSalida(), the_col = input$var2_control))
         
-        armado[[2]] <- c(paste0("Variable 1: ", var_planeta_control()[[1]][1], " - Columna ",
+        armado[[2]] <- c(paste0("Variable 1: ", VarPlaneta_control()[[1]][1], " - Columna ",
                                 MyLetter(Base = BaseSalida(), the_col = input$var1_control)),
-                         paste0("<b>Variable 2: </b>", var_planeta_control()[[1]][2]), " - Columna ",
+                         paste0("<b>Variable 2: </b>", VarPlaneta_control()[[1]][2]), " - Columna ",
                                 MyLetter(Base = BaseSalida(), the_col = input$var2_control)
         )
         
@@ -1336,21 +1344,21 @@ function(input, output, session) {
     })
     
     # Objetos Output
-    output$BasePlaneta_Control <- renderTable({
-      if(is.null(BasePlaneta_Control())) return(NULL)
+    output$BasePlaneta_control <- renderTable({
+      if(is.null(BasePlaneta_control())) return(NULL)
       
-      BasePlaneta_Control()
+      BasePlaneta_control()
     })
     
-    output$ZocaloPlaneta_Control <- renderText({
+    output$ZocaloPlaneta_control <- renderText({
       
-      if(is.null(zocaloPlaneta_Control())) return(NULL)
+      if(is.null(ZocaloPlaneta_control())) return(NULL)
       
    
         paste0(
           div(
-            h3(names(zocaloPlaneta_Control())[1]),
-            zocaloPlaneta_Control()[[1]]
+            h3(names(ZocaloPlaneta_control())[1]),
+            ZocaloPlaneta_control()[[1]]
           )
         )
       
@@ -1384,10 +1392,10 @@ function(input, output, session) {
         eval(parse(text = gsub("_tablas", "_control",TextUI_Variables))),
         br(),
         br(),
-        htmlOutput("ZocaloPlaneta_Control"),
+        htmlOutput("ZocaloPlaneta_control"),
         br(),
         br(),
-        tableOutput("BasePlaneta_Control")
+        tableOutput("BasePlaneta_control")
       ) # End TabPanel
       
       
@@ -1403,12 +1411,18 @@ function(input, output, session) {
   ############################################
   
   
+  
   # Seccion 05 - Tablas
   {
   ###
     
+
+    # Codigo Tablas - TODO OK!
+    {
+    ###
+      
     # Objetos Reactivos
-    var_planeta_tablas <- reactive({
+    VarPlaneta_tablas <- reactive({
       
       
       if(is.null(input$PanelRMedic)) return(NULL)
@@ -1467,6 +1481,8 @@ function(input, output, session) {
         tipo_variables[1] <- input$tipo_var1_tablas
         tipo_variables[2] <- input$tipo_var2_tablas
         
+        
+        # Rotacion!
         modelo_cambio <- c("Numérica", "Categórica")
         
         if (identical(tipo_variables, modelo_cambio)){
@@ -1518,59 +1534,75 @@ function(input, output, session) {
       
     })
     
-    BasePlaneta_Tablas <- reactive({
+    BasePlaneta_tablas <- reactive({
       
       # Si no hay status de BaseSalida(), nos vamos...
       if(is.null(status_BaseSalida())) return(NULL)
-      if(!status_BaseSalida())   return(NULL)
-      if(is.null(var_planeta_tablas()))     return(NULL)
+      if(!status_BaseSalida())  return(NULL)
+      if(is.null(VarPlaneta_tablas())) return(NULL)
       
       # Todo para 2 variables
       if(input$qtty_var_tablas == 1) {
-        if(var_planeta_tablas()[[2]][1] != input$tipo_var1_tablas) return(NULL)
-      } else
+        if(VarPlaneta_tablas()[[2]][1] != input$tipo_var1_tablas) return(NULL)
+      }
+      
       
       # Todo para 2 variables
       if(input$qtty_var_tablas == 2) {
-        if(var_planeta_tablas()[[2]][1] != input$tipo_var1_tablas) return(NULL)
-        if(var_planeta_tablas()[[2]][2] != input$tipo_var2_tablas) return(NULL)
-        }
+        
+        armado_interno <- c(input$tipo_var1_tablas, input$tipo_var2_tablas)
+        caso_rotacion <- c("Numérica", "Categórica")
+        
+        rotamos <- identical(armado_interno, caso_rotacion)
+        
+        if(rotamos) armado_interno <- armado_interno[c(2,1)]
+        
+        if(VarPlaneta_tablas()[[2]][1] != armado_interno[1]) { 
+          return(NULL)} 
+        
+        if(VarPlaneta_tablas()[[2]][2] != armado_interno[2]) { 
+          return(NULL)}
+        
+        
+      }
       
       
-      # Return Exitoso
-      return(BaseSalida()[var_planeta_tablas()[[1]]])
+      
+      
+      #Return Exitoso
+      return(na.omit(BaseSalida()[VarPlaneta_tablas()[[1]]]))
       
     })
     
-    zocaloPlaneta_Tablas <- reactive({
+    ZocaloPlaneta_tablas <- reactive({
       
-      if(is.null(var_planeta_tablas())) return(NULL)
+      if(is.null(VarPlaneta_tablas())) return(NULL)
       
       # Preparamos el armado
       armado <- list()
       
-      if(length(var_planeta_tablas()[[1]]) == 1) {
+      if(length(VarPlaneta_tablas()[[1]]) == 1) {
         
-        armado[[1]] <- paste0("<b>Variable 1: </b>", var_planeta_tablas()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0("<b>Variable 1: </b>", VarPlaneta_tablas()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_tablas))
         
-        armado[[2]] <- paste0("Variable 1: ", var_planeta_tablas()[[1]][1], " - Columna ",
+        armado[[2]] <- paste0("Variable 1: ", VarPlaneta_tablas()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_tablas))
         
       }
       
       
-      if(length(var_planeta_tablas()[[1]]) == 2) {
+      if(length(VarPlaneta_tablas()[[1]]) == 2) {
         
-        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", var_planeta_tablas()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", VarPlaneta_tablas()[[1]][1], " - Columna ",
                                      MyLetter(Base = BaseSalida(), the_col = input$var1_tablas)),
                               "<br/>",
-                              paste0("<b>Variable 2: </b>", var_planeta_tablas()[[1]][2]), " - Columna ",
+                              paste0("<b>Variable 2: </b>", VarPlaneta_tablas()[[1]][2]), " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var2_tablas))
         
-        armado[[2]] <- c(paste0("Variable 1: ", var_planeta_tablas()[[1]][1], " - Columna ",
+        armado[[2]] <- c(paste0("Variable 1: ", VarPlaneta_tablas()[[1]][1], " - Columna ",
                                 MyLetter(Base = BaseSalida(), the_col = input$var1_tablas)),
-                         paste0("<b>Variable 2: </b>", var_planeta_tablas()[[1]][2]), " - Columna ",
+                         paste0("<b>Variable 2: </b>", VarPlaneta_tablas()[[1]][2]), " - Columna ",
                          MyLetter(Base = BaseSalida(), the_col = input$var2_tablas)
         )
         
@@ -1579,44 +1611,46 @@ function(input, output, session) {
       }
       
       
-      # SI hay seleccionado un CIE...
+      
       if(!is.null(zocalo_CIE())){
         
         armado[[1]] <- paste0(armado[[1]], "<br/>",  zocalo_CIE()[[1]])
         armado[[2]] <-  c(armado[[2]], zocalo_CIE()[[2]])
       } 
       
-      # Detalles finales
+      
       armado[[1]] <- HTML(armado[[1]])
       names(armado)[1] <- "Variables Seleccionadas"
       names(armado)[2] <- "Variables Seleccionadas"
       
-      # Return Exitoso
       return(armado)
       
     })
     
-    
     # Objetos Output
-    output$BasePlaneta_Tablas <- renderTable({
-      if(is.null(BasePlaneta_Tablas())) return(NULL)
+    output$BasePlaneta_tablas <- renderTable({
+      if(is.null(BasePlaneta_tablas())) return(NULL)
       
-      BasePlaneta_Tablas()
+      BasePlaneta_tablas()
     })
     
-    output$ZocaloPlaneta_Tablas <- renderText({
+    output$ZocaloPlaneta_tablas <- renderText({
       
-      if(is.null(zocaloPlaneta_Tablas())) return(NULL)
+      if(is.null(ZocaloPlaneta_tablas())) return(NULL)
       
       
       paste0(
         div(
-          h3(names(zocaloPlaneta_Tablas())[1]),
-          zocaloPlaneta_Tablas()[[1]]
+          h3(names(ZocaloPlaneta_tablas())[1]),
+          ZocaloPlaneta_tablas()[[1]]
         )
       )
       
     })
+    
+    ###
+    } # Fin Codigo Tablas - TOdo OK!
+    #########################################################
     
     
     # Panel de Tablas
@@ -1645,10 +1679,10 @@ function(input, output, session) {
           eval(parse(text = gsub("_tablas", "_tablas", TextUI_Variables))),
           br(),
           br(),
-          htmlOutput("ZocaloPlaneta_Tablas"),
+          htmlOutput("ZocaloPlaneta_tablas"), 
           br(),
           br(),
-          tableOutput("BasePlaneta_Tablas")
+          tableOutput("BasePlaneta_tablas")
         ) # End TabPanel()
         
         
@@ -1671,16 +1705,16 @@ function(input, output, session) {
     ###
     
     # Objetos Reactivos
-    var_planeta_ho <- reactive({
+    VarPlaneta_graficos <- reactive({
       
       
       if(is.null(input$PanelRMedic)) return(NULL)
       if(is.null(BaseSalida())) return(NULL)
       
       
-      if(is.null(input$qtty_var_ho)) return(NULL)
-      if(is.na(input$qtty_var_ho)) return(NULL)
-      if(input$qtty_var_ho == "") return(NULL)
+      if(is.null(input$qtty_var_graficos)) return(NULL)
+      if(is.na(input$qtty_var_graficos)) return(NULL)
+      if(input$qtty_var_graficos == "") return(NULL)
       
       
       
@@ -1691,45 +1725,47 @@ function(input, output, session) {
       caso_tipo_variables <- c()
       
       # Todo para 1 variable
-      if(input$qtty_var_ho == 1) {
+      if(input$qtty_var_graficos == 1) {
         
-        if(is.null(input$var1_ho)) return(NULL)
-        if(is.na(input$var1_ho)) return(NULL)
-        if(input$var1_ho == "") return(NULL)
-        if(is.null(input$tipo_var1_ho)) return(NULL)
-        if(is.na(input$tipo_var1_ho)) return(NULL)
-        if(input$tipo_var1_ho == "") return(NULL)
+        if(is.null(input$var1_graficos)) return(NULL)
+        if(is.na(input$var1_graficos)) return(NULL)
+        if(input$var1_graficos == "") return(NULL)
+        if(is.null(input$tipo_var1_graficos)) return(NULL)
+        if(is.na(input$tipo_var1_graficos)) return(NULL)
+        if(input$tipo_var1_graficos == "") return(NULL)
         
-        variables[1] <- input$var1_ho
-        tipo_variables[1] <- input$tipo_var1_ho
+        variables[1] <- input$var1_graficos
+        tipo_variables[1] <- input$tipo_var1_graficos
         
         
       }
       
       
       # Todo para 2 variables
-      if(input$qtty_var_ho == 2) {
+      if(input$qtty_var_graficos == 2) {
         
-        if(is.null(input$var1_ho)) return(NULL)
-        if(is.na(input$var1_ho)) return(NULL)
-        if(input$var1_ho == "") return(NULL)
-        if(is.null(input$tipo_var1_ho)) return(NULL)
-        if(is.na(input$tipo_var1_ho)) return(NULL)
-        if(input$tipo_var1_ho == "") return(NULL)
+        if(is.null(input$var1_graficos)) return(NULL)
+        if(is.na(input$var1_graficos)) return(NULL)
+        if(input$var1_graficos == "") return(NULL)
+        if(is.null(input$tipo_var1_graficos)) return(NULL)
+        if(is.na(input$tipo_var1_graficos)) return(NULL)
+        if(input$tipo_var1_graficos == "") return(NULL)
         
-        if(is.null(input$var2_ho)) return(NULL)
-        if(is.na(input$var2_ho)) return(NULL)
-        if(input$var2_ho == "") return(NULL)
-        if(is.null(input$tipo_var2_ho)) return(NULL)
-        if(is.na(input$tipo_var2_ho)) return(NULL)
-        if(input$tipo_var2_ho == "") return(NULL)
+        if(is.null(input$var2_graficos)) return(NULL)
+        if(is.na(input$var2_graficos)) return(NULL)
+        if(input$var2_graficos == "") return(NULL)
+        if(is.null(input$tipo_var2_graficos)) return(NULL)
+        if(is.na(input$tipo_var2_graficos)) return(NULL)
+        if(input$tipo_var2_graficos == "") return(NULL)
         
-        variables[1] <- c(input$var1_ho)
-        variables[2] <- c(input$var2_ho)
+        variables[1] <- c(input$var1_graficos)
+        variables[2] <- c(input$var2_graficos)
         
-        tipo_variables[1] <- input$tipo_var1_ho
-        tipo_variables[2] <- input$tipo_var2_ho
+        tipo_variables[1] <- input$tipo_var1_graficos
+        tipo_variables[2] <- input$tipo_var2_graficos
         
+        
+        # Rotacion!
         modelo_cambio <- c("Numérica", "Categórica")
         
         if (identical(tipo_variables, modelo_cambio)){
@@ -1781,60 +1817,76 @@ function(input, output, session) {
       
     })
     
-    BasePlaneta_Ho <- reactive({
+    BasePlaneta_graficos <- reactive({
       
       # Si no hay status de BaseSalida(), nos vamos...
       if(is.null(status_BaseSalida())) return(NULL)
-      if(!status_BaseSalida())   return(NULL)
-      if(is.null(var_planeta_ho()))     return(NULL)
+      if(!status_BaseSalida())  return(NULL)
+      if(is.null(VarPlaneta_graficos())) return(NULL)
       
       # Todo para 2 variables
-      if(input$qtty_var_ho == 1) {
-        if(var_planeta_ho()[[2]][1] != input$tipo_var1_ho) return(NULL)
-      } else
+      if(input$qtty_var_graficos == 1) {
+        if(VarPlaneta_graficos()[[2]][1] != input$tipo_var1_graficos) return(NULL)
+      }
+      
+      
+      # Todo para 2 variables
+      if(input$qtty_var_graficos == 2) {
         
-        # Todo para 2 variables
-        if(input$qtty_var_ho == 2) {
-          if(var_planeta_ho()[[2]][1] != input$tipo_var1_ho) return(NULL)
-          if(var_planeta_ho()[[2]][2] != input$tipo_var2_ho) return(NULL)
-        }
-      
-      
-      # Return Exitoso
-      return(BaseSalida()[var_planeta_ho()[[1]]])
-      
-    })
-    
-    zocaloPlaneta_Ho <- reactive({
-      
-      if(is.null(var_planeta_ho())) return(NULL)
-      
-      # Preparamos el armado
-      armado <- list()
-      
-      if(length(var_planeta_ho()[[1]]) == 1) {
+        armado_interno <- c(input$tipo_var1_graficos, input$tipo_var2_graficos)
+        caso_rotacion <- c("Numérica", "Categórica")
         
-        armado[[1]] <- paste0("<b>Variable 1: </b>", var_planeta_ho()[[1]][1], " - Columna ",
-                              MyLetter(Base = BaseSalida(), the_col = input$var1_ho))
+        rotamos <- identical(armado_interno, caso_rotacion)
         
-        armado[[2]] <- paste0("Variable 1: ", var_planeta_ho()[[1]][1], " - Columna ",
-                              MyLetter(Base = BaseSalida(), the_col = input$var1_ho))
+        if(rotamos) armado_interno <- armado_interno[c(2,1)]
+        
+        if(VarPlaneta_graficos()[[2]][1] != armado_interno[1]) { 
+          return(NULL)} 
+        
+        if(VarPlaneta_graficos()[[2]][2] != armado_interno[2]) { 
+          return(NULL)}
+        
         
       }
       
       
-      if(length(var_planeta_ho()[[1]]) == 2) {
+      
+      
+      #Return Exitoso
+      return(na.omit(BaseSalida()[VarPlaneta_graficos()[[1]]]))
+      
+    })
+    
+    ZocaloPlaneta_graficos <- reactive({
+      
+      if(is.null(VarPlaneta_graficos())) return(NULL)
+      
+      # Preparamos el armado
+      armado <- list()
+      
+      if(length(VarPlaneta_graficos()[[1]]) == 1) {
         
-        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", var_planeta_ho()[[1]][1], " - Columna ",
-                                     MyLetter(Base = BaseSalida(), the_col = input$var1_ho)),
+        armado[[1]] <- paste0("<b>Variable 1: </b>", VarPlaneta_graficos()[[1]][1], " - Columna ",
+                              MyLetter(Base = BaseSalida(), the_col = input$var1_graficos))
+        
+        armado[[2]] <- paste0("Variable 1: ", VarPlaneta_graficos()[[1]][1], " - Columna ",
+                              MyLetter(Base = BaseSalida(), the_col = input$var1_graficos))
+        
+      }
+      
+      
+      if(length(VarPlaneta_graficos()[[1]]) == 2) {
+        
+        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", VarPlaneta_graficos()[[1]][1], " - Columna ",
+                                     MyLetter(Base = BaseSalida(), the_col = input$var1_graficos)),
                               "<br/>",
-                              paste0("<b>Variable 2: </b>", var_planeta_ho()[[1]][2]), " - Columna ",
-                              MyLetter(Base = BaseSalida(), the_col = input$var2_ho))
+                              paste0("<b>Variable 2: </b>", VarPlaneta_graficos()[[1]][2]), " - Columna ",
+                              MyLetter(Base = BaseSalida(), the_col = input$var2_graficos))
         
-        armado[[2]] <- c(paste0("Variable 1: ", var_planeta_ho()[[1]][1], " - Columna ",
-                                MyLetter(Base = BaseSalida(), the_col = input$var1_ho)),
-                         paste0("<b>Variable 2: </b>", var_planeta_ho()[[1]][2]), " - Columna ",
-                         MyLetter(Base = BaseSalida(), the_col = input$var2_ho)
+        armado[[2]] <- c(paste0("Variable 1: ", VarPlaneta_graficos()[[1]][1], " - Columna ",
+                                MyLetter(Base = BaseSalida(), the_col = input$var1_graficos)),
+                         paste0("<b>Variable 2: </b>", VarPlaneta_graficos()[[1]][2]), " - Columna ",
+                         MyLetter(Base = BaseSalida(), the_col = input$var2_graficos)
         )
         
         
@@ -1842,40 +1894,38 @@ function(input, output, session) {
       }
       
       
-      # SI hay seleccionado un CIE...
+      
       if(!is.null(zocalo_CIE())){
         
         armado[[1]] <- paste0(armado[[1]], "<br/>",  zocalo_CIE()[[1]])
         armado[[2]] <-  c(armado[[2]], zocalo_CIE()[[2]])
       } 
       
-      # Detalles finales
+      
       armado[[1]] <- HTML(armado[[1]])
       names(armado)[1] <- "Variables Seleccionadas"
       names(armado)[2] <- "Variables Seleccionadas"
       
-      # Return Exitoso
       return(armado)
       
     })
     
-    
     # Objetos Output
-    output$BasePlaneta_Ho <- renderTable({
-      if(is.null(BasePlaneta_ho())) return(NULL)
+    output$BasePlaneta_graficos <- renderTable({
+      if(is.null(BasePlaneta_graficos())) return(NULL)
       
-      BasePlaneta_ho()
+      BasePlaneta_graficos()
     })
     
-    output$ZocaloPlaneta_Ho <- renderText({
+    output$ZocaloPlaneta_graficos <- renderText({
       
-      if(is.null(zocaloPlaneta_ho())) return(NULL)
+      if(is.null(ZocaloPlaneta_graficos())) return(NULL)
       
       
       paste0(
         div(
-          h3(names(zocaloPlaneta_ho())[1]),
-          zocaloPlaneta_ho()[[1]]
+          h3(names(ZocaloPlaneta_graficos())[1]),
+          ZocaloPlaneta_graficos()[[1]]
         )
       )
       
@@ -1908,10 +1958,10 @@ function(input, output, session) {
           eval(parse(text = gsub("_tablas", "_graficos",TextUI_Variables))),
           br(),
           br(),
-          htmlOutput("ZocaloPlaneta_Graficos"),
+          htmlOutput("ZocaloPlaneta_graficos"),
           br(),
           br(),
-          tableOutput("BasePlaneta_Graficos"))
+          tableOutput("BasePlaneta_graficos"))
         
         
         
@@ -1931,7 +1981,7 @@ function(input, output, session) {
     ###
     
     # Objetos Reactivos
-    var_planeta_ho <- reactive({
+    VarPlaneta_ho <- reactive({
       
       
       if(is.null(input$PanelRMedic)) return(NULL)
@@ -1990,6 +2040,8 @@ function(input, output, session) {
         tipo_variables[1] <- input$tipo_var1_ho
         tipo_variables[2] <- input$tipo_var2_ho
         
+        
+        # Rotacion!
         modelo_cambio <- c("Numérica", "Categórica")
         
         if (identical(tipo_variables, modelo_cambio)){
@@ -2045,55 +2097,71 @@ function(input, output, session) {
       
       # Si no hay status de BaseSalida(), nos vamos...
       if(is.null(status_BaseSalida())) return(NULL)
-      if(!status_BaseSalida())   return(NULL)
-      if(is.null(var_planeta_ho()))     return(NULL)
+      if(!status_BaseSalida())  return(NULL)
+      if(is.null(VarPlaneta_ho())) return(NULL)
       
       # Todo para 2 variables
       if(input$qtty_var_ho == 1) {
-        if(var_planeta_ho()[[2]][1] != input$tipo_var1_ho) return(NULL)
-      } else
+        if(VarPlaneta_ho()[[2]][1] != input$tipo_var1_ho) return(NULL)
+      }
+      
+      
+      # Todo para 2 variables
+      if(input$qtty_var_ho == 2) {
         
-        # Todo para 2 variables
-        if(input$qtty_var_ho == 2) {
-          if(var_planeta_ho()[[2]][1] != input$tipo_var1_ho) return(NULL)
-          if(var_planeta_ho()[[2]][2] != input$tipo_var2_ho) return(NULL)
-        }
+        armado_interno <- c(input$tipo_var1_ho, input$tipo_var2_ho)
+        caso_rotacion <- c("Numérica", "Categórica")
+        
+        rotamos <- identical(armado_interno, caso_rotacion)
+        
+        if(rotamos) armado_interno <- armado_interno[c(2,1)]
+        
+        if(VarPlaneta_ho()[[2]][1] != armado_interno[1]) { 
+          return(NULL)} 
+        
+        if(VarPlaneta_ho()[[2]][2] != armado_interno[2]) { 
+          return(NULL)}
+        
+        
+      }
       
       
-      # Return Exitoso
-      return(BaseSalida()[var_planeta_ho()[[1]]])
+      
+      
+      #Return Exitoso
+      return(na.omit(BaseSalida()[VarPlaneta_ho()[[1]]]))
       
     })
     
-    zocaloPlaneta_ho <- reactive({
+    ZocaloPlaneta_ho <- reactive({
       
-      if(is.null(var_planeta_ho())) return(NULL)
+      if(is.null(VarPlaneta_ho())) return(NULL)
       
       # Preparamos el armado
       armado <- list()
       
-      if(length(var_planeta_ho()[[1]]) == 1) {
+      if(length(VarPlaneta_ho()[[1]]) == 1) {
         
-        armado[[1]] <- paste0("<b>Variable 1: </b>", var_planeta_ho()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0("<b>Variable 1: </b>", VarPlaneta_ho()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_ho))
         
-        armado[[2]] <- paste0("Variable 1: ", var_planeta_ho()[[1]][1], " - Columna ",
+        armado[[2]] <- paste0("Variable 1: ", VarPlaneta_ho()[[1]][1], " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var1_ho))
         
       }
       
       
-      if(length(var_planeta_ho()[[1]]) == 2) {
+      if(length(VarPlaneta_ho()[[1]]) == 2) {
         
-        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", var_planeta_ho()[[1]][1], " - Columna ",
+        armado[[1]] <- paste0(paste0("<b>Variable 1: </b>", VarPlaneta_ho()[[1]][1], " - Columna ",
                                      MyLetter(Base = BaseSalida(), the_col = input$var1_ho)),
                               "<br/>",
-                              paste0("<b>Variable 2: </b>", var_planeta_ho()[[1]][2]), " - Columna ",
+                              paste0("<b>Variable 2: </b>", VarPlaneta_ho()[[1]][2]), " - Columna ",
                               MyLetter(Base = BaseSalida(), the_col = input$var2_ho))
         
-        armado[[2]] <- c(paste0("Variable 1: ", var_planeta_ho()[[1]][1], " - Columna ",
+        armado[[2]] <- c(paste0("Variable 1: ", VarPlaneta_ho()[[1]][1], " - Columna ",
                                 MyLetter(Base = BaseSalida(), the_col = input$var1_ho)),
-                         paste0("<b>Variable 2: </b>", var_planeta_ho()[[1]][2]), " - Columna ",
+                         paste0("<b>Variable 2: </b>", VarPlaneta_ho()[[1]][2]), " - Columna ",
                          MyLetter(Base = BaseSalida(), the_col = input$var2_ho)
         )
         
@@ -2102,23 +2170,21 @@ function(input, output, session) {
       }
       
       
-      # SI hay seleccionado un CIE...
+      
       if(!is.null(zocalo_CIE())){
         
         armado[[1]] <- paste0(armado[[1]], "<br/>",  zocalo_CIE()[[1]])
         armado[[2]] <-  c(armado[[2]], zocalo_CIE()[[2]])
       } 
       
-      # Detalles finales
+      
       armado[[1]] <- HTML(armado[[1]])
       names(armado)[1] <- "Variables Seleccionadas"
       names(armado)[2] <- "Variables Seleccionadas"
       
-      # Return Exitoso
       return(armado)
       
     })
-    
     
     # Objetos Output
     output$BasePlaneta_ho <- renderTable({
@@ -2129,13 +2195,13 @@ function(input, output, session) {
     
     output$ZocaloPlaneta_ho <- renderText({
       
-      if(is.null(zocaloPlaneta_ho())) return(NULL)
+      if(is.null(ZocaloPlaneta_ho())) return(NULL)
       
       
       paste0(
         div(
-          h3(names(zocaloPlaneta_ho())[1]),
-          zocaloPlaneta_ho()[[1]]
+          h3(names(ZocaloPlaneta_ho())[1]),
+          ZocaloPlaneta_ho()[[1]]
         )
       )
       
@@ -2168,10 +2234,10 @@ function(input, output, session) {
           eval(parse(text = gsub("_tablas", "_ho",TextUI_Variables))),
           br(),
           br(),
-          htmlOutput("ZocaloPlaneta_Ho"),
+          htmlOutput("ZocaloPlaneta_ho"),
           br(),
           br(),
-          tableOutput("BasePlaneta_Ho")
+          tableOutput("BasePlaneta_ho")
         )
         
         
