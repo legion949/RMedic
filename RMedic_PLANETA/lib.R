@@ -3936,7 +3936,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     porcentaje  <- paste(fr*100, "%", sep="")
     
     # Fusion
-    fusion <- paste0(porcentaje, "(", fa, ")")
+    fusion <- paste0(fa, "(", porcentaje, ")")
     
     # Tabla de Distribucion de Frecuencias
     tabla01 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
@@ -3944,7 +3944,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     rotulo <- paste0("Variable: ", colnames(minibase))
     tabla01 <- as.data.frame(tabla01)
-    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
+    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA(%)")
     colnames(tabla01) <- nombres_tabla01
     
     numericas <- c(2, 3, 5)
@@ -3998,7 +3998,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       
       
       tabla02 <- cbind(grupos, porcentaje, li_porcentaje, ls_porcentaje)
-      colnames(tabla02) <- c(rotulo, "%", paste0("Límite Inferior ", confianza), paste0("Límite Supeior ", confianza))
+      colnames(tabla02) <- c(rotulo, "Porcentaje", paste0("Límite Inferior ", confianza), paste0("Límite Supeior ", confianza))
       tabla02 <- as.data.frame(tabla02)
       rownames(tabla02) <- rownames(tabla01)
       
@@ -4091,9 +4091,10 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
 
 ########################
 
-RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL,
-                             input_min = NULL, input_max = NULL, input_breaks = NULL,
-                             input_side = NULL) {
+RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL) { 
+  
+                             # input_min = NULL, input_max = NULL, input_breaks = NULL,
+                             # input_side = NULL) {
   
   # Default values
   if (is.null(input_decimales)) input_decimales <- 2
@@ -4182,11 +4183,11 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   {
     ###
     
-    if(is.null(input_min))  input_min <- min(mini_vector) 
-    if(is.null(input_max))  input_max <- max(mini_vector)
-    if(is.null(input_breaks))  input_breaks <- nclass.Sturges(mini_vector)
-    if(is.null(input_side))  input_side <- T
-    
+    # if(is.null(input_min))  input_min <- min(mini_vector) 
+    # if(is.null(input_max))  input_max <- max(mini_vector)
+    # if(is.null(input_breaks))  input_breaks <- nclass.Sturges(mini_vector)
+    # if(is.null(input_side))  input_side <- T
+    # 
     ###
   } # Fin More default values
   #################################################
@@ -4433,81 +4434,83 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   
   
   
-  
-  # Tabla 8: Tabla de Frecuencias
-  {
-    ###
-    
-    diferencia <- input_max - input_min
-    rango <- diferencia/input_breaks
-    
-    cortes <- input_min + c(0:input_breaks)*rango
-    cortes
-    
-    info <- cut(mini_vector, breaks = cortes , right = input_side, 
-                include.lowest = T)  
-    
-    dim(info) <- c(length(info), 1)
-    info <- as.data.frame(info)
-    colnames(info) <- colnames(input_base)
-    
-  #  tabla8 <- RMedic_1q_tablas(input_base = info, input_decimales = input_decimales)[[1]]
-    
-    # Pasamos la ultima fila como primera
-  #  if(input_side) tabla8 <- tabla8[c(nrow(tabla8), (1:(nrow(tabla8)-1))), ]
-    
-    # Frecuencais Absolutas
-    fa <- table(info)
-    
-    # Total Absoluto
-    n_total <- sum(fa)
-    grupos <- as.character(names(fa))
-    salida_n_total <- rep(n_total, length(fa))
-    
-    # Cociente
-    cociente <- paste0(fa, "/", n_total)
-    
-    # Frecuencias Relativas
-    fr <- round2((fa/n_total), input_decimales)
-    
-    
-    
-    # Porcentajes
-    porcentaje  <- paste(fr*100, "%", sep="")
-    
-    # Fusion
-    fusion <- paste0(porcentaje, "(", fa, ")")
-    
-    # Tabla de Distribucion de Frecuencias
-    tabla8 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
-                     porcentaje, fusion)
-    
-    rotulo <- paste0("Variable: ", colnames(info))
-    tabla8 <- as.data.frame(tabla8)
-    nombres_tabla8 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
-    colnames(tabla8) <- nombres_tabla8
-    
-    numericas <- c(2, 3, 5)
-    for(n in 1:length(numericas)) tabla8[,numericas[n]] <- as.numeric(as.character(tabla8[,numericas[n]])) 
-    
-    ###  
-  } # Fin Tabla 8 Tabla de Frecuencias
-  ######################################################
-  
+  # 
+  # # Tabla 8: Tabla de Frecuencias
+  # {
+  #   ###
+  #   
+  #   diferencia <- input_max - input_min
+  #   rango <- diferencia/input_breaks
+  #   
+  #   cortes <- input_min + c(0:input_breaks)*rango
+  #   cortes
+  #   
+  #   info <- cut(mini_vector, breaks = cortes , right = input_side, 
+  #               include.lowest = T)  
+  #   
+  #   dim(info) <- c(length(info), 1)
+  #   info <- as.data.frame(info)
+  #   colnames(info) <- colnames(input_base)
+  #   
+  # #  tabla8 <- RMedic_1q_tablas(input_base = info, input_decimales = input_decimales)[[1]]
+  #   
+  #   # Pasamos la ultima fila como primera
+  # #  if(input_side) tabla8 <- tabla8[c(nrow(tabla8), (1:(nrow(tabla8)-1))), ]
+  #   
+  #   # Frecuencais Absolutas
+  #   fa <- table(info)
+  #   
+  #   # Total Absoluto
+  #   n_total <- sum(fa)
+  #   grupos <- as.character(names(fa))
+  #   salida_n_total <- rep(n_total, length(fa))
+  #   
+  #   # Cociente
+  #   cociente <- paste0(fa, "/", n_total)
+  #   
+  #   # Frecuencias Relativas
+  #   fr <- round2((fa/n_total), input_decimales)
+  #   
+  #   
+  #   
+  #   # Porcentajes
+  #   porcentaje  <- paste(fr*100, "%", sep="")
+  #   
+  #   # Fusion
+  #   fusion <- paste0(porcentaje, "(", fa, ")")
+  #   
+  #   # Tabla de Distribucion de Frecuencias
+  #   tabla8 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
+  #                    porcentaje, fusion)
+  #   
+  #   rotulo <- paste0("Variable: ", colnames(info))
+  #   tabla8 <- as.data.frame(tabla8)
+  #   nombres_tabla8 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
+  #   colnames(tabla8) <- nombres_tabla8
+  #   
+  #   numericas <- c(2, 3, 5)
+  #   for(n in 1:length(numericas)) tabla8[,numericas[n]] <- as.numeric(as.character(tabla8[,numericas[n]])) 
+  #   
+  #   ###  
+  # } # Fin Tabla 8 Tabla de Frecuencias
+  # ######################################################
+  # 
   
   # Mis Tablas
   {
     ###
-    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7,
-                       tabla8)
+    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7)
+    
+    # ,  tabla8)
+    
     names(mis_tablas) <- c("Medidas Resumen", 
                            "Medidas de Posición",
                            "Medidas de Dispersión", 
                            "Cuartiles",
                            "Deciles",
                            "Percentiles",
-                           "Intervalo de Confianza (IC) para la media",
-                           "Distribución de Frecuencias")
+                           "Intervalo de Confianza (IC) para la media")
+                           # ,         "Distribución de Frecuencias")
     
     ###    
   }
@@ -4564,6 +4567,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   
   
 }
+
 ##############
 CifrasPerfectas <- function(cifras = NULL, digitos = 2){
   

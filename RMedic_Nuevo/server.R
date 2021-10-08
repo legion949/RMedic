@@ -1308,11 +1308,11 @@ function(input, output, session) {
       
       
       ###
-    } # End Tablas para 1 variable numerica (q) - Reactiave()!
-    ###########################################################
+    } # End Tablas para 1 variable numerica (c) - Reactiave()!
+    ###############################################################
     
     
-    # Tablas para 1 variable categorica (c) - Reactiave()!
+    # Tablas para 1 variable categorica (q) - Reactiave()!
     {
       ###
       
@@ -1497,7 +1497,7 @@ function(input, output, session) {
         
         
       ###
-    } # Fin Tablas para 1 variable categorica (c) - Reactiave()!
+    } # Fin Tablas para 1 variable categorica (q) - Reactiave()!
     ################################################################################
     
     

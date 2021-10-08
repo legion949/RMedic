@@ -1627,6 +1627,8 @@ server <- function(input, output, session) {
       
     })
     
+    DecimalesPlaneta_tablas <- reactive({ input$decimales_tablas })
+    
     # Objetos Output
     output$BasePlaneta_tablas <- renderTable({
       if(is.null(BasePlaneta_tablas())) return(NULL)
@@ -1652,6 +1654,162 @@ server <- function(input, output, session) {
     } # Fin Codigo Tablas - TOdo OK!
     #########################################################
     
+    
+    # Tablas para 1 variable categorica (q) - Reactiave()!
+    {
+      ### 
+      
+      
+      Reactive_tabla_1q_RMedic <- reactive({
+        
+        if(is.null(BasePlaneta_tablas())) return(NULL)
+        if(is.null(VarPlaneta_tablas())) return(NULL)
+        
+
+          
+          #   cat("Hola", "\n")
+          salida <-  RMedic_1q_tablas(BasePlaneta_tablas(), input$decimales_tablas)
+          salida[[1]][,2] <- as.character(salida[[1]][,2])
+          salida[[1]][,3] <- as.character(salida[[1]][,3])
+          
+          # Return Exitoso
+          return(salida)
+          
+        
+      })
+      
+      
+      observe(
+        output$Salida_tabla_1q_RMedic_01 <- renderTable(digits = DecimalesPlaneta_tablas(),
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                            # Reactive_tabla_1q_RMedic()[[1]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[1]]
+                                                            
+                                                          } else return(NULL)
+                                                        })
+      )
+      
+      observe(
+        output$Salida_tabla_1q_RMedic_02 <- renderTable(digits=DecimalesPlaneta_tablas(), 
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                            # Reactive_tabla_1q_RMedic()[[2]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[2]]
+                                                          } else return(NULL)
+                                                        })
+      )
+      # 
+      # 
+      observe(
+        output$Salida_tabla_1q_RMedic_03 <- renderTable(digits=DecimalesPlaneta_tablas(),
+                                                        align= "c",{
+                                                          
+                                                          if(!is.null(Reactive_tabla_1q_RMedic())) {
+                                                            # Reactive_tabla_1q_RMedic()[[3]][[2]]
+                                                            Reactive_tabla_1q_RMedic()[[3]]
+                                                          } else return(NULL)
+                                                        })
+      )
+      # 
+      # 
+      # 
+      observe(
+        output$Salida_tabla_1q_RMedic_04 <- renderTable(digits=DecimalesPlaneta_tablas(), align= "c",{
+          
+          if(!is.null(Reactive_tabla_1q_RMedic())) {
+            #  Reactive_tabla_1q_RMedic()[[4]][[2]]
+            Reactive_tabla_1q_RMedic()[[4]]
+          } else return(NULL)
+        })
+      )
+      
+      
+      output$Menu_tabla_1q_RMedic <- renderUI ({
+    
+     # OJO!
+     # Si pongo esto, se resetea todo el sector, y cuando cambio los
+     # decimales me reseta todo el tabPanel
+        
+     #   if(is.null(Reactive_tabla_1q_RMedic())) return(NULL)
+        
+        div(
+          tabsetPanel(id = "Tablas_1c",
+                      tabPanel("RMedic Help!", value = 1),
+                      tabPanel("Distribución de Frecuencias", value = 2),
+                      tabPanel("Intervalos de Confianza", value = 3)
+                      )
+          )
+      })
+     
+      output$Salida_tabla_1q_RMedic <- renderUI ({
+        
+        if(is.null(input$Tablas_1c)) return(NULL)
+        if(is.null(Reactive_tabla_1q_RMedic())) return(NULL)
+        
+        if(input$Tablas_1c == 1) { } else
+          if(input$Tablas_1c == 2) { 
+            
+          div(
+            lapply(1, function(i) {
+              nombre_fusion <- paste0('Salida_tabla_1q_RMedic_', CifrasPerfectas(i))
+              div(
+                h3(names(Reactive_tabla_1q_RMedic())[i]),
+                tableOutput(nombre_fusion), br()
+              )
+            
+            })
+          )
+            
+            } else
+            if(input$Tablas_1c == 3) {
+              
+              div(
+              lapply(2:4, function(i) {
+                nombre_fusion <- paste0('Salida_tabla_1q_RMedic_', CifrasPerfectas(i))
+                div(
+                  h3(names(Reactive_tabla_1q_RMedic())[i]),
+                  tableOutput(nombre_fusion), br()
+                )
+              })
+              )
+            } else return(NULL)
+        
+
+          
+      
+        
+        
+      })
+      
+      
+      
+      ###
+    } # End Tablas para 1 variable categorica (q) - Reactiave()!
+    ###############################################################
+    
+    
+   
+    
+    
+    
+    
+    output$salida_TABLAS_RMedic <- renderUI ({
+      
+      if(is.null(BasePlaneta_tablas())) return(NULL)
+      if(is.null(VarPlaneta_tablas())) return(NULL)
+      
+      
+        if (VarPlaneta_tablas()[[3]] == 1) {
+         
+          div(
+            uiOutput("Menu_tabla_1q_RMedic"),
+            uiOutput("Salida_tabla_1q_RMedic")
+          )
+        }   else return(NULL)
+    })
     
     # Panel de Tablas
     menuTABLAS <- reactive({
@@ -1680,9 +1838,9 @@ server <- function(input, output, session) {
           br(),
           br(),
           htmlOutput("ZocaloPlaneta_tablas"), 
+          uiOutput("salida_TABLAS_RMedic"),
           br(),
-          br(),
-          tableOutput("BasePlaneta_tablas")
+          br()
         ) # End TabPanel()
         
         
