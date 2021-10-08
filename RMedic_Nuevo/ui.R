@@ -34,11 +34,15 @@ fluidPage (
           titlePanel("R+Medic"),
           br(),
   fluidRow(
-    column(1),
+   # column(1),
     column(11,
-           actionButton("toggleSidebar", "Mostrar/Quitar Carga de Datos",
-                        icon("bars"), 
-                        style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+           bsButton("showpanel", "Ocultar/Mostrar Carga de Datos", type = "toggle", value = TRUE,
+                    icon("bars"), style = "primary", size = "large"
+           )
+    #        actionButton("toggleSidebar", "Mostrar/Quitar Carga de Datos",
+    #                     icon("bars"), 
+    #                     style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+    # 
     )
   ),
   br(),
@@ -49,22 +53,27 @@ fluidPage (
  
  textOutput("prueba1"),
  textOutput("prueba2"),
-  div(id = "MySidebar", sidebarPanel(OpcionesDeCarga)), 
-  mainPanel(        
-  fluidRow(
-            column(1,
+ 
+      sidebarLayout(
+        div(id = "MySidebar",sidebarPanel(id = "Sidebar", OpcionesDeCarga)),
+        mainPanel( id ="Main",       
+            #  fluidRow(
+                column(1,
                    actionButton("MiniButton", "",
                                 icon("bars"), 
                                 width = "75px",
                                 style ="color: #fff; background-color: #337ab7; 
                                 border-color: #2e6da4; height:65px;
                                 font-size:200%")),
-            column(10, 
-                  uiOutput("RMedicSoft")
+                column(10, 
+                  uiOutput("RMedicSoft"), br(),
+                  tableOutput("BasePlaneta")
                    ),
             column(1)
           )
           
+), fluid = T
+ # )
 )
-)
+
 

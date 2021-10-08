@@ -9,6 +9,7 @@ library(datasets)
 library(DT)
 library(htmltools)
 library(openxlsx)
+library(shinyBS)
 
 # library(shinydashboard)
 
@@ -59,31 +60,32 @@ OpcionesDeColumnas <- function(my_names = ""){
 }
 
 
-AllEyesOnMe <- function(ListBase = NULL, the_col = NULL) {
+AllEyesOnMe <- function(Base = NULL, the_col = NULL) {
   
   
   dt_ok <- FALSE
   
-  if(!is.null(ListBase))
+  if(!is.null(Base))
     if(!is.null(the_col))
       if(the_col != "")
-        if(sum(colnames(ListBase[[1]]) == the_col) > 0)
-          dt_ok <- TRUE
+        if(!is.na(the_col))
+          if(sum(colnames(Base) == the_col) > 0)
+            dt_ok <- TRUE
   
   
   dt_ok
 }
 
-MyLetter <- function(ListBase = NULL, the_col = NULL) {
+MyLetter <- function(Base = NULL, the_col = NULL) {
   
   
   dt_ok <- FALSE
   
-  if(!is.null(ListBase))
+  if(!is.null(Base))
     if(!is.null(the_col))
       if(the_col != "")
-        if(sum(colnames(ListBase[[1]]) == the_col) > 0)
-          dt_col <- colnames(ListBase[[1]]) == the_col
+        if(sum(colnames(Base) == the_col) > 0)
+          dt_col <- colnames(Base) == the_col
           pos_col <- c(1:length(dt_col))
           the_col <- pos_col[dt_col]
           my_letter <- num2let(the_col)
@@ -96,17 +98,16 @@ ModifyMe <- function(the_text = NULL, end_var = NULL){
   
   
   internal_text <- '
-  the_text <- gsub("_THE_LISTBASE_", "BaseSalida()", the_text)
-  the_text <- gsub("_MY_BASE_", "BaseSalida()[[1]]", the_text)
-  the_text <- gsub("_MENU1_", "input$menu1_control", the_text)
-  the_text <- gsub("_ONLY_NAME_INPUT_VAR1_", "var1_control", the_text)
-  the_text <- gsub("_ONLY_NAME_INPUT_VAR2_", "var2_control", the_text)
-  the_text <- gsub("_INPUT_VAR1_", "input$var1_control", the_text)
-  the_text <- gsub("_INPUT_VAR2_", "input$var2_control", the_text)
-  the_text <- gsub("_ONLY_NAME_INPUT_TIPO_VAR1_", "tipo_var1_control", the_text)
-  the_text <- gsub("_ONLY_NAME_INPUT_TIPO_VAR2_", "tipo_var2_control", the_text)
+  the_text <- gsub("_MY_BASE_", "BaseSalida()", the_text)
+  the_text <- gsub("_MENU1_", "input$menu1_tablas", the_text)
+  the_text <- gsub("_ONLY_NAME_INPUT_VAR1_", "var1_tablas", the_text)
+  the_text <- gsub("_ONLY_NAME_INPUT_VAR2_", "var2_tablas", the_text)
+  the_text <- gsub("_INPUT_VAR1_", "input$var1_tablas", the_text)
+  the_text <- gsub("_INPUT_VAR2_", "input$var2_tablas", the_text)
+  the_text <- gsub("_ONLY_NAME_INPUT_TIPO_VAR1_", "tipo_var1_tablas", the_text)
+  the_text <- gsub("_ONLY_NAME_INPUT_TIPO_VAR2_", "tipo_var2_tablas", the_text)
   '
-  if (!is.null(end_var)) internal_text <- gsub("_control", end_var, internal_text)
+  if (!is.null(end_var)) internal_text <- gsub("_tablas", end_var, internal_text)
   eval(parse(text = internal_text))
   
   return(the_text)
@@ -3935,7 +3936,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     porcentaje  <- paste(fr*100, "%", sep="")
     
     # Fusion
-    fusion <- paste0(porcentaje, "(", fa, ")")
+    fusion <- paste0(fa, "(", porcentaje, ")")
     
     # Tabla de Distribucion de Frecuencias
     tabla01 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
@@ -3943,7 +3944,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     rotulo <- paste0("Variable: ", colnames(minibase))
     tabla01 <- as.data.frame(tabla01)
-    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
+    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA(%)")
     colnames(tabla01) <- nombres_tabla01
     
     numericas <- c(2, 3, 5)
@@ -3997,7 +3998,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       
       
       tabla02 <- cbind(grupos, porcentaje, li_porcentaje, ls_porcentaje)
-      colnames(tabla02) <- c(rotulo, "%", paste0("Límite Inferior ", confianza), paste0("Límite Supeior ", confianza))
+      colnames(tabla02) <- c(rotulo, "Porcentaje", paste0("Límite Inferior ", confianza), paste0("Límite Supeior ", confianza))
       tabla02 <- as.data.frame(tabla02)
       rownames(tabla02) <- rownames(tabla01)
       
@@ -4181,11 +4182,11 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   {
     ###
     
-    if(is.null(input_min))  input_min <- min(mini_vector) 
+    if(is.null(input_min))  input_min <- min(mini_vector)
     if(is.null(input_max))  input_max <- max(mini_vector)
     if(is.null(input_breaks))  input_breaks <- nclass.Sturges(mini_vector)
     if(is.null(input_side))  input_side <- T
-    
+    # 
     ###
   } # Fin More default values
   #################################################
@@ -4265,15 +4266,74 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   ############################################################
   
   
-  # Tabla 3 - Medidas Dispersion 
+  # Tabla 3 - Cuartiles
+  {
+    
+    input_busqueda = c(25, 50, 75)
+    nombres_columnas <- c("Variable", paste0(c("Q1", "Q2", "Q3"), 
+                                             paste0("(", input_busqueda, "%", ")")), "n")
+    
+    tabla3 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla3) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla3[1,1] <- colnames(minibase)
+    tabla3[1, c(2:(ncol(tabla3)-1))] <- percentiles
+    tabla3[1,ncol(tabla3)] <- nrow(minibase)
+    
+  } # End Tabla 3 - Cuartiles
+  ###########################################################
+  
+  
+  # Tabla 4 - Deciles
+  {
+    
+    input_busqueda <- c(10, 20, 30, 40, 50, 60, 70, 80, 90)
+    nombres_columnas <- c("Variable", paste0( "D",input_busqueda, " (", input_busqueda, "%)"), "n")
+    
+    tabla4 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla4) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla4[1,1] <- colnames(minibase)
+    tabla4[1, c(2:(ncol(tabla4)-1))] <- percentiles
+    tabla4[1,ncol(tabla4)] <- nrow(minibase)
+    
+  } # End Tabla 4 - Deciles
+  ###########################################################
+  
+  
+  # Tabla 5 - Percentiles
+  {
+    
+    input_busqueda <- c(1, 5, 10, 25, 50, 75, 90, 95, 99)
+    nombres_columnas <- c("Variable", paste0( "P",input_busqueda, " (", input_busqueda, "%)"), "n")
+    
+    tabla5 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
+    colnames(tabla5) <- nombres_columnas
+    
+    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
+    
+    tabla5[1,1] <- colnames(minibase)
+    tabla5[1, c(2:(ncol(tabla5)-1))] <- percentiles
+    tabla5[1,ncol(tabla5)] <- nrow(minibase)
+    
+  } # End Tabla 5 - Percentiles
+  ###########################################################
+  
+
+  
+  # Tabla 6 - Medidas Dispersion 
   {
     ###
     
     
     nombres_elementos <- c("Variable", "Varianza", "Desvío Estándard", "Error Estándard", "Coeficiente de Variación", "n")
     
-    tabla3 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
-    colnames(tabla3) <- nombres_elementos
+    tabla6 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+    colnames(tabla6) <- nombres_elementos
     
     
     # Varianza
@@ -4309,90 +4369,71 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     
     
-    tabla3[,1] <- colnames(minibase)
-    tabla3[,2] <- varianza
-    tabla3[,3] <- desvio
-    tabla3[,4] <- ee
-    tabla3[,5] <- cv
-    tabla3[,6] <- n_muestra
+    tabla6[,1] <- colnames(minibase)
+    tabla6[,2] <- varianza
+    tabla6[,3] <- desvio
+    tabla6[,4] <- ee
+    tabla6[,5] <- cv
+    tabla6[,6] <- n_muestra
     
     ###
-  } # Fin Tabla 3 - Medidas Dispersion 
+  } # Fin Tabla 6 - Medidas Dispersion 
+  ############################################################
+  
+  
+  # Tabla 7 - Desviaciones
+  {
+    ###
+    
+    
+    nombres_elementos <- c("Variable", "Rango Intercuartílico", "Desviación Intercuartílica", "n")
+    
+    tabla7 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
+    colnames(tabla7) <- nombres_elementos
+    
+    
+    Q1 <- quantile(mini_vector,  probs = 25/100)
+    Q3 <- quantile(mini_vector,  probs = 75/100)
+    
+    RI <- Q3 - Q1
+    DI <- RI/2
+    
+    # Redondeos
+    RI <- round2(RI, input_decimales) 
+    DI <- round2(DI, input_decimales) 
+    
+    
+    # Tamanio muestral
+    n_muestra <- length(mini_vector)
+    
+  
+    
+    
+    tabla7[,1] <- colnames(minibase)
+    tabla7[,2] <- RI
+    tabla7[,3] <- DI
+    tabla7[,4] <- n_muestra
+
+    
+    ###
+  } # Fin Tabla 7 - Desviaciones
   ############################################################
   
   
   
-  # Tabla 4 - Cuartiles
-  {
-    
-    input_busqueda = c(25, 50, 75)
-    nombres_columnas <- c("Variable", paste0(c("Q1", "Q2", "Q3"), 
-                                             paste0("(", input_busqueda, "%", ")")), "n")
-    
-    tabla4 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
-    colnames(tabla4) <- nombres_columnas
-    
-    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
-    
-    tabla4[1,1] <- colnames(minibase)
-    tabla4[1, c(2:(ncol(tabla4)-1))] <- percentiles
-    tabla4[1,ncol(tabla4)] <- nrow(minibase)
-    
-  } # End Tabla 4 - Cuartiles
-  ###########################################################
   
   
-  # Tabla 5 - Deciles
-  {
-    
-    input_busqueda <- c(10, 20, 30, 40, 50, 60, 70, 80, 90)
-    nombres_columnas <- c("Variable", paste0( "D",input_busqueda, " (", input_busqueda, "%)"), "n")
-    
-    tabla5 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
-    colnames(tabla5) <- nombres_columnas
-    
-    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
-    
-    tabla5[1,1] <- colnames(minibase)
-    tabla5[1, c(2:(ncol(tabla5)-1))] <- percentiles
-    tabla5[1,ncol(tabla5)] <- nrow(minibase)
-    
-  } # End Tabla 5 - Deciles
-  ###########################################################
-  
-  
-  # Tabla 6 - Percentiles
-  {
-    
-    input_busqueda <- c(1, 5, 10, 25, 50, 75, 90, 95, 99)
-    nombres_columnas <- c("Variable", paste0( "P",input_busqueda, " (", input_busqueda, "%)"), "n")
-    
-    tabla6 <- as.data.frame(matrix(NA, 1, length(nombres_columnas)))
-    colnames(tabla6) <- nombres_columnas
-    
-    percentiles <- quantile(mini_vector,  probs = input_busqueda/100)
-    
-    tabla6[1,1] <- colnames(minibase)
-    tabla6[1, c(2:(ncol(tabla6)-1))] <- percentiles
-    tabla6[1,ncol(tabla6)] <- nrow(minibase)
-    
-  } # End Tabla 6 - Percentiles
-  ###########################################################
-  
-  
-  
-  
-  # Tabla 7: Intervalos de Confianza
+  # Tabla 8: Intervalos de Confianza
   {
     ###
     
     
     alfa <- c(0.10, 0.05, 0.01)
     nombres_columnas <- c("Variable", "Media", "Confianza", "Límite Inferior IC", "Límite Superior IC", "n")
-    tabla7 <- as.data.frame(matrix(NA, length(alfa), length(nombres_columnas)))
-    colnames(tabla7) <- nombres_columnas
+    tabla8 <- as.data.frame(matrix(NA, length(alfa), length(nombres_columnas)))
+    colnames(tabla8) <- nombres_columnas
     
-    for (n in 1:nrow(tabla7)) {
+    for (n in 1:nrow(tabla8)) {
       
       este_alfa <- alfa[n]
       este_alfa_2 <- este_alfa/2
@@ -4411,12 +4452,12 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       media_li <- media - brazo
       media_ld <- media + brazo
       
-      tabla7[n, 1] <- colnames(input_base)
-      tabla7[n, 2] <- media
-      tabla7[n, 3] <- paste0((1-este_alfa)*100, "%")
-      tabla7[n, 4] <- media_li
-      tabla7[n, 5] <- media_ld
-      tabla7[n, 6] <- n_muestra
+      tabla8[n, 1] <- colnames(input_base)
+      tabla8[n, 2] <- media
+      tabla8[n, 3] <- paste0((1-este_alfa)*100, "%")
+      tabla8[n, 4] <- media_li
+      tabla8[n, 5] <- media_ld
+      tabla8[n, 6] <- n_muestra
       
     } # Fin for n
     
@@ -4427,84 +4468,88 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     
     ###  
-  } # Fin Tabla 7
+  } # Fin Tabla 8
   #############################################################
   
   
   
-  
-  # Tabla 8: Tabla de Frecuencias
+
+  # Tabla 9: Tabla de Frecuencias
   {
     ###
-    
+
     diferencia <- input_max - input_min
     rango <- diferencia/input_breaks
-    
+
     cortes <- input_min + c(0:input_breaks)*rango
     cortes
-    
-    info <- cut(mini_vector, breaks = cortes , right = input_side, 
-                include.lowest = T)  
-    
+
+    info <- cut(mini_vector, breaks = cortes , right = input_side,
+                include.lowest = T)
+
     dim(info) <- c(length(info), 1)
     info <- as.data.frame(info)
     colnames(info) <- colnames(input_base)
-    
-  #  tabla8 <- RMedic_1q_tablas(input_base = info, input_decimales = input_decimales)[[1]]
-    
+
+  #  tabla9 <- RMedic_1q_tablas(input_base = info, input_decimales = input_decimales)[[1]]
+
     # Pasamos la ultima fila como primera
-  #  if(input_side) tabla8 <- tabla8[c(nrow(tabla8), (1:(nrow(tabla8)-1))), ]
-    
+  #  if(input_side) tabla9 <- tabla9[c(nrow(tabla9), (1:(nrow(tabla9)-1))), ]
+
     # Frecuencais Absolutas
     fa <- table(info)
-    
+
     # Total Absoluto
     n_total <- sum(fa)
     grupos <- as.character(names(fa))
     salida_n_total <- rep(n_total, length(fa))
-    
+
     # Cociente
     cociente <- paste0(fa, "/", n_total)
-    
+
     # Frecuencias Relativas
     fr <- round2((fa/n_total), input_decimales)
-    
-    
-    
+
+
+
     # Porcentajes
     porcentaje  <- paste(fr*100, "%", sep="")
-    
+
     # Fusion
-    fusion <- paste0(porcentaje, "(", fa, ")")
-    
+    fusion <- paste0(fa, "(", porcentaje, ")")
+
     # Tabla de Distribucion de Frecuencias
-    tabla8 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
+    tabla9 <- cbind(grupos, fa, salida_n_total, cociente, fr,
                      porcentaje, fusion)
-    
+
     rotulo <- paste0("Variable: ", colnames(info))
-    tabla8 <- as.data.frame(tabla8)
-    nombres_tabla8 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "%", "%(FA)")
-    colnames(tabla8) <- nombres_tabla8
-    
+    tabla9 <- as.data.frame(tabla9)
+    nombres_tabla9 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA(%)")
+    colnames(tabla9) <- nombres_tabla9
+
     numericas <- c(2, 3, 5)
-    for(n in 1:length(numericas)) tabla8[,numericas[n]] <- as.numeric(as.character(tabla8[,numericas[n]])) 
-    
-    ###  
-  } # Fin Tabla 8 Tabla de Frecuencias
+    for(n in 1:length(numericas)) tabla9[,numericas[n]] <- as.numeric(as.character(tabla9[,numericas[n]]))
+
+    ###
+  } # Fin Tabla 9 Tabla de Frecuencias
   ######################################################
-  
+
   
   # Mis Tablas
   {
     ###
-    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7,
-                       tabla8)
+    mis_tablas <- list(tabla1, tabla2, tabla3, tabla4, tabla5, tabla6, tabla7, 
+                       tabla8, tabla9)
+    
+    # ,  tabla8)
+    
     names(mis_tablas) <- c("Medidas Resumen", 
                            "Medidas de Posición",
-                           "Medidas de Dispersión", 
                            "Cuartiles",
                            "Deciles",
                            "Percentiles",
+                           "Medidas de Dispersión", 
+                           "Desviaciones",
                            "Intervalo de Confianza (IC) para la media",
                            "Distribución de Frecuencias")
     
@@ -4563,6 +4608,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   
   
 }
+
 ##############
 CifrasPerfectas <- function(cifras = NULL, digitos = 2){
   
