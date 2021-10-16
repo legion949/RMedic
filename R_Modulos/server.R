@@ -9,15 +9,25 @@ function(input, output, session) {
     base_interna
   })
   
-  valores <- callModule(module = selectorSERVER, id =  "planeta", base = BaseSalida)
+  UserSelection <- callModule(module = BatallaNavalSERVER, id =  "tablas01", 
+                             base = BaseSalida, 
+                             verbatim = FALSE)
+
+  MiniBase <- callModule(module = MiniBaseSERVER, id =  "tablas02",
+                         base = BaseSalida,
+                         batalla_naval = UserSelection$batalla_naval,
+                         verbatim = FALSE)
 
  
-  output$MiTexto <- renderText({
-    
-    #cat(valores[[1]]())
-   # "AAAA"
-    unlist(valores$batalla_naval())
-  })  
   
+  callModule(module = TablasSERVER, id =  "tablas03", 
+             minibase = MiniBase,
+             batalla_naval = UserSelection$batalla_naval,
+            # casoRMedic = UserSelection$batalla_naval[[4]], #reactive(1),
+            # casoRMedic = UserSelection$batalla_naval$caso_tipo_variables,
+             decimales = UserSelection$decimales)
+  
+  
+
 
 }

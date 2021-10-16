@@ -5,8 +5,9 @@ fluidPage(
 
   mainPanel(
 
-    selectorUI("planeta"),
-   verbatimTextOutput("MiTexto"),
+    BatallaNavalUI("tablas01"),
+    MiniBaseUI("tablas02"),
+    TablasUI("tablas03"),
     br(), br()
     
 
