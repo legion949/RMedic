@@ -22,7 +22,7 @@ BatallaNavalUI <- function(id) {
            numericInput(inputId = ns("decimales"),
                         label = "Decimales",
                         value = 2,
-                        min = 1,
+                        min = 0,
                         max = 10,
                         step = 1)
     )
