@@ -2,83 +2,7 @@
 BatallaNavalUI <- function(id) {
   ns <- NS(id)
   
-  div(
-  fluidRow(
-    column(4, 
-            selectInput(inputId = ns("orden"), 
-                        label = "Orden: ",
-                        choices = c("Orden Original" = 1, 
-                                    "Albético Creciente" = 2,
-                                    "Albatético Decreciente" = 3)
-                        )
-    ),
-    column(4,
-           selectInput(inputId = ns("qtty_var"),
-                       label = "Cantidad de variables",
-                       choices = c("Seleccione... " = "", 1, 2)
-           )
-    ),
-    column(4,
-           numericInput(inputId = ns("decimales"),
-                        label = "Decimales",
-                        value = 2,
-                        min = 0,
-                        max = 10,
-                        step = 1)
-    )
-  ),
-  conditionalPanel(condition = "input.qtty_var != ''", ns = ns,
-    fluidRow(
-      conditionalPanel(condition = "input.qtty_var >= 1", ns = ns,
-        column(4,
-          selectInput(inputId = ns("var1"),
-                     label = "Variable 1: ",
-                     choices = "")
-                                     ),
-        column(4,
-           conditionalPanel(condition = "input.var1 != ''", ns = ns,
-              radioButtons(inputId = ns("tipo_var1"),
-                           label = "Tipo Variable 1:",
-                           choices = "")
-             )
-        )
-        )
-        ),
-        fluidRow(
-          conditionalPanel(condition = "input.qtty_var>= 2", ns = ns,
-            column(4,
-              selectInput(inputId = ns("var2"),
-                         label = "Variable 2: ",
-                         choices = "")
-              ),
-            column(4,
-              conditionalPanel(condition = "input.var2 != ''", ns = ns,
-                radioButtons(inputId = ns("tipo_var2"),
-                             label = "Tipo Variable 2:",
-                             choices = "")
-              )
-            )
-          )
-          ),
-    fluidRow(span(htmlOutput(ns("message01")), style="color:red")),
-    fluidRow(span(htmlOutput(ns("message02")), style="color:red")),
-    fluidRow(span(htmlOutput(ns("message03")), style="color:red")),
-    fluidRow(
-      conditionalPanel(condition = "input.qtty_var>= 2", ns = ns,
-      conditionalPanel(condition = "input.tipo_var1 != ''", ns = ns,
-      conditionalPanel(condition = "input.tipo_var1 == input.tipo_var2", ns = ns,
-                       selectInput(inputId = ns("flip"),
-                                   label = "my Flip",
-                                   choices = "",
-                                   selected = "")
-                       )
-    )
-    )
-  ),
-  htmlOutput(ns("Zocalo")), br(), br(),
-  verbatimTextOutput(ns("MiTexto_BatallaNaval")),
-  )
-  )
+ uiOutput(ns("ARMADO_BATALLON"))
 }
 
 
@@ -86,6 +10,11 @@ BatallaNavalUI <- function(id) {
 
 ## Segmento del server
 BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
+
+  ns <- session$ns
+  
+  if(is.null(base)) return(NULL)
+  
   # return(
   #   list(
   #     frec_input = reactive({ input$frec_input }),
@@ -99,7 +28,9 @@ BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
   ##################################
   
   OpcionesColumnas <- reactive({
-
+  if(is.null(base())) return(NULL)
+  if(is.null(input$orden)) return(NULL)  
+    
     nombres2_original <- colnames(base())
     opciones_carga2 <- OpcionesDeColumnas(nombres2_original)
     
@@ -608,6 +539,90 @@ BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
     
     unlist(batalla_naval()) 
   }) 
+  
+  
+  output$ARMADO_BATALLON <- renderUI({
+    
+    if(is.null(base())) return(NULL)
+    div(
+      fluidRow(
+        column(4, 
+               selectInput(inputId = ns("orden"), 
+                           label = "Orden: ",
+                           choices = c("Orden Original" = 1, 
+                                       "Albético Creciente" = 2,
+                                       "Albatético Decreciente" = 3)
+               )
+        ),
+        column(4,
+               selectInput(inputId = ns("qtty_var"),
+                           label = "Cantidad de variables",
+                           choices = c("Seleccione... " = "", 1, 2)
+               )
+        ),
+        column(4,
+               numericInput(inputId = ns("decimales"),
+                            label = "Decimales",
+                            value = 2,
+                            min = 0,
+                            max = 10,
+                            step = 1)
+        )
+      ),
+      conditionalPanel(condition = "input.qtty_var != ''", ns = ns,
+                       fluidRow(
+                         conditionalPanel(condition = "input.qtty_var >= 1", ns = ns,
+                                          column(4,
+                                                 selectInput(inputId = ns("var1"),
+                                                             label = "Variable 1: ",
+                                                             choices = "")
+                                          ),
+                                          column(4,
+                                                 conditionalPanel(condition = "input.var1 != ''", ns = ns,
+                                                                  radioButtons(inputId = ns("tipo_var1"),
+                                                                               label = "Tipo Variable 1:",
+                                                                               choices = "")
+                                                 )
+                                          )
+                         )
+                       ),
+                       fluidRow(
+                         conditionalPanel(condition = "input.qtty_var>= 2", ns = ns,
+                                          column(4,
+                                                 selectInput(inputId = ns("var2"),
+                                                             label = "Variable 2: ",
+                                                             choices = "")
+                                          ),
+                                          column(4,
+                                                 conditionalPanel(condition = "input.var2 != ''", ns = ns,
+                                                                  radioButtons(inputId = ns("tipo_var2"),
+                                                                               label = "Tipo Variable 2:",
+                                                                               choices = "")
+                                                 )
+                                          )
+                         )
+                       ),
+                       fluidRow(span(htmlOutput(ns("message01")), style="color:red")),
+                       fluidRow(span(htmlOutput(ns("message02")), style="color:red")),
+                       fluidRow(span(htmlOutput(ns("message03")), style="color:red")),
+                       fluidRow(
+                         conditionalPanel(condition = "input.qtty_var>= 2", ns = ns,
+                                          conditionalPanel(condition = "input.tipo_var1 != ''", ns = ns,
+                                                           conditionalPanel(condition = "input.tipo_var1 == input.tipo_var2", ns = ns,
+                                                                            selectInput(inputId = ns("flip"),
+                                                                                        label = "my Flip",
+                                                                                        choices = "",
+                                                                                        selected = "")
+                                                           )
+                                          )
+                         )
+                       ),
+                       htmlOutput(ns("Zocalo")), br(), br(),
+                       verbatimTextOutput(ns("MiTexto_BatallaNaval")),
+      )
+    )
+    
+  })
   
   
   # Final Return of the Modul!
