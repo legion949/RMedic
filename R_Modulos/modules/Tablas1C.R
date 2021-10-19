@@ -56,13 +56,18 @@ Tablas1C_SERVER <- function(input, output, session,
     #                             input_side = NULL
     # )
 
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como input$x_breaks[1] por que algunas veces
+    #      otorga un vector con dos valores, pero el 2do
+    #      valor es NA.
     
+    cat("input$x_breaks: ", input$x_breaks, "\n")
     
     salida <-  RMedic_1c_tablas(input_base =  minibase(),
                               input_decimales = decimales(),
                               input_min = input$x_min,
                               input_max = input$x_max,
-                              input_breaks = input$x_breaks,
+                              input_breaks = na.omit(input$x_breaks)[1],
                               input_side = input$x_side
                   )
                      
@@ -106,36 +111,41 @@ Tablas1C_SERVER <- function(input, output, session,
   ) 
   
   
-  # 09) Distribucion de Frecuencias
-  observe( 
-    output$Salida_tabla_1c_RMedic_09_especial <- renderTable(digits = decimales(), align= "c",{
-      
-      if(!is.null(Reactive_tabla_1c_RMedic())) {
-        
-    
-        
-        mi_tabla <-  RMedic_1c_tablas(input_base = minibase(),
-                                      input_decimales = decimales(),
-                                      input_min = input$ns("x_min"),
-                                      input_max = input$ns("x_max"),
-                                      input_breaks = input$ns("x_breaks"),
-                                      input_side = input$ns("x_side")
-        )[[9]]
-        
-        mi_tabla[,2] <- as.character(mi_tabla[,2])
-        mi_tabla[,3] <- as.character(mi_tabla[,3])
-        mi_tabla[,5] <- as.character(mi_tabla[,5])
-        
-        mi_tabla
-        
-      } else return(NULL)
-    })
-  )
+  # # 09) Distribucion de Frecuencias
+  # observe( 
+  #   output$Salida_tabla_1c_RMedic_09_especial <- renderTable(digits = decimales(), align= "c",{
+  #     
+  #     if(!is.null(Reactive_tabla_1c_RMedic())) {
+  #       
+  #   
+  #       
+  #       mi_tabla <-  RMedic_1c_tablas(input_base = minibase(),
+  #                                     input_decimales = decimales(),
+  #                                     input_min = input$ns("x_min"),
+  #                                     input_max = input$ns("x_max"),
+  #                                     input_breaks = input$ns("x_breaks"),
+  #                                     input_side = input$ns("x_side")
+  #       )[[9]]
+  #       
+  #       mi_tabla[,2] <- as.character(mi_tabla[,2])
+  #       mi_tabla[,3] <- as.character(mi_tabla[,3])
+  #       mi_tabla[,5] <- as.character(mi_tabla[,5])
+  #       
+  #       mi_tabla
+  #       
+  #     } else return(NULL)
+  #   })
+  # )
   
   output$Controlador_1c_RMedic <- renderUI({
     
     if(is.null(casoRMedic())) return(NULL)
     if(casoRMedic() != 2) return(NULL)
+    
+    cantidad_cortes <- nclass.Sturges(minibase()[,1])
+    tabla <- table(minibase()[,1])
+    cantidad_categorias <- length(names(tabla))
+    if(cantidad_categorias < cantidad_cortes) cantidad_cortes <- cantidad_categorias
     
     div(
       fluidRow(
@@ -168,7 +178,7 @@ Tablas1C_SERVER <- function(input, output, session,
                numericInput(
                  inputId = ns("x_breaks"),
                  label = "Cantidad de intervalos: ",
-                 value = nclass.Sturges(minibase()[,1]),
+                 value = cantidad_cortes,
                  min = 1,
                  max = NA,
                  step = 1,
@@ -218,6 +228,8 @@ Tablas1C_SERVER <- function(input, output, session,
       
     }
   })
+  
+  
   
   
   output$SeccionTablas1C <- renderUI({

@@ -4,9 +4,13 @@ options(shiny.maxRequestSize = 500*1024^2)
 
 
 library(shiny)
-library(shinyBS)
 library(shinyjs)
+library(shinyBS)
 library(bslib)
+library(datasets)
+library(DT)
+library(htmltools)
+library(openxlsx)
 
 source("uiCode.R")
 

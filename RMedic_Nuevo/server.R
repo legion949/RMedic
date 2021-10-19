@@ -122,12 +122,12 @@ server <- function(input, output, session) {
     
     armado <- list()
     
+    # Salida HTML
     armado[[1]] <- paste0("<b>Criterio de Inclusión Estadístico (CIE): </b>", input$cie_columna, " - Columna ",
-                                           MyLetter(Base = BaseSalida(), 
-                                                    the_col = input$cie_columna),"<br/>",
-                                           "<b>Categoría del CIE: </b>", input$cie_categoria)
+                          MyLetter(Base = BaseSalida(), the_col = input$cie_columna),"<br/>",
+                          "<b>Categoría del CIE: </b>", input$cie_categoria)
     
-    
+    # Salida normal
     armado[[2]] <- c(paste0("CIE: ", input$cie_columna, " - Columna ",
                           MyLetter(Base = BaseSalida(), 
                                    the_col = input$cie_columna)), 

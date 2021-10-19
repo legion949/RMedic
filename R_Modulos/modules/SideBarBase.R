@@ -4,7 +4,8 @@ SideBarBaseUI <- function(id) {
 
   
   # Este es el sidebarpanel completo
-  div(  selectInput(inputId = ns("FileTypePicker"), 
+  div(  
+    selectInput(inputId = ns("FileTypePicker"), 
                     label = 'Qué tipo de Archivo quieres subir?',
                     choices = c('Excel' = 'Excel', 
                                 'CSV' = 'CSV', 
@@ -75,8 +76,24 @@ MiBase01_UI <- function(id) {
   ns <- NS(id)
   
   div(
-    textOutput(ns("TextoSalida")),
-  tableOutput(ns("BaseSalida"))
+    fluidRow(
+      column(1),
+      column(10,
+    h3(textOutput(ns("TextBase_Alert01"))), 
+    h3(textOutput(ns("TextBase_Alert02"))), 
+    h3(textOutput(ns("TextBase_Alert03"))),
+    h3(textOutput(ns("TextBase_Alert04"))),
+    h3(htmlOutput(ns("TextBase_Alert05"))),
+    h3(htmlOutput(ns("TextBase_Alert06"))),
+    h3(htmlOutput(ns("TextBase_Alert07"))),
+    htmlOutput(ns("TextBase_InfoDataSet_01")), br(),
+    h3(textOutput(ns("TextBase_Intro"))),
+    dataTableOutput(ns("BaseSalida")),
+    br(),  br(), br(),
+    htmlOutput(ns("TextBase_InfoDataSet_02")), br()
+  ), 
+  column(1)
+    )
   )
   }
 
@@ -101,7 +118,64 @@ SideBarBaseSERVER <- function(input, output, session) {
     # Si no hay un tipo de archivo seleccionado... Paramos
     if (is.null(input$FileTypePicker)) return(NULL) 
     
-
+    if(input$FileTypePicker == "Excel") { 
+      
+      # Si no fue seleccionado un archivo... Paramos
+      if (is.null(input$xls_file)) return(NULL)
+      
+      
+      the_file <-  input$xls_file[[1]]
+      correct_format <- c(".xls$", ".xlsx$")
+      dt_format <- rep(NA, length(correct_format))
+      dt_format[1] <- grepl(correct_format[1], the_file)
+      dt_format[2] <- grepl(correct_format[2], the_file)
+      ok_format <- sum(dt_format) > 0
+      
+      frase_yes <- ""
+      frase_no  <- "Indicaste que subirías un archivo tipo Excel pero 
+                        seleccionaste un archivo de otro tipo."
+      
+      # Seleccion de texto...    
+      if(ok_format) frase_alert <- frase_yes else frase_alert <- frase_no
+      
+      # My exit    
+      my_exit <- list(ok_format, frase_alert)
+      
+      
+    } else 
+      if(input$FileTypePicker == "CSV") { 
+        
+        # Si no hay un archivo csv seleccionado... Paramos
+        if (is.null(input$csv_file)) return(NULL)
+        
+        # El archivo seleccionado
+        the_file <-  input$csv_file[[1]]
+        
+        # Formato de archivo correcto
+        correct_format <- c(".csv$")
+        dt_format <- rep(NA, length(correct_format))
+        dt_format[1] <- grepl(correct_format[1], the_file)
+        ok_format <- sum(dt_format) > 0
+        
+        # Texto
+        frase_yes <- ""
+        frase_no  <- "Indicaste que subirías un archivo CSV pero 
+                        seleccionaste un archivo de otro tipo."
+        
+        # Seleccion de texto
+        if(ok_format) frase_alert <- frase_yes else frase_alert <- frase_no
+        
+        # Armado de salida
+        my_exit <- list(ok_format, frase_alert)
+        
+        
+        
+        
+        
+        
+        
+        
+      } else 
         if(input$FileTypePicker == "Ejemplos") { 
           
           # Si no fue seleccionado un ejemplo... Paramos...
@@ -127,7 +201,7 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
   
- 
+  # Nombre del archivo seleccionado
   MyFileName <- reactive({
     
     
@@ -169,15 +243,15 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
   
+  
   # Carga de la Toda la base de datos
-
   Base01 <- reactive({
     
     # Si no hay un control de la base... Paramos
     if (is.null(Control01())) return(NULL) 
     if (!Control01()[[1]]) return(NULL)
     
-    
+
     # Si el tipo de archivo es Excel...      
     if(input$FileTypePicker == "Excel") { 
       
@@ -208,6 +282,7 @@ SideBarBaseSERVER <- function(input, output, session) {
         # Detalles varios de direccion
         inFile <- input$csv_file
         
+        cat("inFile: ", inFile, "\n")
         # La carga de datos formato CSV
         DataSet <- read.csv(file = inFile$datapath, 
                             header=input$header, sep=input$sep,
@@ -238,7 +313,7 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
 
-  
+  # Opcion de seleccion de las columnas de la base
   AspectosColumnas_BaseSalida <- reactive({
     
     # Si aun no se establecio un status de Base01(), nos vamos...
@@ -312,7 +387,7 @@ SideBarBaseSERVER <- function(input, output, session) {
   
   
  
-  
+  # Armamos la eleccion de CIE
   output$OpcionesCIE_parte01 <- renderUI({
     
     
@@ -417,7 +492,7 @@ SideBarBaseSERVER <- function(input, output, session) {
   
   
   
-  
+  # Opcion de eleccion de categorias del CIE
   Categorias_CIE_Base01 <- reactive({
     
     if(is.null(Control04())) return(NULL)
@@ -429,6 +504,7 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
   
+  # Eleccion de la categoria de CIE
   output$OpcionesCIE_parte02 <- renderUI({
     
     # Si no hizo o no da bien el Control04, nos vamos.
@@ -463,6 +539,7 @@ SideBarBaseSERVER <- function(input, output, session) {
     # } else return(NULL)
   })
   
+  # Eleccion de CIE y categoria CIE
   output$OpcionesCIE_completo <- renderUI({
     
     
@@ -593,6 +670,7 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
   
+  # Base 2: con CIE aplicado
   Base02 <- reactive({
     
     # Si no hay una base cargada en Base01()... Paramos
@@ -616,6 +694,31 @@ SideBarBaseSERVER <- function(input, output, session) {
     
   })
   
+  zocalo_CIE <- reactive({
+    
+     
+    if(is.null(input$cie_especificaciones)) return(NULL)
+    if(input$cie_especificaciones != 2) return(NULL)
+    if(is.null(input$cie_columna)) return(NULL)
+    if(input$cie_columna == '') return(NULL)
+    if(is.null(input$cie_categoria)) return(NULL) 
+    if(input$cie_categoria == '') return(NULL)
+    
+    armado <- list()
+    
+    # Salida HTML
+    armado[[1]] <- paste0("<b>Criterio de Inclusión Estadístico (CIE): </b>", input$cie_columna, " - Columna ",
+                          MyLetter(Base = BaseSalida(), the_col = input$cie_columna),"<br/>",
+                          "<b>Categoría del CIE: </b>", input$cie_categoria)
+    
+    # Salida Normal
+    armado[[2]] <- c(paste0("CIE: ", input$cie_columna, " - Columna ",
+                            MyLetter(Base = BaseSalida(), 
+                                     the_col = input$cie_columna)), 
+                     paste0("Categoría del CIE: ", input$cie_categoria))
+    
+    return(armado)    
+  })
   
   # Update - Todo OK!
   {
@@ -762,7 +865,7 @@ SideBarBaseSERVER <- function(input, output, session) {
   ###################################
   
   
-#  Base01 <- reactive({ mtcars })
+#  Base utilizada finalmente
   BaseSalida <- reactive({
     
     # # Si no hay base cargada... Nos fuimos
@@ -776,6 +879,10 @@ SideBarBaseSERVER <- function(input, output, session) {
     if(is.null(input$cie_especificaciones)) return(NULL)
     
     if(!RMedic_general()) return(NULL)
+    
+    
+    # cat("colnames(Base01()): ", colnames(Base01()), "\n")
+    # cat("colnames(Base02()): ", colnames(Base02()), "\n")
     
     if(input$cie_especificaciones == 1) return(Base01()) else
       if((input$cie_especificaciones == 2) &&
@@ -800,7 +907,9 @@ SideBarBaseSERVER <- function(input, output, session) {
     paso
   })
   
-  output$BaseSalida <- renderTable({
+  # Salida de la base a utilizar finalmente
+  output$BaseSalida <- renderDataTable({
+    
     # Si aun no se establecio un status de BaseSalida(), nos vamos...
     if (is.null(status_BaseSalida())) return(NULL)
     
@@ -810,19 +919,259 @@ SideBarBaseSERVER <- function(input, output, session) {
     # Si no se debe mostrar la base de datos... Nos vamos...
     if(!RMedic_general()) return(NULL)
     
-    cat("RMedic_general(): ", RMedic_general(), "\n")
-    BaseSalida()  
+    
+    # Si esta todo OK, tenemos base y hay que mostrarla, esta es!
+    
+    datatable(BaseSalida(), rownames = F,  options = list(
+      initComplete = JS(
+        "function(settings, json) {",
+        "$(this.api().table().header()).css({'background-color': '#fff', 'color': '#000'});",
+        "}"), language = list(
+          search = "Búsqueda:",
+          lengthMenu = "Mostrar _MENU_ registros",
+          info = "Mostrando registros del _START_ al _END_ de un total de _TOTAL_ registros",
+          infoFiltered = "(filtrados de un total de _MAX_ registros)",
+          paginate = list(previous =    "Anterior", `next` = "Siguiente")
+        )
+    ))
+    
+    
+    
+    
+    
   })
   
 
+  ###############################################
+  
+  output$TextBase_Alert01 <- renderText({
+    
+    # Si no hay un control 1... Nos vamos...
+    if (is.null(Control01())) return(NULL)
+    
+    # Return Exitoso
+    return(Control01()[[2]])
+  })
+  
+  output$TextBase_Alert02 <- renderText({
+    
+    # Si no hay un control 2... Nos vamos...
+    if (is.null(Control02())) return(NULL)
+    
+    # Return Exitoso
+    return(Control02()[[2]])
+    
+    
+  })
+  
+  output$TextBase_Alert03 <- renderText({
+    # Si no hay un control 3... Nos vamos...
+    if (is.null(Control03())) return(NULL)
+    
+    # Return Exitoso
+    return(Control03()[[2]])
+  })
+  
+  output$TextBase_Alert04 <- renderText({
+    # Si no hay un control 4... Nos vamos...
+    if (is.null(Control04())) return(NULL)
+    
+    # Return Exitoso
+    return(Control04()[[2]])
+  })
+  
+  output$TextBase_Alert05 <- renderText({
+    # Si no hay un control 1... Nos vamos...
+    if (is.null(Control05())) return(NULL)
+    
+    # Return Exitoso
+    return(Control05()[[2]])
+  })
+  
+  output$TextBase_Alert06 <- renderText({
+    # Si no hay un control 1... Nos vamos...
+    if (is.null(Control06())) return(NULL)
+    
+    # Return Exitoso
+    return(Control06()[[2]])
+  })
+  
+  output$TextBase_Alert07 <- renderText({
+    # Si no hay un control 1... Nos vamos...
+    if (is.null(Control07())) return(NULL)
+    
+    # Return Exitoso
+    return(Control07()[[2]])
+  })
+  
+  output$TextBase_InfoDataSet_01 <- renderText({
+    
+    texto_salida <- c()
+    
+    # Si no hay Base01()... Nos vamos...
+    if (is.null(Base01())) return(NULL)
+    
+
+    # Si no hay permisos... Nos vamos...
+    if(!RMedic_general()) return(NULL)
+    
+ 
+    # Textos varios
+    {
+      texto_completo01 <- c("<b>Base:</b> _mi_archivo_ <br/>
+                           <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
+                           <b>Unidades (Filas o repeticiones):</b> _nrowBase01_ unidades.<br/>")
+      
+      
+      
+      
+      
+      
+      
+      texto_completo02 <- c("
+                            <b>Base:</b> _mi_archivo_ <br/>
+                            <b>Variables (Columnas):</b> _ncolBase01_ variables.<br/>
+                            <b>Unidades totales (Filas totales o repeticiones totales):</b> _nrowBase01_ unidades.<br/>
+                            <br/>
+                            <b>Criterio de Inclusión Estadístico (CIE):</b> _mi_CIE_.<br/>
+                            <b>Categoría de Inclusión:</b> la categoría seleccionada es '_mi_categoria_'.<br/>
+                            <b>Unidades seleccionadas (Filas seleccionadas o repeticiones seleccionadas):</b> _nrowBase02_ de _nrowBase01_ unidades.<br/>
+                              ")
+      
+    }
+    #####################################
+    
+    
+    # Por defecto...
+    texto_salida <- texto_completo01
+    
+    
+    if(input$cie_especificaciones == 2) {
+      if (!is.null(Base02()) && !is.null(input$cie_categoria)) {
+        
+        # Cambiamos de texto
+        texto_salida <- texto_completo02
+        
+        dt_col <- colnames(Base02()) == input$cie_columna
+        orden_col <- c(1:length(dt_col))[dt_col]
+        armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
+                         num2let(orden_col), "'")
+        
+        #  armado <- "AVERRERRRRR"
+        texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
+        
+        texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
+        texto_salida <- gsub("_nrowBase02_", nrow(Base02()), texto_salida)
+        
+      }
+    }
+    #  HTML(paste(t1, t2, sep = '<br/>'))
+    
+    
+    texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
+    texto_salida <- gsub("_ncolBase01_", ncol(Base01()),texto_salida)
+    texto_salida <- gsub("_nrowBase01_", nrow(Base01()),texto_salida)
+    
+    mi_salida <- HTML(texto_salida)
+    
+    return(mi_salida)
+    
+    
+  })
+  
+  output$TextBase_InfoDataSet_02 <- renderText({
+    
+    texto_salida <- c()
+    
+    # Si no hay Base01()... Nos vamos...
+    if (is.null(Base01())) return(NULL)
+    
+    # Si no hay permisos... Nos vamos...
+    if(!RMedic_general()) return(NULL)
+    
+    
+    # Textos varios
+    {
+      
+      agregado01 <- c("
+                        <b>Nota Importante:</b> aplicando el criterio de inclusión estadístico sobre las
+                        _nrowBase01_ unidades totales son seleccionadas e ingresan efectivamente a
+                        tablas, gráficos y test estadístisticos solo _nrowBase02_ unidades. Estas _nrowBase02_ unidades
+                        presentan la categoría '_mi_categoria_' en el CIE _mi_CIE_.
+                        ")
+      
+      agregado02 <- c("
+                        <b>Nota Importante:</b> Todas las unidades responden a la misma
+                        categoría de inclusión. Trabajar con este criterio de inclusión
+                        o directamente con el total de la base de datos, es lo mismo.
+                        ")
+    }
+    ######################
+    
+    
+    # Si tenemos ya una Base02 y tenemos elegida una cateogria CIE
+    if(input$cie_especificaciones == 2) {
+      if (!is.null(Base02()) && !is.null(input$cie_categoria)) {
+        
+        # El texto camabia de acuerdo a si efectivamnete
+        # el CIE ha sacado filas de la base o no.
+        if(nrow(Base01()) != nrow(Base02())) texto_salida <- agregado01 else texto_salida <- agregado02
+        
+        
+        
+        dt_col <- colnames(Base02()) == input$cie_columna
+        orden_col <- c(1:length(dt_col))[dt_col]
+        armado <- paste0("Variable '", input$cie_columna, "' - Letra Columna '",
+                         num2let(orden_col), "'")
+        
+        
+        texto_salida <- gsub("_mi_CIE_", armado, texto_salida)
+        texto_salida <- gsub("_mi_categoria_", input$cie_categoria, texto_salida)
+        texto_salida <- gsub("_nrowBase02_", nrow(Base02()), texto_salida)
+        
+        
+        
+        
+        
+        texto_salida <- gsub("_mi_archivo_", MyFileName(),texto_salida)
+        texto_salida <- gsub("_ncolBase01_", ncol(Base01()),texto_salida)
+        texto_salida <- gsub("_nrowBase01_", nrow(Base01()),texto_salida)
+        
+      }
+    }
+    
+    
+    mi_salida <- HTML(texto_salida)
+    
+    return(mi_salida)
+    
+    
+  })
+  
+  output$TextBase_Intro <- renderText({
+    if (!is.null(Base01())) {
+      if(RMedic_general()){
+        "Visualización de la Base de Datos"
+      } else return(NULL)
+    } else return(NULL)
+  })
+  
+  ################################################
   
   
   # Return del Modulo
   if(is.null(BaseSalida)) return(NULL)
   
   
-  
-  return(BaseSalida)
+  # Return del Modulo!
+  return(
+    list(
+      BaseSalida = BaseSalida,
+      zocalo_CIE = zocalo_CIE,
+      RMedic_general = RMedic_general,
+      status_BaseSalida = status_BaseSalida
+      )
+  )
   
   
 }

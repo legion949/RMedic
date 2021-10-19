@@ -31,6 +31,7 @@ BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
   if(is.null(base())) return(NULL)
   if(is.null(input$orden)) return(NULL)  
     
+    cat("colnames(base()): ", colnames(base()), "\n")
     nombres2_original <- colnames(base())
     opciones_carga2 <- OpcionesDeColumnas(nombres2_original)
     
@@ -66,6 +67,33 @@ BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
   })
   
 
+  observeEvent(input$qtty_var,{
+    
+    if(input$qtty_var != '') {
+      
+      if(input$qtty_var >= 1) {
+    freezeReactiveValue(input, "var1")
+    updateSelectInput(session, 
+                      inputId = "var1",
+                      label = "Variable 1: ",
+                      choices = c("Seleccione una... " = "", OpcionesColumnas())
+    )
+      }
+    
+      
+      if(input$qtty_var >= 2) {
+        freezeReactiveValue(input, "var2")
+        updateSelectInput(session, 
+                          inputId = "var2",
+                          label = "Variable 2: ",
+                          choices = c("Seleccione una... " = "", OpcionesColumnas())
+        )
+      }
+      
+      
+    }
+  })
+  
   
   observe({
     if(!is.null(base())) {

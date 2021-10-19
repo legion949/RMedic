@@ -904,10 +904,26 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     rango <- diferencia/input_breaks
     
     cortes <- input_min + c(0:input_breaks)*rango
-    cortes
     
+    # VerificacioN!
+    # Pasa que si la variable es constante, hay que hacer
+    # una sola categoria con todo. La funcion de R aunque
+    # la variable sea constante, te tira mas de 1 intervalo.
+    # Eso esta mal.
+    tabla <- table(mini_vector)
+    cantidad_categorias <- length(names(tabla))
+    cantidad_cortes <- length(cortes)
+    if(cantidad_categorias < cantidad_cortes) cortes <- cantidad_categorias
+    
+    # Si hay al menos 2 cortes para hacer...
+    if(cortes >= 2) {
     info <- cut(mini_vector, breaks = cortes , right = input_side,
                 include.lowest = T)
+    }
+    
+    # Si la variable es constante, no hay nada para cortar!
+    if (cortes == 1) info <- mini_vector
+    
     
     dim(info) <- c(length(info), 1)
     info <- as.data.frame(info)
