@@ -282,7 +282,7 @@ SideBarBaseSERVER <- function(input, output, session) {
         # Detalles varios de direccion
         inFile <- input$csv_file
         
-        cat("inFile: ", inFile, "\n")
+        
         # La carga de datos formato CSV
         DataSet <- read.csv(file = inFile$datapath, 
                             header=input$header, sep=input$sep,

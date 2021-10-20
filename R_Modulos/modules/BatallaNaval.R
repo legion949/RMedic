@@ -31,7 +31,7 @@ BatallaNavalSERVER <- function(input, output, session, base, verbatim) {
   if(is.null(base())) return(NULL)
   if(is.null(input$orden)) return(NULL)  
     
-    cat("colnames(base()): ", colnames(base()), "\n")
+    
     nombres2_original <- colnames(base())
     opciones_carga2 <- OpcionesDeColumnas(nombres2_original)
     

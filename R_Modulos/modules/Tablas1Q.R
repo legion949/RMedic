@@ -45,7 +45,7 @@ Tablas1Q_SERVER <- function(input, output, session,
   Reactive_tabla_1q_RMedic <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
-    
+    if(casoRMedic() != 1) return(NULL)
    
     
     salida <-  RMedic_1q_tablas(minibase(), decimales())
@@ -101,10 +101,71 @@ Tablas1Q_SERVER <- function(input, output, session,
      if(is.null(casoRMedic())) return(NULL)
      if(casoRMedic() != 1) return(NULL)
      
+     
+     
      # Si es el caso 1, seguimos!
      div(
        tabsetPanel(id = ns("Tablas_1q"),
-                   tabPanel(title = "RMedic Help!", value = 1),
+                   tabPanel(title = "RMedic Help!", value = 1,
+                            fluidRow(
+                              column(4, 
+                            radioButtons(inputId = "help_tablas_1q",
+                                         label = h3("Selección de Ayuda Automática"),
+                                         choices = c("RMedic Here!" = 1,
+                                                     "Distribución de Frecuencias" = 2,
+                                                     "Intervalos de Confianza" = 3)
+                                         )
+                            ),
+                            column(8,
+                            br(),
+                            conditionalPanel(condition = "input.help_tablas_1q == 1",
+                     div(
+                       h3("RMedic Here!"),
+                       HTML(
+                      "Las tablas más utilizadas aplicadas a una variable categórica son:<br/>
+                      - Tablas de <b>'Distribución de Frecuencias'</b>.<br/>
+                      - Tablas de los <b>'Intervalos de Confianza'</b> para el porcentaje.<br/>
+                      Seleccionando la ayuda de cada una encontrarás un miniresumen con
+                      detalles teóricos y estructura de la base de datos.<br/>
+                      Estos te ayudarán a determinar si estas herramientas pueden ser
+                      aplicadas en tu trabajo."
+                      )
+                      )
+                      ),
+                            conditionalPanel(condition = "input.help_tablas_1q == 2",
+                                             div(
+                                               h3("Distribución de Frecuencias"),
+                                               HTML("Las tablas de <b>'Distribución de Frecuencias'</b> es uno de los
+                                               formatos clásicos más utilizados en revistas y publicaciones para la presentación y resumen de la información de 1 variable categórica. <br/>
+                                               Sobre cada una de las categorías que se encuentran dentro de la variable seleccionada
+                                               se detalla frecuencias absolutas (FA), total, cociente, frecuencias relativas (FR) y porcentajes (%).<br/>
+                                               RMedic agrega además una columna muy útil que fusiona la información de
+                                               las frecuencias absolutas y el porcentaje.<br/><br/>
+                                                    Se aplica sobre una columna de la base de datos.<br/>
+                                                    La variable debe contener al menos una categoría."
+                                             )
+                                             )
+                                             ),
+                            conditionalPanel(condition = "input.help_tablas_1q == 3",
+                                             div(
+                                               h3("Intervalo de Confianza"),
+                                               HTML("El <b>'Intervalo de Confianza'</b> para el porcentaje es un rango de valores que tiene cierta
+                                               probabilidad de contener al porcentaje problacional de cada una de las categorías
+                                               de la variable categórica seleccionada. <br/>
+                                               Se presentan intervalos del 90%, 95% y 99%. <br/>
+                                               De estas 3 posibilidades debiera elegir el usuario solo uno de ellas. <br/>
+                                               El más utilizado es el intervalo del 95%, pero la elección correcta depende de cada trabajo
+                                               y cada área del conocimiento. <br/>
+                                               Si no sabe cuál elegir, debería buscar en publicaciones de su área
+                                               para saber qué intervalo de confianza debería elegir.<br/><br/>
+                                                    Se aplica sobre una columna de la base de datos.<br/>
+                                                    La variable debe contener al menos una categoría."
+                                               )
+                                                    )
+                                             ),
+                            )
+                            )
+                            ),
                    tabPanel(title = "Distribución de Frecuencias", value = 2,
                             h3(textOutput(ns("Salida_texto_1q_RMedic_01"))),
                             tableOutput(ns("Salida_tabla_1q_RMedic_01")),

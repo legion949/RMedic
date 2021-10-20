@@ -916,13 +916,13 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     if(cantidad_categorias < cantidad_cortes) cortes <- cantidad_categorias
     
     # Si hay al menos 2 cortes para hacer...
-    if(cortes >= 2) {
+    if(cantidad_cortes >= 2) {
     info <- cut(mini_vector, breaks = cortes , right = input_side,
                 include.lowest = T)
     }
     
     # Si la variable es constante, no hay nada para cortar!
-    if (cortes == 1) info <- mini_vector
+    if (cantidad_cortes == 1) info <- mini_vector
     
     
     dim(info) <- c(length(info), 1)

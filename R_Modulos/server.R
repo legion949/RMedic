@@ -55,41 +55,47 @@ function(input, output, session) {
  RMedic_general <- Modulo01$RMedic_general
  status_BaseSalida <- Modulo01$status_BaseSalida
   
+ 
+
+
+ menuBASE <- reactive({
+
+
+   tabs <- list()
+
+   tabs[[1]] <-    tabPanel(title = "Base de Datos",
+                            icon = icon("user-md"),
+                            value = 1,
+                            br(),
+                            fluidRow(
+
+                              MiBase01_UI("base01")#,
+
+                            ),
+                            br(), br()
+   )
+
+   tabs
+
+ })
+ 
   ###
   }
   ###########################################################
   
   
-  # 2 - Tablas ----------------------------------------------
+  # 2 - Control ----------------------------------------------
   {
   ###
   
-      
-  
-  UserSelection.Tablas <- callModule(module = BatallaNavalSERVER, 
-                              id =  "tablas01",
+    menuCONTROL <- callModule(module = ModuleControlSERVER, 
+                              id =  "menuCONTROL",
                               base = Modulo01$BaseSalida,
-                              verbatim = FALSE)
-
+                              RMedic_general = RMedic_general,
+                              status_BaseSalida = status_BaseSalida)
   
-  MiniBase.Tablas <- callModule(module = MiniBaseSERVER, id =  "tablas02",
-                         base = Modulo01$BaseSalida,
-                         batalla_naval = UserSelection.Tablas$batalla_naval,
-                         verbatim = FALSE)
-
-
   
-  callModule(module = Tablas1Q_SERVER, id =  "tablas03",
-             minibase = MiniBase.Tablas,
-             batalla_naval = UserSelection.Tablas$batalla_naval,
-             decimales = UserSelection.Tablas$decimales)
-
-
-  callModule(module = Tablas1C_SERVER, id =  "tablas04",
-             minibase = MiniBase.Tablas,
-             batalla_naval = UserSelection.Tablas$batalla_naval,
-             decimales = UserSelection.Tablas$decimales)
-
+  
   ###
   }
   ###########################################################
@@ -98,150 +104,62 @@ function(input, output, session) {
   
   
   
+  # 3 - Tablas ----------------------------------------------
+  {
+    ###
+    
+    menuTABLAS <- callModule(module = ModuleTablasSERVER, 
+                             id =  "menuTABLAS",
+                             base = Modulo01$BaseSalida,
+                             RMedic_general = RMedic_general,
+                             status_BaseSalida = status_BaseSalida)
+    
+    
+    
+    ###
+  }
+  ###########################################################
   
-  menuBASE <- reactive({
+  
+ 
+  # 4 - Graficos ----------------------------------------------
+  {
+    ###
+    
+    menuGRAFICOS <- callModule(module = ModuleGraficosSERVER, 
+                              id =  "menuGRAFICOS",
+                              base = Modulo01$BaseSalida,
+                              RMedic_general = RMedic_general,
+                              status_BaseSalida = status_BaseSalida)
     
     
-    tabs <- list()
     
-    tabs[[1]] <-    tabPanel(title = "Base de Datos", 
-                             icon = icon("user-md"), 
-                             value = 1,
-                             br(),
-                             fluidRow(
+    ###
+  }
+  ###########################################################
+  
+  
+ 
+  # 4 - Graficos ----------------------------------------------
+  {
+    ###
+    
+    menuHO <- callModule(module = ModuleHoSERVER, 
+                               id =  "menuHO",
+                               base = Modulo01$BaseSalida,
+                               RMedic_general = RMedic_general,
+                               status_BaseSalida = status_BaseSalida)
+    
+    
+    
+    ###
+  }
+  ###########################################################
+  
+  
+  
+ 
 
-                                      MiBase01_UI("base01")#,
-
-                             ),
-                             br(), br()
-    )
-    
-    tabs
-    
-  })
-  
-  
-  menuCONTROL <- reactive({
-    
-    # Si no hay orden de salir a la cancha... Nadie sale...
-    if(is.null(RMedic_general())) return(NULL)
-    if(!RMedic_general()) return(NULL)
-    
-    # Si no hay status de BaseSalida(), nos vamos...
-    if(is.null(status_BaseSalida())) return(NULL)
-    if(!status_BaseSalida()) return(NULL)
-  
-    
-    tabs <- list()
-    
-    
-    tabs[[1]] <-  tabPanel(
-      title = "Control", 
-      icon = icon("user-md"), 
-      value = 2,
-      h3("Menú para Control")
-     
-    ) # End TabPanel
-    
-    
-    
-    tabs
-    
-  })
-  
-  menuTABLAS <- reactive({
-    
-    # Si no hay orden de salir a la cancha... Nadie sale...
-    if(is.null(RMedic_general())) return(NULL)
-    if(!RMedic_general()) return(NULL)
-    
-    # Si no hay status de BaseSalida(), nos vamos...
-    if(is.null(status_BaseSalida())) return(NULL)
-    if(!status_BaseSalida()) return(NULL)
-    
-    
-    tabs <- list()
-    
-    
-    tabs[[1]] <-  tabPanel(
-      title = "Tablas", 
-      icon = icon("user-md"), 
-      value = 3,
-      fluidRow(
-        column(1),
-        column(10,
-      h3("Menú para Tablas"),
-      BatallaNavalUI("tablas01"),
-      MiniBaseUI("tablas02"),
-      Tablas1Q_UI("tablas03"),
-      Tablas1C_UI("tablas04")
-        ),
-      column(1)
-      )
-      
-    ) # End TabPanel
-    
-    
-    
-    tabs
-    
-  })
-  
-  menuGRAFICOS <- reactive({
-    
-    # Si no hay orden de salir a la cancha... Nadie sale...
-    if(is.null(RMedic_general())) return(NULL)
-    if(!RMedic_general()) return(NULL)
-    
-    # Si no hay status de BaseSalida(), nos vamos...
-    if(is.null(status_BaseSalida())) return(NULL)
-    if(!status_BaseSalida()) return(NULL)
-    
-    
-    tabs <- list()
-    
-    
-    tabs[[1]] <-  tabPanel(
-      title = "Gráficos", 
-      icon = icon("user-md"), 
-      value = 4,
-      h3("Menú para Gráficos")
-      
-    ) # End TabPanel
-    
-    
-    
-    tabs
-    
-  })
-  
-  menuHO <- reactive({
-    
-    # Si no hay orden de salir a la cancha... Nadie sale...
-    if(is.null(RMedic_general())) return(NULL)
-    if(!RMedic_general()) return(NULL)
-    
-    # Si no hay status de BaseSalida(), nos vamos...
-    if(is.null(status_BaseSalida())) return(NULL)
-    if(!status_BaseSalida()) return(NULL)
-    
-    
-    tabs <- list()
-    
-    
-    tabs[[1]] <-  tabPanel(
-      title = "Pruebas de Hipótesis", 
-      icon = icon("user-md"), 
-      value = 5,
-      h3("Menú para Pruebas de Hipótesis")
-      
-    ) # End TabPanel
-    
-    
-    
-    tabs
-    
-  })
   
   menuSOBREVIDA <- reactive({
     
