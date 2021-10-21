@@ -192,7 +192,7 @@ function(input, output, session) {
     
     
     # do.call(tabsetPanel,  c(id="goku", tabs1,tabs2, tabs3, tabs4, tabs5, tabs6))
-    do.call(tabsetPanel,  c(id="PanelRMedic", 
+    do.call(tabsetPanel,  c(id = "PanelRMedic", 
                             menuBASE(),
                             menuCONTROL() ,
                             menuTABLAS() ,

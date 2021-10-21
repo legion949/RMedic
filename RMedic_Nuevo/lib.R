@@ -207,7 +207,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     porcentaje  <- paste(porcentaje, "%", sep="")
     
     # Fusion
-    fusion <- paste0(fa, "(", porcentaje, ")")
+    fusion <- paste0(fa, " (", porcentaje, ")")
     
     # Tabla de Distribucion de Frecuencias
     tabla01 <- cbind(grupos, fa, salida_n_total, cociente, fr,  
@@ -215,7 +215,7 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     rotulo <- paste0("Variable: ", colnames(minibase))
     tabla01 <- as.data.frame(tabla01)
-    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA(%)")
+    nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA (%)")
     colnames(tabla01) <- nombres_tabla01
     
     numericas <- c(2, 3, 5)
@@ -752,7 +752,9 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     ###
     
     
-    nombres_elementos <- c("Variable", "Varianza", "Desvío Estándard", "Error Estándard", "Coeficiente de Variación", "n")
+    nombres_elementos <- c("Variable", "Varianza", "Desvío Estándard", 
+                           "Error Estándard", "Coeficiente de Variación",
+                           "Coeficiente de Variación Porcentual", "n")
     
     tabla6 <- as.data.frame(matrix(NA,1, length(nombres_elementos)))
     colnames(tabla6) <- nombres_elementos
@@ -777,6 +779,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     # Coeficiente de Variacion
     cv <- desvio/media
     
+    cv_porcentual <- cv*100
     
     # Primero sacamos el desvio...
     # Sin redondear el desvio, lo usamos para sacar el error estandard...
@@ -788,7 +791,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     desvio <- round2(desvio, input_decimales)
     ee <- round2(ee, input_decimales)
     cv <- round2(cv, input_decimales)
-    
+    cv_porcentual <- paste0(round2(cv_porcentual, input_decimales), "%")
     
     
     tabla6[,1] <- colnames(minibase)
@@ -796,7 +799,8 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     tabla6[,3] <- desvio
     tabla6[,4] <- ee
     tabla6[,5] <- cv
-    tabla6[,6] <- n_muestra
+    tabla6[,6] <- cv_porcentual
+    tabla6[,7] <- n_muestra
     
     ###
   } # Fin Tabla 6 - Medidas Dispersion 
@@ -950,7 +954,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     porcentaje  <- paste(fr*100, "%", sep="")
     
     # Fusion
-    fusion <- paste0(fa, "(", porcentaje, ")")
+    fusion <- paste0(fa, " (", porcentaje, ")")
     
     # Tabla de Distribucion de Frecuencias
     tabla9 <- cbind(grupos, fa, salida_n_total, cociente, fr,
@@ -958,7 +962,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     rotulo <- paste0("Variable: ", colnames(info))
     tabla9 <- as.data.frame(tabla9)
-    nombres_tabla9 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA(%)")
+    nombres_tabla9 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA (%)")
     colnames(tabla9) <- nombres_tabla9
     
     numericas <- c(2, 3, 5)
