@@ -10,9 +10,9 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                            'input.FileTypePicker == "Excel"',
                            fileInput('xls_file', 'Elige tu archivo Excel',
                                      accept = c(".xls", ".xslx"))
-                           #             accept=c('application/vnd.ms-excel', 
-                           #                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
-                         ),
+                         #             accept=c('application/vnd.ms-excel', 
+                         #                      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'))
+                          ),
                          # un CSV
                          conditionalPanel( 
                            'input.FileTypePicker == "CSV"',
@@ -20,9 +20,9 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                            # Carga de CSV
                            fileInput('csv_file', 'Elige tu archivo CSV',
                                      accept = c(".csv")),
-                           # accept=c('text/csv', 
-                           #          'text/comma-separated-values,text/plain', '.csv')),
-                           # 
+                                     # accept=c('text/csv', 
+                                     #          'text/comma-separated-values,text/plain', '.csv')),
+                                     # 
                            # Detalles para CSV
                            # # Header
                            checkboxInput('header', 'Encabezado', TRUE),
@@ -56,8 +56,8 @@ OpcionesDeCarga <- div(  selectInput(inputId = "FileTypePicker",
                                       choices = c("Todas las filas" = 1, 
                                                   "Aplicar un Criterio de Inclusión Estadístico" = 2)),
                          br(),
-                         uiOutput("OpcionesCIE_completo")
-                         
-                         
+                       uiOutput("OpcionesCIE_completo")
+                        
+                        
                          
 )

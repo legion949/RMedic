@@ -5,9 +5,10 @@ account: thugchem
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 4665340
-bundleId: 5159318
+bundleId: 5119306
 url: https://thugchem.shinyapps.io/RMedic_Nuevo/
-when: 1634749252.75616
-lastSyncTime: 1634749252.75616
+when: 1633712517.52971
+lastSyncTime: 1633712517.52971
 asMultiple: FALSE
 asStatic: FALSE
+ignoredFiles: .RData

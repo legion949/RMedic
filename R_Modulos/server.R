@@ -1,14 +1,7 @@
 function(input, output, session) {
   
   
-  observeEvent(input$toggleSidebar, {
-    shinyjs::toggle(id = "MySidebar")
-  })
-  
-  observeEvent(input$MiniButton, {
-    shinyjs::toggle(id = "MySidebar")
-  })
-  
+ 
   
   observeEvent(input$showpanel, {
     
