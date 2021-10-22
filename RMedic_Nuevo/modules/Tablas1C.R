@@ -3,13 +3,7 @@ Tablas1C_UI <- function(id) {
   ns <- NS(id)
   
   uiOutput(ns("SeccionTablas1C"))
-  # div(
-  # uiOutput(ns("DinamicPanelTables")),
-  # tableOutput(ns("Salida_tabla_1q_RMedic_01")),
-  # tableOutput(ns("Salida_tabla_1q_RMedic_02")),
-  # tableOutput(ns("Salida_tabla_1q_RMedic_03")),
-  # tableOutput(ns("Salida_tabla_1q_RMedic_04")),
-  # )
+ 
   
 }
 
@@ -48,18 +42,10 @@ Tablas1C_SERVER <- function(input, output, session,
     if(casoRMedic() != 2) return(NULL)
     
     
-    # salida <-  RMedic_1c_tablas(input_base = minibase(),
-    #                             input_decimales = decimales(),
-    #                             input_min = NULL,
-    #                             input_max = NULL,
-    #                             input_breaks = NULL,
-    #                             input_side = NULL
-    # )
-
+   
     # Nota: al valor input$x_breaks lo tuve que poner
-    #      como input$x_breaks[1] por que algunas veces
-    #      otorga un vector con dos valores, pero el 2do
-    #      valor es NA.
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
     
     
     
@@ -269,7 +255,7 @@ Tablas1C_SERVER <- function(input, output, session,
                       - Tablas de <b>Medidas Dispersión</b>.<br/>
                       - Tablas de <b>Medidas Intervalos de Confianza</b>.<br/>
                       - Tablas de <b>Distribución de Frecuencias</b>.<br/>
-                      Seleccionando la ayuda de cada una encontrarás un miniresumen con
+                      Seleccionando la ayuda de cada una encontrarás un resumen con
                       detalles teóricos y estructura de la base de datos.<br/>
                       Estos te ayudarán a determinar si estas herramientas pueden ser
                       aplicadas en tu trabajo."
