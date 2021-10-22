@@ -950,12 +950,16 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     cociente <- paste0(fa, "/", n_total)
     
     # Frecuencias Relativas
-    fr <- round2((fa/n_total), input_decimales)
+    fr <- (fa/n_total)
+    fr_guardado <- fr
+    fr <- round2(fr, input_decimales)
     
     
     
     # Porcentajes
-    porcentaje  <- paste(fr*100, "%", sep="")
+    porcentaje <- fr*100
+    porcentaje <- round2(porcentaje, input_decimales)
+    porcentaje  <- paste(porcentaje, "%", sep="")
     
     # Fusion
     fusion <- paste0(fa, " (", porcentaje, ")")
@@ -1321,6 +1325,13 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       # # Si tuvo problemas con las "fr" dejamos constancia tambien en la tabla de porcentajes
       # if (input_aviso == TRUE) if (totales_raros[orden_diferencia] != 1) porcentaje_marginal[nrow(porcentaje_marginal), ncol(porcentaje_marginal)] <- paste0(porcentaje_marginal[nrow(porcentaje_marginal), ncol(porcentaje_marginal)], "(Redondeo Incorrecto)")  
       
+      # Fusion marginal
+      fusion_marginal <- matrix(NA, nrow(fa_marginal), ncol(fa_marginal))
+      colnames(fusion_marginal) <- colnames(fa_marginal)
+      rownames(fusion_marginal) <- rownames(fa_marginal)
+      for (k in 1:nrow(fusion_marginal)) fusion_marginal[k,] <- paste0(fa_marginal[k,], " (", porcentaje2_marginal[k,], ")")
+      
+      
       ###
     } # Fin Marginales al total
     ###################################################################################
@@ -1368,6 +1379,13 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       for (n in 1:nrow(porcentaje2_filas)) porcentaje2_filas[n,] <- paste0(porcentaje2_filas[n,], "%")
       #     porcentaje_filas[dt_fr_filas] <- paste0(porcentaje_filas[dt_fr_filas], "(Redondeo Incorrecto)")
       
+      # Fusion por filas
+      fusion_filas <- matrix(NA, nrow(fa_filas), ncol(fa_filas))
+      colnames(fusion_filas) <- colnames(fa_filas)
+      rownames(fusion_filas) <- rownames(fa_filas)
+      for (k in 1:nrow(fusion_filas)) fusion_filas[k,] <- paste0(fa_filas[k,], " (", porcentaje2_filas[k,], ")")
+      
+      
       ###
     } # Todo por filas
     ###################################################################
@@ -1414,6 +1432,13 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       porcentaje2_columnas <- porcentaje_columnas
       for (n in 1:ncol(porcentaje2_columnas)) porcentaje2_columnas[,n] <- paste0(porcentaje2_columnas[,n], "%")
       #    if (input_aviso == TRUE)  porcentaje_columnas[dt_fr_columnas] <- paste0(porcentaje_columnas[dt_fr_columnas], "(Redondeo Incorrecto)")
+      
+      
+      # Fusion por columnas
+      fusion_columnas <- matrix(NA, nrow(fa_columnas), ncol(fa_columnas))
+      colnames(fusion_columnas) <- colnames(fa_columnas)
+      rownames(fusion_columnas) <- rownames(fa_columnas)
+      for (k in 1:nrow(fusion_columnas)) fusion_columnas[k,] <- paste0(fa_columnas[k,], " (", porcentaje2_columnas[k,], ")")
       
       
       ###
@@ -1475,7 +1500,11 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
         colnames(porcentaje_clasico) <- colnames(fa_marginal)[-ncol(fa_marginal)]
       }  
       
-      
+      # Fusion
+      fusion_clasico <- matrix(NA, nrow(fa_clasico), ncol(fa_clasico))
+      colnames(fusion_clasico) <- colnames(fa_clasico)
+      rownames(fusion_clasico) <- rownames(fa_clasico)
+      for (k in 1:nrow(fusion_clasico)) fusion_clasico[k,] <- paste0(fa_clasico[k,], " (", porcentaje2_clasico[k,], ")")
       ###  
     } # Clasico
     ##################################
@@ -1522,10 +1551,12 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       CLASICO[[3]] <- as.data.frame(fr_clasico)
       # ELIMINAR! # CLASICO[[4]] <- as.data.frame(porcentaje_clasico) 
       CLASICO[[4]] <- as.data.frame(porcentaje2_clasico)
+      CLASICO[[5]] <- fusion_clasico
       names(CLASICO) <- c("Frecuencias Absolutas",
                           "Cociente al total", 
                           "Frecuencias Relativas al total",
-                          "Porcentajes al total")
+                          "Porcentajes al total",
+                          "Fusión (Frecuencia Absoluta y Porcentaje)")
       #   CLASICO <- char_machine(CLASICO, input_columnas)
       
       ###
@@ -1543,10 +1574,12 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       TOTAL[[3]] <- as.data.frame(fr_marginal)
       # ELIMINAR! #TOTAL[[4]] <- as.data.frame(porcentaje_marginal)
       TOTAL[[4]] <- as.data.frame(porcentaje2_marginal)
+      TOTAL[[5]] <- fusion_marginal
       names(TOTAL) <- c("Frecuencias Absolutas",
                         "Cociente al total", 
                         "Frecuencias Relativas al total",
-                        "Porcentajes al total")
+                        "Porcentajes al total",
+                        "Fusión (Frecuencia Absoluta y Porcentaje)")
       #  TOTAL <- char_machine(TOTAL, input_columnas)
       
       ###
@@ -1566,10 +1599,12 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       FILAS[[3]] <- as.data.frame(fr_filas)
       # ELIMINAR! # FILAS[[4]] <- as.data.frame(porcentaje_filas)
       FILAS[[4]] <- as.data.frame(porcentaje2_filas)
+      FILAS[[5]] <- fusion_filas
       names(FILAS) <- c("Frecuencias Absolutas",
                         "Cociente por filas", 
                         "Frecuencias Relativas por filas",
-                        "Porcentajes por filas")
+                        "Porcentajes por filas",
+                        "Fusión por filas (Frecuencia Absoluta y Porcentaje)")
       #  FILAS <- char_machine(FILAS, input_columnas)
       
       ###
@@ -1588,10 +1623,12 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       COLUMNAS[[3]] <- as.data.frame(fr_columnas)
       # ELIMAR! # COLUMNAS[[4]] <- as.data.frame(porcentaje_columnas)
       COLUMNAS[[4]] <- as.data.frame(porcentaje2_columnas)
+      COLUMNAS[[5]] <- fusion_columnas
       names(COLUMNAS) <- c("Frecuencias Absolutas",
                            "Cociente por columnas", 
                            "Frecuencias Relativas por columnas",
-                           "Porcentajes por columnas")   
+                           "Porcentajes por columnas",
+                           "Fusión por columnas (Frecuencia Absoluta y Porcentaje)")   
       # COLUMNAS <- char_machine(COLUMNAS, input_columnas)
       
       ###
@@ -1602,36 +1639,41 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     # SIMPLE
     {
       ###
+      SIMPLE <- list()
       
       grupos_filas <- rownames(fa)
       grupos_columnas <- colnames(fa)
       cantidad_filas <- length(grupos_filas)*length(grupos_columnas)
       nombres_columnas <- c(colnames(input_base), "Frecuencia Absoluta", 
                             "Total", "Cociente al Total", "Frecuencia Relativa al Total",
-                            "Porcentaje al Total")
+                            "Porcentaje al Total", "FA (%)")
       
       
-      SIMPLE <- as.data.frame(matrix(NA, cantidad_filas, length(nombres_columnas)))
-      colnames(SIMPLE) <- nombres_columnas
+      tabla_simple <- as.data.frame(matrix(NA, cantidad_filas, length(nombres_columnas)))
+      colnames(tabla_simple) <- nombres_columnas
       
       contador_externo <- 0
       for (k in 1:length(grupos_filas)) {
         for (n in 1:length(grupos_columnas)) {
           contador_externo <- contador_externo + 1
           
-          SIMPLE[contador_externo,1] <- grupos_filas[k]
-          SIMPLE[contador_externo,2] <- grupos_columnas[n]        
-          SIMPLE[contador_externo,3] <- TOTAL[[1]][k,n]    
-          SIMPLE[contador_externo,4] <- sum(TOTAL[[1]]) 
-          SIMPLE[contador_externo,5] <- TOTAL[[2]][k,n]       
-          SIMPLE[contador_externo,6] <- TOTAL[[3]][k,n]       
-          SIMPLE[contador_externo,7] <- TOTAL[[4]][k,n]       
+          tabla_simple[contador_externo,1] <- grupos_filas[k]
+          tabla_simple[contador_externo,2] <- grupos_columnas[n]        
+          tabla_simple[contador_externo,3] <- TOTAL[[1]][k,n]    
+          tabla_simple[contador_externo,4] <- sum(TOTAL[[1]]) 
+          tabla_simple[contador_externo,5] <- TOTAL[[2]][k,n]       
+          tabla_simple[contador_externo,6] <- TOTAL[[3]][k,n]       
+          tabla_simple[contador_externo,7] <- TOTAL[[4]][k,n]  
+          tabla_simple[contador_externo,8] <- TOTAL[[5]][k,n]
           # ELIMINAR! SIMPLE[contador_externo,8] <- TOTAL[[5]][k,n] 
           
         } # Fin for n
       } # Fin for k
       
-      #SIMPLE <- list(SIMPLE)  
+      SIMPLE[[1]] <- tabla_simple
+      # 
+      # names(SIMPLE) <- "Simple Entrada"
+      names(SIMPLE) <- "Simple Entrada"
       
       ###
     } # Fin SIMPLE
@@ -1639,16 +1681,6 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     
     
-    # SIMPLE2
-    {
-      ###
-      SIMPLE2 <- SIMPLE[,-7]
-      colnames(SIMPLE2)[ncol(SIMPLE2)] <- "%"
-      SIMPLE2[,3] <- as.character(SIMPLE2[,3])
-      SIMPLE2[,4] <- as.character(SIMPLE2[,4])
-      ###
-    } # Fin SIMPLE
-    ############################################################################
     
     
     # ARMADO ESPECIAL
@@ -1657,12 +1689,12 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       # Hay demasiadas tablas... Estas son las que va a mirar
       # el usuario por defecto.
       ARMADO_ESPECIAL <- list()
-      ARMADO_ESPECIAL[[1]] <- CLASICO[[1]]
-      ARMADO_ESPECIAL[[2]] <- FILAS[[1]]
-      ARMADO_ESPECIAL[[3]] <- FILAS[[4]]
-      names(ARMADO_ESPECIAL) <- c("Frecuencias Absolutas",
-                                  "Frecuencias Absolutas y Totales por Fila",
-                                  "Porcentajes por fila")
+      ARMADO_ESPECIAL[[1]] <- TOTAL[[1]]
+      ARMADO_ESPECIAL[[2]] <- FILAS[[4]]
+      ARMADO_ESPECIAL[[3]] <- FILAS[[5]]
+      names(ARMADO_ESPECIAL) <- c("Frecuencias Absolutas y Marginales",
+                                  "Porcentajes por filas",
+                                  "Fusión por filas (Frecuencia Absoluta y Porcentaje)")
     }
     ########################################
     
@@ -1676,10 +1708,8 @@ RMedic_2q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   {
     ###
     
-    mis_tablas <- list(ARMADO_ESPECIAL, CLASICO, TOTAL, FILAS, COLUMNAS, SIMPLE, SIMPLE2)
-    names(mis_tablas) <- c("Resumen de Tablas de Contingencia", 
-                           "Clásico", "Al total", "Por filas", "Por columnas",
-                           "Simple Entrada", "Simple2")  
+    mis_tablas <- list(ARMADO_ESPECIAL, CLASICO, TOTAL, FILAS, COLUMNAS, SIMPLE)
+    names(mis_tablas) <- c("Resumen", "Clasico", "Al total", "Por filas", "Por columnas", "Simple Entrada")  
     
     
     
@@ -1920,3 +1950,289 @@ control_decimales <- function(input_decimales = NULL, input_cadena = NULL){
   
   
 }
+
+#########################
+
+control_2c <- function(input_base = NULL, input_cadena = NULL){
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    
+    
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Controles 1
+  {
+    ###
+    
+    # Verificar que input_base no sea nulo
+    if(output_cadena && is.null(input_base)) {
+      cat("\n", "Error control_2c: input_base no debe ser nulo", "\n")
+      output_cadena <- FALSE
+    }  
+    
+    # Verificar si es un data frame
+    if(output_cadena && !is.data.frame(input_base)) {
+      cat("\n", "Error control_2c: input_base debe ser un data.frame", "\n")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene al menos una columna
+    if(output_cadena && ncol(input_base) == 0) {
+      cat("\n", "Error control_1c: input_base no tiene columnas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene solo 1 columna
+    if(output_cadena && ncol(input_base) == 1) {
+      cat("\n", "Error control_2c: input_base debe ser dos columnas.")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene mas de 2 columna
+    if(output_cadena && ncol(input_base) > 2) {
+      cat("\n", "Error control_2c: input_base debe ser solo dos columnas.")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si es no tiene datos
+    if(output_cadena && nrow(input_base) == 0) {
+      cat("\n", "Error control_2c: input_base no presenta filas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar que sea numerica la columna 1
+    if(output_cadena && !is.numeric(input_base[,1])) {
+      cat("\n", "Error control_2c: la columna 1 de input_base debe ser numérica.", "\n", "Utilice la solapa 'Control' sobre esta variable.", "\n")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar que sea numerica la columna 2
+    if(output_cadena && !is.numeric(input_base[,2])) {
+      cat("\n", "Error control_2c: la columna 2 de input_base debe ser numérica.", "\n", "Utilice la solapa 'Control' sobre esta variable.", "\n")
+      output_cadena <- FALSE
+    }
+    
+    ###      
+  } # Fin Controles 1
+  ###################################################################
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- output_cadena
+    
+    names(salida) <- c("output_cadena")
+    
+    return(salida)
+    
+    
+    ###  
+  } # Fin Salida
+  ##################
+  
+  
+}
+
+##########################
+
+RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL,
+                             input_min1 = NULL, input_max1 = NULL, input_breaks1 = NULL,
+                             input_side1 = NULL,
+                             input_min2 = NULL, input_max2 = NULL, input_breaks2 = NULL,
+                             input_side2 = NULL) {
+  
+  
+  
+  
+  # Medidas de posicion y dispersion simultaneas
+  # Default values
+  if (is.null(input_decimales)) input_decimales <- 2
+  if (is.null(input_cadena)) input_cadena <- T
+  
+  
+  
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    # 1- Es nulo
+    # 2- No es un data.frame
+    # 3- Tiene cero columnas
+    # 4- Tiene 0 columnas
+    # 5- Tiene 1 columna
+    # 6- Tiene mas de 2 columnas
+    # 7- No tiene filas (nrow(input_base))
+    
+    veredicto1 <- control_2c(input_base = input_base, input_cadena = input_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  
+  # # # minibase y Control 2 -  base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "minibase"  
+      minibase_general <- na.omit(input_base)
+      minibase1 <- minibase_general[1]
+      minibase2 <- minibase_general[2]
+      mini_vector1 <- minibase_general[,1]
+      mini_vector2 <- minibase_general[,2]
+      
+      # Vemos que minibase tenga filas
+      if (nrow(minibase_general) == 0) {
+        cat("Error en RMedic_2c_tablas(): 'input_base' posee solo celdas vacias.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      # minibase sea numerica
+      if (!is.numeric(mini_vector1)) {
+        cat("Error RMedic_2c_tablas(): La columna 1 de 'input_base' debe ser numerica.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      # minibase sea numerica
+      if (!is.numeric(mini_vector2)) {
+        cat("Error RMedic_2c_tablas(): La columna 2 de 'input_base' debe ser numerica.", "\n")
+        output_cadena <- FALSE
+      }
+      
+    } # Fin if Si todo va OK...
+    ###################################################
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase_general <- mtcars[c(1,3)]
+      minibase1 <- minibase_general[1]
+      minibase2 <- minibase_general[2]
+      mini_vector1 <- minibase_general[,1]
+      mini_vector2 <- minibase_general[,2]
+      colnames(minibase_general) <- c("No Data1", "No Data2")
+      cat("Error en RMedic_2c_tablas(): 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    
+    ### 
+  } # Fin Control 2 -  base "NO DATA"
+  ################################################################
+  
+  
+  # # # SandBox en caso de no ser valido
+  {
+    ###
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase_general <- mtcars[c(1,3)]
+      minibase1 <- minibase_general[1]
+      minibase2 <- minibase_general[2]
+      mini_vector1 <- minibase_general[,1]
+      mini_vector2 <- minibase_general[,2]
+      colnames(minibase) <- c("No Data1", "No Data2")
+      cat("Error en RMedic_2c_tablas(): 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    ###  
+  }
+  ############################################################################
+  
+  
+  # More default values
+  {
+    ###
+    
+    # Todo lo de la variable 1
+    if(is.null(input_min1))  input_min1 <- min(mini_vector1)
+    if(is.null(input_max1))  input_max1 <- max(mini_vector1)
+    if(is.null(input_breaks1))  input_breaks1 <- nclass.Sturges(mini_vector1)
+    if(is.null(input_side1))  input_side1 <- T
+    
+    # Todo lo de la variable 2
+    if(is.null(input_min2))  input_min2 <- min(mini_vector2)
+    if(is.null(input_max2))  input_max2 <- max(mini_vector2)
+    if(is.null(input_breaks2))  input_breaks2 <- nclass.Sturges(mini_vector2)
+    if(is.null(input_side2))  input_side2 <- T
+    # 
+    ###
+  } # Fin More default values
+  #################################################
+  
+  
+  
+  # Tablas para Variable 1
+  tablas <- list()
+  
+  tablas[[1]] <- RMedic_1c_tablas(input_base = minibase1,
+                                  input_decimales = input_decimales,
+                                  input_cadena = input_cadena,
+                                  input_min = input_min1, 
+                                  input_max = input_max1,
+                                  input_breaks = input_breaks1,
+                                  input_side = input_side1)
+  
+  
+  tablas[[2]] <- RMedic_1c_tablas(input_base = minibase2,
+                                  input_decimales = input_decimales,
+                                  input_cadena = input_cadena,
+                                  input_min = input_min2, 
+                                  input_max = input_max2,
+                                  input_breaks = input_breaks2,
+                                  input_side = input_side2)
+  
+  
+  armado <- list()
+  
+  directo1 <- c(1:7)
+  
+  for(k in directo1){
+    # Medidas Resumen
+    armado[[k]] <- rbind(tablas[[1]][[k]], tablas[[2]][[k]])
+    rownames(armado[[k]]) <- c(1:nrow(armado[[k]]))
+    names(armado)[k] <- names(tablas[[1]])[k]
+  }
+  
+  directo2 <- c(8,9,10)
+  conteo_interno <- 0
+  for(k in directo2){
+    
+    conteo_interno <- conteo_interno + 1
+    # Medidas Resumen
+    armado[[k]] <- rbind(tablas[[1]][[8]][conteo_interno, ], tablas[[2]][[8]][conteo_interno, ])
+    rownames(armado[[k]]) <- c(1:nrow(armado[[k]]))
+    names(armado)[k] <- names(tablas[[1]])[8]
+  }
+  
+  # Distribucion de Frecuencias - Var1
+  armado[[11]] <- tablas[[1]][[9]]
+  names(armado)[11] <- paste0(names(tablas[[1]])[9], " - Variable 1")
+  
+  # Distribucion de Frecuencias - Var2
+  armado[[12]] <- tablas[[2]][[9]]
+  names(armado)[12] <- paste0(names(tablas[[1]])[9], " - Variable 2")
+  
+  
+  return(armado)
+  
+} # Fin function

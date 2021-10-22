@@ -22,6 +22,7 @@ source("modules/MiniBase.R")
 source("modules/Tablas1Q.R")
 source("modules/Tablas1C.R")
 source("modules/Tablas2Q.R")
+source("modules/Tablas2C.R")
 
 source("modules2/ModuleBase.R")
 source("modules2/ModuleControl.R")

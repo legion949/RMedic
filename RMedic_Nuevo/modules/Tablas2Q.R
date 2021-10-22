@@ -3,7 +3,7 @@ Tablas2Q_UI <- function(id) {
   ns <- NS(id)
   
   uiOutput(ns("SeccionTablas2Q"))
- 
+  
   
 }
 
@@ -58,13 +58,13 @@ Tablas2Q_SERVER <- function(input, output, session,
     
     general$df02[[4]][[1]] <- as.matrix(general$df02[[4]][[1]])
     general$df02[[4]][[1]][1,1] <- as.character(general$df02[[4]][[1]][1,1])    
-
+    
     general$df02[[5]][[1]] <- as.matrix(general$df02[[5]][[1]])
     general$df02[[5]][[1]][1,1] <- as.character(general$df02[[5]][[1]][1,1])    
     
-    general$df02[[6]] <- as.matrix(general$df02[[6]])
-    general$df02[[6]][1,1] <- as.character(general$df02[[6]][1,1])    
-    
+    general$df02[[6]][[1]] <- as.matrix(general$df02[[6]][[1]])
+    general$df02[[6]][[1]][1,1] <- as.character(general$df02[[6]][[1]][1,1])
+
     
     return(general)
   })
@@ -97,76 +97,17 @@ Tablas2Q_SERVER <- function(input, output, session,
     
     
     salida <- list()
-
-    #Resumen
-    salida[[1]] <- list(names(general[[1]])[1],
-                        general[[1]][[1]])
     
-    salida[[2]] <- list(names(general[[1]])[2],
-                        general[[1]][[2]])
+    conteo <- 0
+    for (k1 in 1:length(general)) {
+      for(k2 in 1:length(general[[k1]])){
+        
+        conteo <- conteo + 1
+        salida[[conteo]] <- list(names(general[[k1]])[k2],
+                                 general[[k1]][[k2]])
+      }
+    }
     
-    salida[[3]] <- list(names(general[[1]])[3],
-                        general[[1]][[3]])
-    
-    #Clasico
-    salida[[4]] <- list("Frecuencias Absolutas",
-                        general[[2]][[1]])
-
-    salida[[5]] <- list("Cociente al Total",
-                        general[[2]][[2]])
-
-    salida[[6]] <- list("Frecuencias Relativas al Total",
-                        general[[2]][[3]])
-
-
-    salida[[7]] <- list("Porcentajes al Total",
-                        general[[2]][[4]])
-
-    # Al total
-    salida[[8]] <- list("Frecuencias Absolutas",
-                        general[[3]][[1]])
-
-    salida[[9]] <- list("Cociente al Total",
-                        general[[3]][[2]])
-
-    salida[[10]] <- list("Frecuencias Relativas al Total",
-                        general[[3]][[3]])
-
-
-    salida[[11]] <- list("Porcentajes al Total",
-                        general[[3]][[4]])
-
-    # Al Por Fila
-    salida[[12]] <- list("Frecuencias Absolutas por Filas",
-                        general[[4]][[1]])
-
-    salida[[13]] <- list("Cociente por Filas",
-                         general[[4]][[2]])
-
-    salida[[14]] <- list("Frecuencias Relativas por Filas",
-                         general[[4]][[3]])
-
-
-    salida[[15]] <- list("Porcentajes por Filas",
-                         general[[4]][[4]])
-
-    # Al Por Columna
-    salida[[16]] <- list("Frecuencias Absolutas por Columnas",
-                         general[[5]][[1]])
-
-    salida[[17]] <- list("Cociente por Columnas",
-                         general[[5]][[2]])
-
-    salida[[18]] <- list("Frecuencias Relativas por Columnas",
-                         general[[5]][[3]])
-
-
-    salida[[19]] <- list("Porcentajes por Columnas",
-                         general[[5]][[4]])
-
-    # Simple Entrada
-    salida[[20]] <- list("Simple Entrada",
-                         general[[6]])
     
     
     # Return Exitoso
@@ -231,7 +172,7 @@ Tablas2Q_SERVER <- function(input, output, session,
                                     radioButtons(inputId = "help_tablas_2q",
                                                  label = h3("Selección de Ayuda Automática"),
                                                  choices = c("RMedic Here!" = 1,
-                                                             "Resumen de Tablas de Contingencia" = 2,
+                                                             "Resumen de Tablas de Doble Entrada" = 2,
                                                              "Clásico" = 3,
                                                              "Al total" = 4, 
                                                              "Por filas" = 5, 
@@ -245,13 +186,13 @@ Tablas2Q_SERVER <- function(input, output, session,
                                                      div(
                                                        h3("RMedic Here!"),
                                                        HTML(
-                                      "Para presentan y resumir información de dos variables categóricas
-                                      una de las formas más utilizadas de presentación son las <b>Tablas de Congencia</b>.<br/>
+                                                         "Para presentan y resumir información de dos variables categóricas
+                                      una de las formas más utilizadas son las <b>Tablas de Doble Entrada</b>.<br/>
                                       Estas son tablas de doble entrada, con diferentes posibilidades: 
                                       frecuencias absolutas (FA), cociente, frecuencias relativas (FR), y porcentajes.
                                       A su vez estos 4 tipos de tablas pueden ser especificadas con detalles al total, 
                                       por filas, por columnas o ambos. El total de tablas presentadas en esta sección
-                                      es de 19 <b>Tablas de Contingencia</b> que abarcan todas las posibilidades.<br/>
+                                      es de 19 <b>Tablas de Doble Entrada</b> que abarcan todas las posibilidades.<br/>
                                       RMedic agrega a demás la opción de una tabla de contingencia presentada en el formato de simple entrada.<br/><br/>
                                       Se utiliza en caso de tener 2 variables categóricas.<br/>
                                       Cada una de las variables debe contener al menos una categoría.<br/>
@@ -268,9 +209,9 @@ Tablas2Q_SERVER <- function(input, output, session,
                                     ),
                                     conditionalPanel(condition = "input.help_tablas_2q == 2",
                                                      div(
-                                                       h3("Resumen de Tablas de Contingencia"),
+                                                       h3("Resumen de Tablas de Doble Entrada"),
                                                        HTML(
-                                    "Son 3 las <b>Tablas de Contingencia</b> más utilizada:<br/>
+                                                         "Son 3 las <b>Tablas de Doble Entrada</b> más utilizada:<br/>
                                     1) Frecuencias Absolutas.<br/>
                                     2) Frecuencias Absolutas y total por fila.<br/>
                                     3) Porcentajes por filas.<br/><br/>
@@ -286,7 +227,7 @@ Tablas2Q_SERVER <- function(input, output, session,
                                                      div(
                                                        h3("Clásico"),
                                                        HTML("El formato clásico es también el más básico. Se presentan todas
-                                                        las <b>Tablas de Contingencia</b> en su estructura más simple.")
+                                                        las <b>Tablas de Doble Entrada</b> en su estructura más simple.")
                                                      )
                                     ),
                                     conditionalPanel(condition = "input.help_tablas_2q == 4",
@@ -317,7 +258,7 @@ Tablas2Q_SERVER <- function(input, output, session,
                                     conditionalPanel(condition = "input.help_tablas_2q == 7",
                                                      div(
                                                        h3("Simple Entrada"),
-                                                       HTML("Se desdobla la información de las <b>Tablas de Contingencia</b> a una una sola gran tabla de simple entrada
+                                                       HTML("Se desdobla la información de las <b>Tablas de Doble Entrada</b> a una una sola gran tabla de simple entrada
                                                             en la cual se detallarán en filas todas las combinaciones posibles entre las categorías de ambas variables y
                                                             en columnas los diferentes tipos de información: frecuencias absolutas (FA), total, cociente al total, frecuencia
                                                             relativa al total (FR) y porcentaje al total."
@@ -327,20 +268,20 @@ Tablas2Q_SERVER <- function(input, output, session,
                              )
                            )
                   ),
-                  tabPanel(title = "Resumen", value = 2,
-                            h3(textOutput(ns("Salida_texto_2q_RMedic_01"))),
-                            Referencias_var_2q(),
-                            tableOutput(ns("Salida_tabla_2q_RMedic_01")),
-                            br(),
-                            h3(textOutput(ns("Salida_texto_2q_RMedic_02"))),
-                            Referencias_var_2q(),
-                            tableOutput(ns("Salida_tabla_2q_RMedic_02")),
-                            br(),
-                            h3(textOutput(ns("Salida_texto_2q_RMedic_03"))),
-                            Referencias_var_2q(),
-                            tableOutput(ns("Salida_tabla_2q_RMedic_03")),
-                            br()
-                           ),
+                  tabPanel(title = "Resumen de Tablas de Doble Entrada", value = 2,
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_01"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_01")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_02"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_02")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_03"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_03")),
+                           br()
+                  ),
                   tabPanel(title = "Clásico", value = 3,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_04"))),
                            Referencias_var_2q(),
@@ -357,13 +298,13 @@ Tablas2Q_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_07"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_07")),
-                           br()
-                           ),
-                  tabPanel(title = "Al total", value = 4,
+                           br(),
                            h3(textOutput(ns("Salida_texto_2q_RMedic_08"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_08")),
-                           br(),
+                           br()
+                  ),
+                  tabPanel(title = "Al total", value = 4,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_09"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_09")),
@@ -375,9 +316,7 @@ Tablas2Q_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_11"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_11")),
-                           br()
-                           ),
-                  tabPanel(title = "Por filas", value = 5,
+                           br(),
                            h3(textOutput(ns("Salida_texto_2q_RMedic_12"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_12")),
@@ -385,7 +324,10 @@ Tablas2Q_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_13"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_13")),
-                           br(),
+                           br()
+                          
+                  ),
+                  tabPanel(title = "Por filas", value = 5,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_14"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_14")),
@@ -393,9 +335,7 @@ Tablas2Q_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_15"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_15")),
-                           br()
-                           ),
-                  tabPanel(title = "Por columnas", value = 6,
+                           br(),
                            h3(textOutput(ns("Salida_texto_2q_RMedic_16"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_16")),
@@ -407,17 +347,38 @@ Tablas2Q_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_18"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_18")),
-                           br(),
+                           br()
+                           
+                  ),
+                  tabPanel(title = "Por columnas", value = 6,
                            h3(textOutput(ns("Salida_texto_2q_RMedic_19"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_19")),
-                           br()
-                           ),
-                  tabPanel(title = "Simple Entrada", value = 7,
+                           br(),
                            h3(textOutput(ns("Salida_texto_2q_RMedic_20"))),
                            Referencias_var_2q(),
                            tableOutput(ns("Salida_tabla_2q_RMedic_20")),
-                           br())
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_21"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_21")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_22"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_22")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_23"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_23")),
+                           br()
+                           
+                  ),
+                  tabPanel(title = "Simple Entrada", value = 7,
+                           h3(textOutput(ns("Salida_texto_2q_RMedic_24"))),
+                           Referencias_var_2q(),
+                           tableOutput(ns("Salida_tabla_2q_RMedic_24")),
+                           br()
+                           )
       ),
     )
   })

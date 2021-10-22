@@ -35,7 +35,7 @@ Tablas1C_SERVER <- function(input, output, session,
     
   })
   
-  # Todas las tablas 1Q
+  # Todas las tablas 1C
   Reactive_tabla_1c_RMedic <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -185,13 +185,13 @@ Tablas1C_SERVER <- function(input, output, session,
   # Variable criterio de inclusion
   observeEvent(input[[ns("x_min")]],{
     
-    if(input[[ns("x_min")]] > min(BasePlaneta_tablas()[,1])) {
+    if(input[[ns("x_min")]] > min(minibase()[,1])) {
       
       updateNumericInput(session, inputId = ns("x_min"),
                          label = "Valor mínimo: ",
-                         value = min(BasePlaneta_tablas()[,1]),
+                         value = min(minibase()[,1]),
                          min = NA,
-                         max = min(BasePlaneta_tablas()[,1]),
+                         max = min(minibase()[,1]),
                          step = 0.01
       )
       
@@ -204,12 +204,12 @@ Tablas1C_SERVER <- function(input, output, session,
   # Variable criterio de inclusion
   observeEvent(input[[ns("x_max")]],{
     
-    if(input[[ns("x_max")]] < max(BasePlaneta_tablas()[,1])) {
+    if(input[[ns("x_max")]] < max(minibase()[,1])) {
       
       updateNumericInput(session, inputId = ns("x_max"),
                          label = "Valor máximo: ",
-                         value = max(BasePlaneta_tablas()[,1]),
-                         min = max(BasePlaneta_tablas()[,1]),
+                         value = max(minibase()[,1]),
+                         min = max(minibase()[,1]),
                          max = NA,
                          step = 0.01
       )
