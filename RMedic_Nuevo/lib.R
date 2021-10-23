@@ -957,7 +957,7 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     
     
     # Porcentajes
-    porcentaje <- fr*100
+    porcentaje <- fr_guardado*100
     porcentaje <- round2(porcentaje, input_decimales)
     porcentaje  <- paste(porcentaje, "%", sep="")
     
@@ -2221,7 +2221,9 @@ RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
     # Medidas Resumen
     armado[[k]] <- rbind(tablas[[1]][[8]][conteo_interno, ], tablas[[2]][[8]][conteo_interno, ])
     rownames(armado[[k]]) <- c(1:nrow(armado[[k]]))
-    names(armado)[k] <- names(tablas[[1]])[8]
+    # names(armado)[k] <- names(tablas[[1]])[8]
+    names(armado)[k] <-  paste0("Intervalo de Confianza (IC) del ",
+           armado[[k]][1,3], " para la media") 
   }
   
   # Distribucion de Frecuencias - Var1
@@ -2231,6 +2233,325 @@ RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   # Distribucion de Frecuencias - Var2
   armado[[12]] <- tablas[[2]][[9]]
   names(armado)[12] <- paste0(names(tablas[[1]])[9], " - Variable 2")
+  
+  
+  return(armado)
+  
+} # Fin function
+
+###############################
+
+control_qc <- function(input_base = NULL, input_cadena = NULL){
+  
+  # # # Funcionamiento por defecto
+  {
+    ###
+    
+    if (is.null(input_cadena)) input_cadena <- TRUE
+    
+    
+    
+    
+    # Armamos el siguiente eslabon
+    output_cadena <- input_cadena
+    
+    ###
+  } # Fin Funcionamiento
+  ################################################
+  
+  
+  # # # Controles 1
+  {
+    ###
+    
+    # Verificar que input_base no sea nulo
+    if(output_cadena && is.null(input_base)) {
+      cat("Error control_qc(): input_base no debe ser nulo", "\n")
+      output_cadena <- FALSE
+    }  
+    
+    # Verificar si es un data frame
+    if(output_cadena && !is.data.frame(input_base)) {
+      cat("Error control_qc(): input_base debe ser un data.frame", "\n")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene al menos una columna
+    if(output_cadena && ncol(input_base) == 0) {
+      cat("Error control_qc(): input_base no tiene columnas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si tiene una cantidad diferente de 2 columnas
+    if(output_cadena && ncol(input_base) != 2) {
+      cat("Error control_cq(): input_base debe tener dos columnas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si es no tiene datos
+    if(output_cadena && nrow(input_base) == 0) {
+      stop("Error control_qc(): input_base no presenta filas")
+      output_cadena <- FALSE
+    }
+    
+    # Verificar si la 2da columan es numerica
+    if(output_cadena && !is.numeric(input_base[,2])) {
+      stop("Error control_cq(): input_base columna 2 debe ser numérica")
+      output_cadena <- FALSE
+    }
+    
+    
+    # Nota: No hacemos una verificacion sobre si la 1ra
+    #       columna es tipo factor o tipo character, por que
+    #       podrian ser numeros representando categorias.
+    
+    ###      
+  } # Fin Controles 1
+  ###################################################################
+  
+  
+  # # # Salida
+  {
+    ###
+    
+    salida <- output_cadena
+    
+    names(salida) <- c("output_cadena")
+    
+    return(salida)
+    
+    
+    ###  
+  } # Fin Salida
+  ##################
+  
+  
+}
+
+###############################
+
+
+
+RMedic_qc_tablas <- function(input_base = NULL, input_decimales = NULL, input_cadena = NULL,
+                             input_min = NULL, input_max = NULL, input_breaks = NULL,
+                             input_side = NULL) {
+  
+  
+  
+  
+  # Medidas de posicion y dispersion simultaneas
+  # Default values
+  if (is.null(input_decimales)) input_decimales <- 2
+  if (is.null(input_cadena)) input_cadena <- T
+  
+  
+  
+  
+  # # # Control 1 - input_base
+  {
+    ###
+    # 1- Es nulo
+    # 2- No es un data.frame
+    # 3- Tiene cero columnas
+    # 4- Tiene 0 columnas
+    # 5- Tiene 1 columna
+    # 6- Tiene mas de 2 columnas
+    # 7- No tiene filas (nrow(input_base))
+    
+    veredicto1 <- control_qc(input_base = input_base, input_cadena = input_cadena)
+    output_cadena <- veredicto1
+    
+    ###  
+  } # Fin Control 1 - input_base
+  #################################################
+  
+  
+  
+  # # # minibase y Control 2 -  base "NO DATA"
+  {
+    ###
+    
+    # Si todo va OK...
+    if (output_cadena) {
+      
+      # Creamos "minibase"  
+      minibase <- na.omit(input_base)
+      factor <- as.data.frame(as.factor(as.character(minibase[,1])))
+      colnames(factor) <- colnames(minibase)[1]
+      vr <- minibase[2]
+      factor_vector <- factor[,1]
+      vr_vector <- vr[,1]
+      
+      # Vemos que minibase tenga filas
+      if (nrow(minibase) == 0) {
+        cat("Error en RMedic_2c_tablas(): 'input_base' posee solo celdas vacias.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      # minibase sea numerica
+      if (!is.numeric(vr_vector)) {
+        cat("Error RMedic_qc_tablas(): La columna 2 de 'input_base' debe ser numerica.", "\n")
+        output_cadena <- FALSE
+      }
+      
+      # minibase sea numerica
+      if (length(levels(factor_vector)) == 0) {
+        cat("Error RMedic_qc_tablas(): La columna 1 de 'input_base' debe tener al menos una categoría.", "\n")
+        output_cadena <- FALSE
+      }
+      
+    } # Fin if Si todo va OK...
+    ###################################################
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase <- na.omit(mtcars[c(2,1)])
+      factor <- as.data.frame(as.factor(as.character(minibase[,1])))
+      colnames(factor) <- colnames(minibase)[1]
+      vr <- minibase[2]
+      factor_vector <- factor[,1]
+      vr_vector <- vr[,1]
+      
+      colnames(minibase) <- c("No Data1", "No Data2")
+      cat("Error en RMedic_2c_tablas(): 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    
+    ### 
+  } # Fin Control 2 -  base "NO DATA"
+  ################################################################
+  
+  
+  # # # SandBox en caso de no ser valido
+  {
+    ###
+    
+    # Si hay algun problema...
+    if (output_cadena == FALSE){
+      minibase <- na.omit(mtcars[c(2,1)])
+      factor <- as.data.frame(as.factor(as.character(minibase[,1])))
+      colnames(factor) <- colnames(minibase)[1]
+      vr <- minibase[2]
+      factor_vector <- factor[,1]
+      vr_vector <- vr[,1]
+      colnames(minibase) <- c("No Data1", "No Data2")
+      cat("Error en RMedic_2c_tablas(): 'minibase' externo agregado (NO DATA)", "\n")
+    } # Fin if si hay problemas
+    ##########################################################
+    
+    ###  
+  }
+  ############################################################################
+  
+  
+  # More default values
+  {
+    ###
+    
+    # Valores por defecto...
+    if(is.null(input_min))  input_min <- min(vr_vector)
+    if(is.null(input_max))  input_max <- max(vr_vector)
+    if(is.null(input_breaks))  input_breaks <- nclass.Sturges(vr_vector)
+    if(is.null(input_side))  input_side <- T
+    
+    
+    ###
+  } # Fin More default values
+  #################################################
+  
+  
+  
+  # Tablas para Variable 1
+  tablas <- list()
+  
+  cantidad_categorias <- length(levels(factor_vector))
+  
+  cantidad_analisis <- cantidad_categorias + 1
+  
+  for (k in 1:cantidad_analisis){
+    
+    # Esto es para cada nivel del factor  
+    if (k < cantidad_analisis) dt_categoria <- factor_vector == levels(factor_vector)[k] 
+    
+    # Esto es para todos los datos juntos...
+    if (k == cantidad_analisis) dt_categoria <- rep(T, length(factor_vector))
+    
+    miniarmado <- as.data.frame(minibase[dt_categoria, 2])
+    colnames(miniarmado) <- colnames(minibase)[2]
+    
+    tablas[[k]] <- RMedic_1c_tablas(input_base = miniarmado,
+                                    input_decimales = input_decimales,
+                                    input_cadena = input_cadena,
+                                    input_min = NULL, 
+                                    input_max = NULL,
+                                    input_breaks = NULL,
+                                    input_side = NULL)
+    
+  }
+  
+  
+  
+  armado_nombres <- c(levels(factor_vector), "Medidas Generales") 
+  names(tablas) <- armado_nombres
+  
+  
+  
+  
+  
+  # Armado especial
+  armado <- list()
+  
+  directo1 <- c(1:7)
+  
+  for(k1 in directo1){
+    for (k2 in 1:length(tablas)){
+      
+      
+      if(k2 == 1)  armado[[k1]] <- tablas[[k2]][[k1]] else
+        armado[[k1]] <- rbind(armado[[k1]], tablas[[k2]][[k1]])
+      
+      #rownames(armado[[k1]]) <- c(1:nrow(armado[[k]]))
+      #names(armado)[k] <- names(tablas[[1]])[k]
+    }
+    colnames(armado[[k1]])[1] <- c("Categoría de la variable")
+    armado[[k1]][,1] <- armado_nombres
+  }
+  
+  names(armado)[directo1] <- names(tablas[[1]])[directo1]
+  
+  
+  directo2 <- c(8,9,10)
+  
+  conteo_interno <- 0
+  for(k1 in directo2){
+    conteo_interno <- conteo_interno + 1
+    for (k2 in 1:length(tablas)){
+      
+      
+      # Medidas Resumen
+      if(k2 == 1)  armado[[k1]] <- tablas[[k2]][[8]][conteo_interno, ] else
+        armado[[k1]] <- rbind(armado[[k1]], tablas[[k2]][[8]][conteo_interno, ])
+      
+      
+    }
+    colnames(armado[[k1]])[1] <- c("Categoría de la variable")
+    armado[[k1]][,1] <- armado_nombres
+    rownames(armado[[k1]]) <- c(1:nrow(armado[[k1]]))
+    names(armado)[k1] <- paste0("Intervalo de Confianza (IC) del ",
+                                armado[[k1]][1,3], " para la media") 
+  }
+  
+  # Distribucion de Frecuencias - Var1
+  
+  armado[[11]] <- list()
+  for(k2 in 1:length(tablas)) {
+    
+    armado[[11]][[k2]] <- tablas[[k2]][[9]]
+    
+  }
+  
+  names(armado[[11]]) <- armado_nombres
   
   
   return(armado)

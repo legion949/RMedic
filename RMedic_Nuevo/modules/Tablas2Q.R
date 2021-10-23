@@ -164,6 +164,7 @@ Tablas2Q_SERVER <- function(input, output, session,
     
     # Si es el caso 1, seguimos!
     div(
+      h2("RMedic - Tablas para 2 Variables Categóricas"),
       tabsetPanel(id = ns("Tablas_2q"),
                   tabPanel(title = "RMedic Help!", 
                            value = 1,

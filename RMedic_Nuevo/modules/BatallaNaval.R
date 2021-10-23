@@ -381,6 +381,9 @@ BatallaNavalSERVER <- function(input, output, session,
       # Cuando hay una variable de cada tipo, se ordenada todo
       # para que la primera variable sea la categorica y la 2da la numerica
       # Es una forma de trabajo estandard.
+    
+      # Si esta modo el modelo de cambio... Rotamos!
+      #                 Numerica  y    categorica
       modelo_cambio <- c(10,             1)
 
       if (identical(numero_tipo, modelo_cambio)){

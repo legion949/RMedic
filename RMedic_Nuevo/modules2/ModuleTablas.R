@@ -56,6 +56,15 @@ ModuleTablasSERVER <-  function(input, output, session, base,
              batalla_naval = UserSelection$batalla_naval,
              decimales = UserSelection$decimales)
   
+  
+  callModule(module = TablasQC_SERVER, id =  "tablas07",
+             minibase = MiniBase,
+             batalla_naval = UserSelection$batalla_naval,
+             decimales = UserSelection$decimales)
+  
+  
+  
+  
   menuTABLAS <- reactive({
     
     # Si no hay orden de salir a la cancha... Nadie sale...
@@ -83,7 +92,8 @@ ModuleTablasSERVER <-  function(input, output, session, base,
                Tablas1Q_UI(ns("tablas03")),
                Tablas1C_UI(ns("tablas04")),
                Tablas2Q_UI(ns("tablas05")),
-               Tablas2C_UI(ns("tablas06"))
+               Tablas2C_UI(ns("tablas06")),
+               TablasQC_UI(ns("tablas07"))
         ),
         column(1)
       )

@@ -317,6 +317,7 @@ Tablas2C_SERVER <- function(input, output, session,
     
     # Si es el caso 4, seguimos!
     div(
+      h2("RMedic - Tablas para 2 Variables Numéricas"),
       tabsetPanel(id = "Tablas_2c",
                   tabPanel("RMedic Help!", value = 1,
                            fluidRow(
