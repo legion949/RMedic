@@ -219,25 +219,27 @@ colores_seleccionados <- reactive({
   output$grafico_barras_1q <- renderPlot({
     
     if(is.null(DF_interna())) return(NULL)
+    if(is.null(colores_seleccionados())) return(NULL)
     
+    # Label
    lab_ejex <- colnames(DF_interna())[1]
     
-
+    # Datos a graficar
     seleccion <- as.numeric(as.character(
       gsub("%", "", DF_interna()[,as.numeric(intermediario()[1])])))
     
    if(length(seleccion) == 0) return(NULL)
     
+    # Nombre de cada categoria 
    names(seleccion) <- DF_interna()[,1]
    
   
-   
+   # Grafico de barras
     barplot(seleccion, ylab = intermediario()[2], 
             ylim=c(0, as.numeric(intermediario()[4])),
             xlab = lab_ejex,
             col = colores_seleccionados())
-           # col = "red")
-          #  col = input$color)
+
   })
  
  
