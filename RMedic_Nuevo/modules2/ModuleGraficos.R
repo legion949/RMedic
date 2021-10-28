@@ -32,14 +32,19 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                          verbatim = FALSE)
   
   
+  callModule(module = Graficos1Q_SERVER, id =  "graficos03",
+             minibase = MiniBase,
+             batalla_naval = UserSelection$batalla_naval,
+             decimales = UserSelection$decimales)
   
-  callModule(module = Tablas1Q_SERVER, id =  "graficos03",
+  # TABLAS!
+  callModule(module = Tablas1Q_SERVER, id =  "graficos04",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
              decimales = UserSelection$decimales)
   
   
-  callModule(module = Tablas1C_SERVER, id =  "graficos04",
+  callModule(module = Tablas1C_SERVER, id =  "graficos05",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
              decimales = UserSelection$decimales)
@@ -69,8 +74,9 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                h3("Menú para Gráficos"),
                BatallaNavalUI(ns("graficos01")),
                MiniBaseUI(ns("graficos02")),
-               Tablas1Q_UI(ns("graficos03")),
-               Tablas1C_UI(ns("graficos04"))
+               Graficos1Q_UI(ns("graficos03")),
+               Tablas1Q_UI(ns("graficos04")),
+               Tablas1C_UI(ns("graficos05"))
         ),
         column(1)
       )
