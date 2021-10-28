@@ -11,6 +11,7 @@ library(datasets)
 library(DT)
 library(htmltools)
 library(openxlsx)
+library(stringr)
 
 source("uiCode.R")
 

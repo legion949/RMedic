@@ -41,30 +41,46 @@ Graficos1Q_SERVER <- function(input, output, session,
   valor_maximo <- reactive({
     
     if(is.null(DF_interna())) return(NULL)
+
+    # Valores finales
+    candidato_maximo <- c()
+    step <- c()
     
-    candidato_maximo <- max(as.numeric(as.character(DF_interna()[,2])))
+    # FA
+    candidato_maximo[1] <- max(as.numeric(as.character(DF_interna()[,2])))
     
-    library(stringr)
+    # FR
+    candidato_maximo[2] <- 1
     
-    div1 <- candidato_maximo / 10
-    div2 <- candidato_maximo %/% 10
+    # Porcentaje
+    candidato_maximo[3] <- 100
+    
+    # Modificaciones para FA
+    {
+    div1 <- candidato_maximo[1] / 10
+    div2 <- candidato_maximo[1] %/% 10
     cantidad_digitos <- str_count(div2)
     
-    step <- 10^cantidad_digitos
-    if (div2 == 0) step <- 1
     
-  #  if(div1 == div2) return(candidato)
     
+    step[1] <- 10^cantidad_digitos
+    if (div2 == 0) step[1] <- 1
+    }
+    
+    # Detalles para FR y Porcentaje
+    step[2] <- 0.1
+    step[3] <- 10
+    
+
     if(div1 > div2) {
-      candidato_maximo <- (div2 + 1)*step
+      candidato_maximo[1] <- (div2 + 1)*step[1]
      # return(candidato)
       
       
     }
     
 
-  #  if(!is.null(input$graf_1q_barras_max)) if(input$graf_1q_barras_max > candidato) cantidato <- input$graf_1q_barras_max
-    
+
     return(list(candidato_maximo, step))
       
   })
@@ -99,26 +115,26 @@ colores_seleccionados <- reactive({
 
             }
 
-          cat("cantidad:", cantidad, "\n")
+         # cat("cantidad:", cantidad, "\n")
           
           mis_colores <- rep(NA, cantidad)
           
-          cat("input$col_1: ", input$col_1, "\n")
+        # cat("input$col_1: ", input$col_1, "\n")
         # lapply(1:cantidad, function(i) {
 
           if(length(mis_colores) == 0) return(NULL)
           
           for(i in 1:cantidad){ 
                 nombre_input <- paste("col", i, sep="_")
-                cat("nombre_input: ", nombre_input, "\n" )
-                cat("input[[nombre_input]]: ", input[[nombre_input]], "\n" )
+             #   cat("nombre_input: ", nombre_input, "\n" )
+             #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n" )
                 if(is.null(input[[nombre_input]])) return(NULL)
                 
               mis_colores[i] <- input[[nombre_input]]
 
          }
          
-         cat("mis_colores:", mis_colores, "\n")
+      #   cat("mis_colores:", mis_colores, "\n")
          return(mis_colores)
       })
   
@@ -161,16 +177,30 @@ colores_seleccionados <- reactive({
   output$armado_barras_1q <- renderUI({
     
     div(
-       numericInput(inputId = ns("graf_1q_barras_max"),
-                    label = "Máximo del eje Y",
-                    value = valor_maximo()[[1]],
-                    step = valor_maximo()[[2]]
+       numericInput(inputId = ns("graf_1q_barras_max_FA"),
+                    label = "Frecuencias Absolutas - Máximo del eje Y",
+                    value = valor_maximo()[[1]][1],
+                    step = valor_maximo()[[2]][1]
                     ),
+       br(),
+       numericInput(inputId = ns("graf_1q_barras_max_FR"),
+                    label = "Frecuencias Relativas - Máximo del eje Y",
+                    value = valor_maximo()[[1]][2],
+                    step = valor_maximo()[[2]][2]
+       ),
+       br(),
+       numericInput(inputId = ns("graf_1q_barras_max_PORCENTAJE"),
+                    label = "Porcentajes - Máximo del eje Y",
+                    value = valor_maximo()[[1]][3],
+                    step = valor_maximo()[[2]][3]
+       ),
+       br(),
        radioButtons(inputId = ns("graf_1q_barras_CantidadColores"),
                     label = "Coloración General",
                     choices = c("Color único" = 1, 
                                 "Un color por categoría" = 2)
                     ),
+       br(),
        # colourpicker::colourInput(inputId = ns("color"), 
        #                           label = "Color...",
        #                           showColour = "both",
@@ -193,7 +223,9 @@ colores_seleccionados <- reactive({
 
   intermediario <- reactive({
     
-    if(is.null(input$graf_1q_barras_max)) return(NULL)
+    if(is.null(input$graf_1q_barras_max_FA)) return(NULL)
+    if(is.null(input$graf_1q_barras_max_FR)) return(NULL)
+    if(is.null(input$graf_1q_barras_max_PORCENTAJE)) return(NULL)
     
     nombres <- c("Columnas", "Label", "Min", "Max")
     referencia <- matrix(NA, 3, length(nombres))
@@ -202,12 +234,12 @@ colores_seleccionados <- reactive({
     referencia[,1] <- c(2, 5, 6)
     referencia[,2] <- c("Frecuencia", "Frecuencia Relativa", "Porcentajes")
     referencia[,3] <- c(0, 0, 0)
-    referencia[,4] <- c(input$graf_1q_barras_max, 1, 100)
+    referencia[,4] <- c(input$graf_1q_barras_max_FA, 
+                        input$graf_1q_barras_max_FR,
+                        input$graf_1q_barras_max_PORCENTAJE)
 
     
-    referencia <- as.vector(referencia[as.numeric(1), ])
-    
-
+ 
     
     
     return(referencia)
@@ -216,32 +248,105 @@ colores_seleccionados <- reactive({
   
   
 
-  output$grafico_barras_1q <- renderPlot({
+  output$grafico_barras_1q_FA <- renderPlot({
     
     if(is.null(DF_interna())) return(NULL)
     if(is.null(colores_seleccionados())) return(NULL)
     
+    # Posicion para FA
+    pos <- 1
+    
     # Label
-   lab_ejex <- colnames(DF_interna())[1]
+    lab_ejex <- colnames(minibase())[1]
+    columna_elegida <- as.numeric(intermediario()[pos, 1])
+    lab_ejey <- intermediario()[pos, 2]
+    max_y <- as.numeric(intermediario()[pos, 4])
+    categorias <- DF_interna()[,1]
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
-      gsub("%", "", DF_interna()[,as.numeric(intermediario()[1])])))
+      gsub("%", "", DF_interna()[,columna_elegida])))
     
    if(length(seleccion) == 0) return(NULL)
     
     # Nombre de cada categoria 
-   names(seleccion) <- DF_interna()[,1]
+   names(seleccion) <- categorias
    
   
    # Grafico de barras
-    barplot(seleccion, ylab = intermediario()[2], 
-            ylim=c(0, as.numeric(intermediario()[4])),
+    barplot(seleccion, ylab = lab_ejey, 
+            ylim=c(0, max_y),
             xlab = lab_ejex,
             col = colores_seleccionados())
 
   })
  
+
+  output$grafico_barras_1q_FR <- renderPlot({
+    
+    if(is.null(DF_interna())) return(NULL)
+    if(is.null(colores_seleccionados())) return(NULL)
+    
+    # Posicion para FR
+    pos <- 2
+    
+    # Label
+    lab_ejex <- colnames(minibase())[1]
+    columna_elegida <- as.numeric(intermediario()[pos, 1])
+    lab_ejey <- intermediario()[pos, 2]
+    max_y <- as.numeric(intermediario()[pos, 4])
+    categorias <- DF_interna()[,1]
+    
+    # Datos a graficar
+    seleccion <- as.numeric(as.character(
+      gsub("%", "", DF_interna()[,columna_elegida])))
+    
+    if(length(seleccion) == 0) return(NULL)
+    
+    # Nombre de cada categoria 
+    names(seleccion) <- categorias
+    
+    
+    # Grafico de barras
+    barplot(seleccion, ylab = lab_ejey, 
+            ylim=c(0, max_y),
+            xlab = lab_ejex,
+            col = colores_seleccionados())
+    
+  })
+  
+  output$grafico_barras_1q_PORCENTAJE <- renderPlot({
+    
+    if(is.null(DF_interna())) return(NULL)
+    if(is.null(colores_seleccionados())) return(NULL)
+    
+    # Posicion para Porcentaje
+    pos <- 3
+    
+    # Label
+    lab_ejex <- colnames(minibase())[1]
+    columna_elegida <- as.numeric(intermediario()[pos, 1])
+    lab_ejey <- intermediario()[pos, 2]
+    max_y <- as.numeric(intermediario()[pos, 4])
+    categorias <- DF_interna()[,1]
+    
+    # Datos a graficar
+    seleccion <- as.numeric(as.character(
+      gsub("%", "", DF_interna()[,columna_elegida])))
+    
+    if(length(seleccion) == 0) return(NULL)
+    
+    # Nombre de cada categoria 
+    names(seleccion) <- categorias
+    
+    
+    # Grafico de barras
+    barplot(seleccion, ylab = lab_ejey, 
+            ylim=c(0, max_y),
+            xlab = lab_ejex,
+            col = colores_seleccionados())
+    
+  })
  
   output$grafico_tortas_1q <- renderPlot({
     
@@ -317,13 +422,20 @@ colores_seleccionados <- reactive({
                            # h3(textOutput(ns("Salida_texto_1q_RMedic_01"))),
                            # tableOutput(ns("Salida_tabla_1q_RMedic_01")),
                            # br()
-                           "Gráfico de Barras",
+                           h2("Gráfico de Barras"),
                            fluidRow(
                              column(4,
                                     uiOutput(ns("armado_barras_1q"))
                                     ),
                              column(8,
-                                    plotOutput(ns("grafico_barras_1q"))
+                                    h3("Barras para Frecuencias Absolutas"),
+                                    plotOutput(ns("grafico_barras_1q_FA")),
+                                    br(),
+                                    h3("Barras para Frecuencias Relativas"),
+                                    plotOutput(ns("grafico_barras_1q_FR")),
+                                    br(),
+                                    h3("Barras para Porcentajes"),
+                                    plotOutput(ns("grafico_barras_1q_PORCENTAJE"))
                              )
                            )
                            ),
