@@ -97,8 +97,8 @@ Graficos1Q_SERVER <- function(input, output, session,
   
   
 # Input de Colores
-colores_seleccionados <- reactive({
-
+# colores_seleccionados <- eventReactive(input$goButton4, ignoreNULL = FALSE, {
+  colores_seleccionados <- reactive({
       if (is.null(DF_interna())) return(NULL)
       if (is.null(input$graf_1q_barras_CantidadColores)) return(NULL)
 
@@ -177,37 +177,19 @@ colores_seleccionados <- reactive({
   output$armado_barras_1q <- renderUI({
     
     div(
-       numericInput(inputId = ns("graf_1q_barras_max_FA"),
-                    label = "Frecuencias Absolutas - Máximo del eje Y",
-                    value = valor_maximo()[[1]][1],
-                    step = valor_maximo()[[2]][1]
-                    ),
-       br(),
-       numericInput(inputId = ns("graf_1q_barras_max_FR"),
-                    label = "Frecuencias Relativas - Máximo del eje Y",
-                    value = valor_maximo()[[1]][2],
-                    step = valor_maximo()[[2]][2]
-       ),
-       br(),
-       numericInput(inputId = ns("graf_1q_barras_max_PORCENTAJE"),
-                    label = "Porcentajes - Máximo del eje Y",
-                    value = valor_maximo()[[1]][3],
-                    step = valor_maximo()[[2]][3]
-       ),
-       br(),
+     
        radioButtons(inputId = ns("graf_1q_barras_CantidadColores"),
                     label = "Coloración General",
                     choices = c("Color único" = 1, 
                                 "Un color por categoría" = 2)
                     ),
        br(),
-       # colourpicker::colourInput(inputId = ns("color"), 
-       #                           label = "Color...",
-       #                           showColour = "both",
-       #                           value = "#FF0000"
-       #                            ),
-       uiOutput(ns("MODcolor"))
-      #)
+       uiOutput(ns("MODcolor")),
+       br(),
+       bsButton(ns("control04"), "Aplicar cambios", type = "toggle", value = TRUE,
+                icon("bars"), style = "primary", size = "large"
+       ),
+       actionButton(ns("goButton4"), "Go!"),
     )
   
     
@@ -217,55 +199,70 @@ colores_seleccionados <- reactive({
   })
   
   
- 
-  
+  # specialYLAB <- reactive({
+  # "Frencuencias"  
+  # })
   
 
-  intermediario <- reactive({
-    
-    if(is.null(input$graf_1q_barras_max_FA)) return(NULL)
-    if(is.null(input$graf_1q_barras_max_FR)) return(NULL)
-    if(is.null(input$graf_1q_barras_max_PORCENTAJE)) return(NULL)
-    
-    nombres <- c("Columnas", "Label", "Min", "Max")
-    referencia <- matrix(NA, 3, length(nombres))
-    colnames(referencia) <- nombres
-    
-    referencia[,1] <- c(2, 5, 6)
-    referencia[,2] <- c("Frecuencia", "Frecuencia Relativa", "Porcentajes")
-    referencia[,3] <- c(0, 0, 0)
-    referencia[,4] <- c(input$graf_1q_barras_max_FA, 
-                        input$graf_1q_barras_max_FR,
-                        input$graf_1q_barras_max_PORCENTAJE)
 
+  valores_por_defecto_FA <-   eventReactive(input$goButton1, ignoreNULL = FALSE, {
+  
+    valores <- list(input$graf_1q_barras_max_FA,
+                    input$graf_1q_barras_ylab_FA, 
+                    input$graf_1q_barras_xlab_FA
+                    )
     
- 
+    names(valores) <- c("MaxY", "Ylab", "Xlab")
     
+    return(valores)
+})
+
+  valores_por_defecto_FR <-   eventReactive(input$goButton2, ignoreNULL = FALSE, {
     
-    return(referencia)
+    valores <- list(input$graf_1q_barras_max_FR,
+                    input$graf_1q_barras_ylab_FR, 
+                    input$graf_1q_barras_xlab_FR
+    )
+    
+    names(valores) <- c("MaxY", "Ylab", "Xlab")
+    
+    return(valores)
   })
-
+  
+ 
+  valores_por_defecto_PORCENTAJE <-   eventReactive(input$goButton3, ignoreNULL = FALSE, {
+    
+    valores <- list(input$graf_1q_barras_max_PORCENTAJE,
+                    input$graf_1q_barras_ylab_PORCENTAJE, 
+                    input$graf_1q_barras_xlab_PORCENTAJE
+    )
+    
+    names(valores) <- c("MaxY", "Ylab", "Xlab")
+    
+    return(valores)
+  })
   
   
-
+ 
+  
   output$grafico_barras_1q_FA <- renderPlot({
     
     if(is.null(DF_interna())) return(NULL)
     if(is.null(colores_seleccionados())) return(NULL)
     
-    # Posicion para FA
-    pos <- 1
     
-    # Label
-    lab_ejex <- colnames(minibase())[1]
-    columna_elegida <- as.numeric(intermediario()[pos, 1])
-    lab_ejey <- intermediario()[pos, 2]
-    max_y <- as.numeric(intermediario()[pos, 4])
+    pos <- 2
+    
+  
+    max_y <- valores_por_defecto_FA()[[1]]
+    lab_ejey <- valores_por_defecto_FA()[[2]]
+    lab_ejex <- valores_por_defecto_FA()[[3]]
     categorias <- DF_interna()[,1]
+    mis_colores <- colores_seleccionados()
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
-      gsub("%", "", DF_interna()[,columna_elegida])))
+      gsub("%", "", DF_interna()[,pos])))
     
    if(length(seleccion) == 0) return(NULL)
     
@@ -274,10 +271,12 @@ colores_seleccionados <- reactive({
    
   
    # Grafico de barras
-    barplot(seleccion, ylab = lab_ejey, 
+   
+    barplot(seleccion, 
+            ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
-            col = colores_seleccionados())
+            col = mis_colores)
 
   })
  
@@ -287,19 +286,19 @@ colores_seleccionados <- reactive({
     if(is.null(DF_interna())) return(NULL)
     if(is.null(colores_seleccionados())) return(NULL)
     
-    # Posicion para FR
-    pos <- 2
     
-    # Label
-    lab_ejex <- colnames(minibase())[1]
-    columna_elegida <- as.numeric(intermediario()[pos, 1])
-    lab_ejey <- intermediario()[pos, 2]
-    max_y <- as.numeric(intermediario()[pos, 4])
+    pos <- 5
+    
+    
+    max_y <- valores_por_defecto_FR()[[1]]
+    lab_ejey <- valores_por_defecto_FR()[[2]]
+    lab_ejex <- valores_por_defecto_FR()[[3]]
     categorias <- DF_interna()[,1]
+    mis_colores <- colores_seleccionados()
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
-      gsub("%", "", DF_interna()[,columna_elegida])))
+      gsub("%", "", DF_interna()[,pos])))
     
     if(length(seleccion) == 0) return(NULL)
     
@@ -308,10 +307,12 @@ colores_seleccionados <- reactive({
     
     
     # Grafico de barras
-    barplot(seleccion, ylab = lab_ejey, 
+    
+    barplot(seleccion, 
+            ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
-            col = colores_seleccionados())
+            col = mis_colores)
     
   })
   
@@ -320,19 +321,19 @@ colores_seleccionados <- reactive({
     if(is.null(DF_interna())) return(NULL)
     if(is.null(colores_seleccionados())) return(NULL)
     
-    # Posicion para Porcentaje
-    pos <- 3
     
-    # Label
-    lab_ejex <- colnames(minibase())[1]
-    columna_elegida <- as.numeric(intermediario()[pos, 1])
-    lab_ejey <- intermediario()[pos, 2]
-    max_y <- as.numeric(intermediario()[pos, 4])
+    pos <- 6
+    
+    
+    max_y <- valores_por_defecto_PORCENTAJE()[[1]]
+    lab_ejey <- valores_por_defecto_PORCENTAJE()[[2]]
+    lab_ejex <- valores_por_defecto_PORCENTAJE()[[3]]
     categorias <- DF_interna()[,1]
+    mis_colores <- colores_seleccionados()
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
-      gsub("%", "", DF_interna()[,columna_elegida])))
+      gsub("%", "", DF_interna()[,pos])))
     
     if(length(seleccion) == 0) return(NULL)
     
@@ -341,10 +342,12 @@ colores_seleccionados <- reactive({
     
     
     # Grafico de barras
-    barplot(seleccion, ylab = lab_ejey, 
+    
+    barplot(seleccion, 
+            ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
-            col = colores_seleccionados())
+            col = mis_colores)
     
   })
  
@@ -428,14 +431,102 @@ colores_seleccionados <- reactive({
                                     uiOutput(ns("armado_barras_1q"))
                                     ),
                              column(8,
+                                    fluidRow(
+                                      column(6,
                                     h3("Barras para Frecuencias Absolutas"),
-                                    plotOutput(ns("grafico_barras_1q_FA")),
+                                    plotOutput(ns("grafico_barras_1q_FA"))
+                                    ),
+                                    column(6,
+                                           h3("Cambios específicos"),
+                                           numericInput(inputId = ns("graf_1q_barras_max_FA"),
+                                                        label = "Frecuencias Absolutas - Máximo del eje Y",
+                                                        value = valor_maximo()[[1]][1],
+                                                        step = valor_maximo()[[2]][1]
+                                           ),
+                                           br(),
+                                           textInput(inputId = ns("graf_1q_barras_ylab_FA"),
+                                                        label = "Rótulo eje Y",
+                                                        value = "Frecuencia"),
+                                           br(),
+                                           textInput(inputId = ns("graf_1q_barras_xlab_FA"),
+                                                     label = "Rótulo eje X",
+                                                     value = colnames(minibase())[1]),
+                                           br(),
+                                           bsButton(ns("control01"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                                    icon("bars"), style = "primary", size = "large"
+                                           ),
+                                           actionButton(ns("goButton1"), "Go!"),
+                                           br(),
+                                           
+                                           
+                                           )
+                                    ),
                                     br(),
-                                    h3("Barras para Frecuencias Relativas"),
-                                    plotOutput(ns("grafico_barras_1q_FR")),
+                                    fluidRow(
+                                      column(6,
+                                             h3("Barras para Frecuencias Relativas"),
+                                             plotOutput(ns("grafico_barras_1q_FR"))
+                                      ),
+                                      column(6,
+                                             h3("Cambios específicos"),
+                                             numericInput(inputId = ns("graf_1q_barras_max_FR"),
+                                                          label = "Frecuencias Relativas - Máximo del eje Y",
+                                                          value = valor_maximo()[[1]][2],
+                                                          step = valor_maximo()[[2]][2],
+                                                          min = 0,
+                                                          max = 1
+                                             ),
+                                             br(),
+                                             textInput(inputId = ns("graf_1q_barras_ylab_FR"),
+                                                       label = "Rótulo eje Y",
+                                                       value = "Frecuencia Relativa"),
+                                             br(),
+                                             textInput(inputId = ns("graf_1q_barras_xlab_FR"),
+                                                       label = "Rótulo eje X",
+                                                       value = colnames(minibase())[1]),
+                                             br(),
+                                             bsButton(ns("control02"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                                      icon("bars"), style = "primary", size = "large"
+                                             ),
+                                             actionButton(ns("goButton2"), "Go!"),
+                                             br(),
+                                             
+                                             
+                                      )
+                                    ),
                                     br(),
-                                    h3("Barras para Porcentajes"),
-                                    plotOutput(ns("grafico_barras_1q_PORCENTAJE"))
+                                    fluidRow(
+                                      column(6,
+                                             h3("Barras para Porcentajes"),
+                                             plotOutput(ns("grafico_barras_1q_PORCENTAJE"))
+                                      ),
+                                      column(6,
+                                             h3("Cambios específicos"),
+                                             numericInput(inputId = ns("graf_1q_barras_max_PORCENTAJE"),
+                                                          label = "Porcentaje - Máximo del eje Y",
+                                                          value = valor_maximo()[[1]][3],
+                                                          step = valor_maximo()[[2]][3],
+                                                          min = 0,
+                                                          max = 100
+                                             ),
+                                             br(),
+                                             textInput(inputId = ns("graf_1q_barras_ylab_PORCENTAJE"),
+                                                       label = "Rótulo eje Y",
+                                                       value = "Porcentaje"),
+                                             br(),
+                                             textInput(inputId = ns("graf_1q_barras_xlab_PORCENTAJE"),
+                                                       label = "Rótulo eje X",
+                                                       value = colnames(minibase())[1]),
+                                             br(),
+                                             bsButton(ns("control03"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                                      icon("bars"), style = "primary", size = "large"
+                                             ),
+                                             actionButton(ns("goButton3"), "Go!"),
+                                             br(),
+                                             
+                                             
+                                      )
+                                    )
                              )
                            )
                            ),

@@ -214,7 +214,8 @@ RMedic_1q_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
                      porcentaje, fusion)
     
     rotulo <- paste0("Variable: ", colnames(minibase))
-    tabla01 <- as.data.frame(tabla01)
+  #  tabla01 <- as.data.frame(tabla01)
+    tabla01 <- as.matrix(tabla01)
     nombres_tabla01 <- c(rotulo, "Frecuancia Absoluta", "Total", "Cociente", "Frecuencia Relativa", "Porcentaje", "FA (%)")
     colnames(tabla01) <- nombres_tabla01
     

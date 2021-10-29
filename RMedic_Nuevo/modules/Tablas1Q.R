@@ -43,9 +43,10 @@ Tablas1Q_SERVER <- function(input, output, session,
    
     
     salida <-  RMedic_1q_tablas(minibase(), decimales())
-    salida[[1]][,2] <- as.character(salida[[1]][,2])
-    salida[[1]][,3] <- as.character(salida[[1]][,3])
     
+ 
+     
+
     # Return Exitoso
     return(salida)
     
