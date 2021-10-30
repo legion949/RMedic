@@ -11,7 +11,9 @@ fluidPage(
   br(), br(),
   fluidRow(
     column(1),
-    column(4,bsButton("showpanel", "Ocultar/Mostrar Carga de Datos", type = "toggle", value = TRUE,
+    column(4,
+           bsButton("showpanel", "Ocultar/Mostrar Carga de Datos", 
+                      type = "toggle", value = TRUE,
                     icon("bars"), style = "primary", size = "large"
            )
     )

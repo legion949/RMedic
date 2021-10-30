@@ -93,14 +93,144 @@ Graficos1Q_SERVER <- function(input, output, session,
     
   })
   
+  corona <- reactive({
     
+    la_corona <- list()
+    
+    if(is.null(input$barras_coronadas)) {
+      la_corona[[1]] <- rep("", cantidad_categorias())
+      la_corona[[2]] <- la_corona[[1]]
+      la_corona[[3]] <- la_corona[[1]]
+    } else
+    if(input$barras_coronadas == 1) {
+      
+      la_corona[[1]] <- rep("", cantidad_categorias())
+      la_corona[[2]] <- la_corona[[1]]
+      la_corona[[3]] <- la_corona[[1]]
+    } else 
+      if(input$barras_coronadas == 2) {
+        
+        la_corona[[1]] <- as.character(as.vector(DF_interna()[,2]))
+        la_corona[[2]] <- as.character(as.vector(DF_interna()[,5]))
+        la_corona[[3]] <- as.character(as.vector(DF_interna()[,6]))
+      } else
+        if(input$barras_coronadas == 3) {
+          
+          la_corona[[1]] <- as.character(as.vector(DF_interna()[,2]))
+          la_corona[[2]] <- la_corona[[1]]
+          la_corona[[3]] <- la_corona[[1]]
+        } else
+          if(input$barras_coronadas == 4) {
+            
+            la_corona[[1]] <- as.character(as.vector(DF_interna()[,4]))
+            la_corona[[2]] <- la_corona[[1]]
+            la_corona[[3]] <- la_corona[[1]]
+          } else
+            if(input$barras_coronadas == 5) {
+            
+            la_corona[[1]] <- as.character(as.vector(DF_interna()[,5]))
+            la_corona[[2]] <- la_corona[[1]]
+            la_corona[[3]] <- la_corona[[1]]
+          } else
+              if(input$barras_coronadas == 6) {
+              
+              la_corona[[1]] <- as.character(as.vector(DF_interna()[,6]))
+              la_corona[[2]] <- la_corona[[1]]
+              la_corona[[3]] <- la_corona[[1]]
+            } else
+                if(input$barras_coronadas == 7) {
+                
+                la_corona[[1]] <- as.character(as.vector(DF_interna()[,7]))
+                la_corona[[2]] <- la_corona[[1]]
+                la_corona[[3]] <- la_corona[[1]]
+              } 
+                
+    return(la_corona)
+  }) 
   
   
+  
+ #  observeEvent(input$goButtonMaster1, {
+ #    shinyjs::toggle("James01", asis = T)
+ #    shinyjs::toggle("James02", asis = T)
+ #    shinyjs::toggle("James03", asis = T)
+ #    shinyjs::toggle("James04", asis = T)
+ #    
+ #    # updateButton(session, 
+ #    #              inputId =  ns("goButtonMaster2"),
+ #    #              label = "Mostrar/Ocultar opciones gráficas generales", 
+ #    #              value = input$goButtonMaster1,
+ #    #              icon("bars"), style = "primary", size = "large"
+ #    #              )
+ #    # 
+ #    # updateButton(session, 
+ #    #              inputId =  ns("goButtonMaster3"),
+ #    #              label = "Mostrar/Ocultar opciones gráficas específicas", 
+ #    #              value = input$goButtonMaster1,
+ #    #              icon("bars"), style = "primary", size = "large"
+ #    # )
+ #    #                      
+ #    
+ #    
+ #    cat("input$goButtonMaster1 A: ", input$goButtonMaster1, "\n")
+ # #    if(input$goButtonMaster1 == FALSE) {
+ # #      # removeCssClass("Main", "col-sm-12")
+ # #      # addCssClass("Main", "col-sm-8")
+ # #      cat("input$goButtonMaster1 B: ", input$goButtonMaster1, "\n")
+ # #      shinyjs::show(id = "James01", asis = T, anim = TRUE, animType = "fade")
+ # # #     shinyjs::enable(id = "James01", asis = T)
+ # #      shinyjs::show(id = "James02", asis = T)
+ # #  #    shinyjs::enable(id = "James02", asis = T)
+ # #      shinyjs::show(id = "James03", asis = T)
+ # #   #   shinyjs::enable(id = "James03", asis = T)
+ # #      shinyjs::show(id = "James04", asis = T, anim = TRUE, animType = "slide")
+ # #  #    shinyjs::enable(id = "James04", asis = T)
+ # #    }
+ # #    if(input$goButtonMaster1 == TRUE) {
+ # #      cat("input$goButtonMaster1 C: ", input$goButtonMaster1, "\n")
+ # #   #   removeCssClass("Main", "col-sm-8")
+ # #   #   addCssClass("Main", "col-sm-12")
+ # #      shinyjs::hide(id = "James01", asis = T)
+ # #      shinyjs::hide(id = "James02", asis = T)
+ # #      shinyjs::hide(id = "James03", asis = T)
+ # #      shinyjs::hide(id = "James04", asis = T)
+ # #    }
+ #    #  shinyjs::toggle(ns("myBox"))
+ #  })
+  
+  observeEvent(input$goButtonMaster2, {
+#    shinyjs::toggle("James01", asis = T)
+ #   shinyjs::toggle("James02", asis = T)
+  #  shinyjs::toggle("James03", asis = T)
+    shinyjs::toggle("James04", asis = T, anim = TRUE, animType = "fade")
+    #  shinyjs::toggle(ns("myBox"))
+  })
+  
+  observeEvent(input$goButtonMaster3, {
+    shinyjs::toggle("James01", asis = T, anim = TRUE, animType = "slide")
+    shinyjs::toggle("James02", asis = T, anim = TRUE, animType = "slide")
+    shinyjs::toggle("James03", asis = T, anim = TRUE, animType = "slide")
+    #   shinyjs::toggle("James04", asis = T)
+    #  shinyjs::toggle(ns("myBox"))
+  })
+  
+  
+  
+
+  
+#if (1 == 2) {
 # Input de Colores
-# colores_seleccionados <- eventReactive(input$goButton4, ignoreNULL = FALSE, {
-  colores_seleccionados <- reactive({
+  colores_seleccionados2 <- reactive({
       if (is.null(DF_interna())) return(NULL)
-      if (is.null(input$graf_1q_barras_CantidadColores)) return(NULL)
+    
+    cantidad <- c()
+    
+      if (is.null(input$graf_1q_barras_CantidadColores)){
+        
+        cantidad <- 1
+        mis_colores <- "#FF0000"
+        return(mis_colores)
+      } 
 
 
 
@@ -124,6 +254,7 @@ Graficos1Q_SERVER <- function(input, output, session,
 
           if(length(mis_colores) == 0) return(NULL)
           
+   
           for(i in 1:cantidad){ 
                 nombre_input <- paste("col", i, sep="_")
              #   cat("nombre_input: ", nombre_input, "\n" )
@@ -133,11 +264,38 @@ Graficos1Q_SERVER <- function(input, output, session,
               mis_colores[i] <- input[[nombre_input]]
 
          }
-         
+        
+          
       #   cat("mis_colores:", mis_colores, "\n")
          return(mis_colores)
       })
+#}
   
+  
+  # Colores por defecto...
+  
+
+  colores_seleccionados <- reactiveVal({
+
+    mis_colores <- "red"
+ #   nombre_input <- paste("col", 1, sep="_")
+ #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n")
+    names(mis_colores) <- paste0("color", c(1:length(mis_colores)))
+
+    mis_colores
+    })
+#  )
+  
+  observeEvent(input$goButton4, {
+    
+    if(length(colores_seleccionados2()) > 0) {
+  #  colores_seleccionados("blue")
+    #  nombre_input <- paste("col", 1, sep="_")
+    #  cat("input[[nombre_input]]: ", input[[nombre_input]], "\n")
+      
+    colores_seleccionados(colores_seleccionados2())
+    }
+  })
   
   # Salida de colores
   output$MODcolor <- renderUI({
@@ -158,6 +316,9 @@ Graficos1Q_SERVER <- function(input, output, session,
         
       }
     
+   # colores_internos <- rainbow(cantidad)
+   # if(cantidad == 1) colores_internos <- "#FF0000"
+    colores_internos <- rep("#FF0000", cantidad)
     
     lapply(1:cantidad, function(i) {
       
@@ -165,7 +326,7 @@ Graficos1Q_SERVER <- function(input, output, session,
       div(
         colourpicker::colourInput(inputId = ns(nombre_input),
                     label = label_armado[i], 
-                    value = "#FF0000"), br()
+                    value = colores_internos[i]), br()
       )
       
     })
@@ -177,7 +338,17 @@ Graficos1Q_SERVER <- function(input, output, session,
   output$armado_barras_1q <- renderUI({
     
     div(
-     
+        radioButtons(inputId = ns("barras_coronadas"),
+                     label = "Detalle sobre las barras...",
+                     choices = c("Sin detalle" = 1,
+                                 "Detalle correspondiente" = 2,
+                                 "Frecuencias Absolutas" = 3,
+                                 "Cociente al total " = 4,
+                                 "Frecuencias Relativas" = 5,
+                                 "Porcentajes" = 6,
+                                 "FA (%)" = 7)
+                     ),
+        br(),
        radioButtons(inputId = ns("graf_1q_barras_CantidadColores"),
                     label = "Coloración General",
                     choices = c("Color único" = 1, 
@@ -186,10 +357,9 @@ Graficos1Q_SERVER <- function(input, output, session,
        br(),
        uiOutput(ns("MODcolor")),
        br(),
-       bsButton(ns("control04"), "Aplicar cambios", type = "toggle", value = TRUE,
+       bsButton(ns("goButton4"), "Aplicar cambio de color", type = "toggle", value = TRUE,
                 icon("bars"), style = "primary", size = "large"
-       ),
-       actionButton(ns("goButton4"), "Go!"),
+       )
     )
   
     
@@ -199,12 +369,8 @@ Graficos1Q_SERVER <- function(input, output, session,
   })
   
   
-  # specialYLAB <- reactive({
-  # "Frencuencias"  
-  # })
-  
 
-
+ 
   valores_por_defecto_FA <-   eventReactive(input$goButton1, ignoreNULL = FALSE, {
   
     valores <- list(input$graf_1q_barras_max_FA,
@@ -259,6 +425,7 @@ Graficos1Q_SERVER <- function(input, output, session,
     lab_ejex <- valores_por_defecto_FA()[[3]]
     categorias <- DF_interna()[,1]
     mis_colores <- colores_seleccionados()
+    la_corona <- corona()[[1]]
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
@@ -272,12 +439,13 @@ Graficos1Q_SERVER <- function(input, output, session,
   
    # Grafico de barras
    
-    barplot(seleccion, 
+  coord_x <-   barplot(seleccion, 
             ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
             col = mis_colores)
 
+    text(coord_x, (seleccion + (0.08*max_y)) , la_corona)
   })
  
 
@@ -295,6 +463,7 @@ Graficos1Q_SERVER <- function(input, output, session,
     lab_ejex <- valores_por_defecto_FR()[[3]]
     categorias <- DF_interna()[,1]
     mis_colores <- colores_seleccionados()
+    la_corona <- corona()[[2]]
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
@@ -308,11 +477,13 @@ Graficos1Q_SERVER <- function(input, output, session,
     
     # Grafico de barras
     
-    barplot(seleccion, 
+    coord_x <-  barplot(seleccion, 
             ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
             col = mis_colores)
+    
+    text(coord_x, (seleccion + (0.08*max_y)) , la_corona)
     
   })
   
@@ -330,6 +501,7 @@ Graficos1Q_SERVER <- function(input, output, session,
     lab_ejex <- valores_por_defecto_PORCENTAJE()[[3]]
     categorias <- DF_interna()[,1]
     mis_colores <- colores_seleccionados()
+    la_corona <- corona()[[3]]
     
     # Datos a graficar
     seleccion <- as.numeric(as.character(
@@ -343,11 +515,13 @@ Graficos1Q_SERVER <- function(input, output, session,
     
     # Grafico de barras
     
-    barplot(seleccion, 
+    coord_x <-   barplot(seleccion, 
             ylab = lab_ejey, 
             ylim=c(0, max_y),
             xlab = lab_ejex,
             col = mis_colores)
+    
+    text(coord_x, (seleccion + (0.08*max_y)) , la_corona)
     
   })
  
@@ -425,10 +599,20 @@ Graficos1Q_SERVER <- function(input, output, session,
                            # h3(textOutput(ns("Salida_texto_1q_RMedic_01"))),
                            # tableOutput(ns("Salida_tabla_1q_RMedic_01")),
                            # br()
+                           # bsButton(ns("goButtonMaster1"), "Mostrar/Ocultar todas las opciones gráficas", type = "toggle", value = TRUE,
+                           #          icon("bars"), style = "primary", size = "large"
+                           # ),br(),
+                           bsButton(ns("goButtonMaster2"), "Mostrar/Ocultar opciones gráficas generales", type = "toggle", value = TRUE,
+                                    icon("bars"), style = "primary", size = "large"
+                           ),br(),
+                           bsButton(ns("goButtonMaster3"), "Mostrar/Ocultar opciones gráficas específicas", type = "toggle", value = TRUE,
+                                    icon("bars"), style = "primary", size = "large"
+                           ),br(),
+                          
                            h2("Gráfico de Barras"),
                            fluidRow(
                              column(4,
-                                    uiOutput(ns("armado_barras_1q"))
+                                    div(id = "James04", uiOutput(ns("armado_barras_1q")))
                                     ),
                              column(8,
                                     fluidRow(
@@ -437,6 +621,7 @@ Graficos1Q_SERVER <- function(input, output, session,
                                     plotOutput(ns("grafico_barras_1q_FA"))
                                     ),
                                     column(6,
+                                           div(id = "James01",
                                            h3("Cambios específicos"),
                                            numericInput(inputId = ns("graf_1q_barras_max_FA"),
                                                         label = "Frecuencias Absolutas - Máximo del eje Y",
@@ -452,14 +637,14 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                      label = "Rótulo eje X",
                                                      value = colnames(minibase())[1]),
                                            br(),
-                                           bsButton(ns("control01"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                           bsButton(ns("goButton1"), "Aplicar cambios", type = "toggle", value = FALSE,
                                                     icon("bars"), style = "primary", size = "large"
                                            ),
-                                           actionButton(ns("goButton1"), "Go!"),
                                            br(),
                                            
                                            
                                            )
+                                    )
                                     ),
                                     br(),
                                     fluidRow(
@@ -468,6 +653,7 @@ Graficos1Q_SERVER <- function(input, output, session,
                                              plotOutput(ns("grafico_barras_1q_FR"))
                                       ),
                                       column(6,
+                                             div(id = "James02",
                                              h3("Cambios específicos"),
                                              numericInput(inputId = ns("graf_1q_barras_max_FR"),
                                                           label = "Frecuencias Relativas - Máximo del eje Y",
@@ -485,13 +671,12 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                        label = "Rótulo eje X",
                                                        value = colnames(minibase())[1]),
                                              br(),
-                                             bsButton(ns("control02"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                             bsButton(ns("goButton2"), "Aplicar cambios", type = "toggle", value = FALSE,
                                                       icon("bars"), style = "primary", size = "large"
                                              ),
-                                             actionButton(ns("goButton2"), "Go!"),
                                              br(),
                                              
-                                             
+                                             )      
                                       )
                                     ),
                                     br(),
@@ -501,6 +686,7 @@ Graficos1Q_SERVER <- function(input, output, session,
                                              plotOutput(ns("grafico_barras_1q_PORCENTAJE"))
                                       ),
                                       column(6,
+                                             div(id = "James03",
                                              h3("Cambios específicos"),
                                              numericInput(inputId = ns("graf_1q_barras_max_PORCENTAJE"),
                                                           label = "Porcentaje - Máximo del eje Y",
@@ -518,13 +704,12 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                        label = "Rótulo eje X",
                                                        value = colnames(minibase())[1]),
                                              br(),
-                                             bsButton(ns("control03"), "Aplicar cambios", type = "toggle", value = FALSE,
+                                             bsButton(ns("goButton3"), "Aplicar cambios", type = "toggle", value = FALSE,
                                                       icon("bars"), style = "primary", size = "large"
                                              ),
-                                             actionButton(ns("goButton3"), "Go!"),
-                                             br(),
+                                             br()
                                              
-                                             
+                                             )      
                                       )
                                     )
                              )
