@@ -150,76 +150,31 @@ Graficos1Q_SERVER <- function(input, output, session,
   
   
   
- #  observeEvent(input$goButtonMaster1, {
- #    shinyjs::toggle("James01", asis = T)
- #    shinyjs::toggle("James02", asis = T)
- #    shinyjs::toggle("James03", asis = T)
- #    shinyjs::toggle("James04", asis = T)
- #    
- #    # updateButton(session, 
- #    #              inputId =  ns("goButtonMaster2"),
- #    #              label = "Mostrar/Ocultar opciones gráficas generales", 
- #    #              value = input$goButtonMaster1,
- #    #              icon("bars"), style = "primary", size = "large"
- #    #              )
- #    # 
- #    # updateButton(session, 
- #    #              inputId =  ns("goButtonMaster3"),
- #    #              label = "Mostrar/Ocultar opciones gráficas específicas", 
- #    #              value = input$goButtonMaster1,
- #    #              icon("bars"), style = "primary", size = "large"
- #    # )
- #    #                      
- #    
- #    
- #    cat("input$goButtonMaster1 A: ", input$goButtonMaster1, "\n")
- # #    if(input$goButtonMaster1 == FALSE) {
- # #      # removeCssClass("Main", "col-sm-12")
- # #      # addCssClass("Main", "col-sm-8")
- # #      cat("input$goButtonMaster1 B: ", input$goButtonMaster1, "\n")
- # #      shinyjs::show(id = "James01", asis = T, anim = TRUE, animType = "fade")
- # # #     shinyjs::enable(id = "James01", asis = T)
- # #      shinyjs::show(id = "James02", asis = T)
- # #  #    shinyjs::enable(id = "James02", asis = T)
- # #      shinyjs::show(id = "James03", asis = T)
- # #   #   shinyjs::enable(id = "James03", asis = T)
- # #      shinyjs::show(id = "James04", asis = T, anim = TRUE, animType = "slide")
- # #  #    shinyjs::enable(id = "James04", asis = T)
- # #    }
- # #    if(input$goButtonMaster1 == TRUE) {
- # #      cat("input$goButtonMaster1 C: ", input$goButtonMaster1, "\n")
- # #   #   removeCssClass("Main", "col-sm-8")
- # #   #   addCssClass("Main", "col-sm-12")
- # #      shinyjs::hide(id = "James01", asis = T)
- # #      shinyjs::hide(id = "James02", asis = T)
- # #      shinyjs::hide(id = "James03", asis = T)
- # #      shinyjs::hide(id = "James04", asis = T)
- # #    }
- #    #  shinyjs::toggle(ns("myBox"))
- #  })
   
   observeEvent(input$goButtonMaster2, {
-#    shinyjs::toggle("James01", asis = T)
- #   shinyjs::toggle("James02", asis = T)
-  #  shinyjs::toggle("James03", asis = T)
+
     shinyjs::toggle("James04", asis = T, anim = TRUE, animType = "fade")
-    #  shinyjs::toggle(ns("myBox"))
+
   })
   
   observeEvent(input$goButtonMaster3, {
     shinyjs::toggle("James01", asis = T, anim = TRUE, animType = "slide")
     shinyjs::toggle("James02", asis = T, anim = TRUE, animType = "slide")
     shinyjs::toggle("James03", asis = T, anim = TRUE, animType = "slide")
-    #   shinyjs::toggle("James04", asis = T)
-    #  shinyjs::toggle(ns("myBox"))
+
   })
   
   
   
-
+  colores_seleccionados <- reactiveVal({
+    
+    mis_colores <- "red"
+    names(mis_colores) <- paste0("color", c(1:length(mis_colores)))
+    
+    mis_colores
+  })
   
-#if (1 == 2) {
-# Input de Colores
+
   colores_seleccionados2 <- reactive({
       if (is.null(DF_interna())) return(NULL)
     
@@ -269,22 +224,8 @@ Graficos1Q_SERVER <- function(input, output, session,
       #   cat("mis_colores:", mis_colores, "\n")
          return(mis_colores)
       })
-#}
-  
-  
-  # Colores por defecto...
-  
 
-  colores_seleccionados <- reactiveVal({
-
-    mis_colores <- "red"
- #   nombre_input <- paste("col", 1, sep="_")
- #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n")
-    names(mis_colores) <- paste0("color", c(1:length(mis_colores)))
-
-    mis_colores
-    })
-#  )
+  
   
   observeEvent(input$goButton4, {
     
@@ -525,10 +466,12 @@ Graficos1Q_SERVER <- function(input, output, session,
     
   })
  
-  output$grafico_tortas_1q <- renderPlot({
-    
-    pie(table(mtcars[,2]))
-  })
+  
+  
+  callModule(module = Graficos1Q_03_Tortas_SERVER, id =  "graficos03C",
+             minibase = minibase,
+             batalla_naval = batalla_naval,
+             decimales = decimales)
   
   
  
@@ -602,11 +545,18 @@ Graficos1Q_SERVER <- function(input, output, session,
                            # bsButton(ns("goButtonMaster1"), "Mostrar/Ocultar todas las opciones gráficas", type = "toggle", value = TRUE,
                            #          icon("bars"), style = "primary", size = "large"
                            # ),br(),
+                           fluidRow(
+                             column(4,
                            bsButton(ns("goButtonMaster2"), "Mostrar/Ocultar opciones gráficas generales", type = "toggle", value = TRUE,
                                     icon("bars"), style = "primary", size = "large"
-                           ),br(),
+                           )
+                           ),
+                           column(4),
+                           column(4,
                            bsButton(ns("goButtonMaster3"), "Mostrar/Ocultar opciones gráficas específicas", type = "toggle", value = TRUE,
                                     icon("bars"), style = "primary", size = "large"
+                           )
+                           )
                            ),br(),
                           
                            h2("Gráfico de Barras"),
@@ -725,8 +675,9 @@ Graficos1Q_SERVER <- function(input, output, session,
                            # h3(textOutput(ns("Salida_texto_1q_RMedic_04"))),
                            # tableOutput(ns("Salida_tabla_1q_RMedic_04")),
                            # br() 
-                           "Gráfico de Tortas",
-                           plotOutput(ns("grafico_tortas_1q"))
+                         
+                           #plotOutput(ns("grafico_tortas_1q"))
+                           Graficos1Q_03_Tortas_UI(ns("graficos03C"))
                            )
       ),
     )

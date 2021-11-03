@@ -32,6 +32,7 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                          verbatim = FALSE)
   
   
+  
   callModule(module = Graficos1Q_SERVER, id =  "graficos03",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
@@ -75,6 +76,7 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                BatallaNavalUI(ns("graficos01")),
                MiniBaseUI(ns("graficos02")),
                Graficos1Q_UI(ns("graficos03")),
+               br(), br(), br(), br(),
                Tablas1Q_UI(ns("graficos04")),
                Tablas1C_UI(ns("graficos05"))
         ),

@@ -27,8 +27,9 @@ source("modules/Tablas2Q.R")
 source("modules/Tablas2C.R")
 source("modules/TablasQC.R")
 
-source("modules/Graficos1Q.R")
-
+source("modules/Graficos1Q_ALL.R")
+source("modules/Graficos1Q_02_Barras.R")
+source("modules/Graficos1Q_03_Tortas.R")
 
 source("modules2/ModuleBase.R")
 source("modules2/ModuleControl.R")

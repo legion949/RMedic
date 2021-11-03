@@ -101,31 +101,7 @@ Tablas1C_SERVER <- function(input, output, session,
   ) 
   
   
-  # # 09) Distribucion de Frecuencias
-  # observe( 
-  #   output$Salida_tabla_1c_RMedic_09_especial <- renderTable(digits = decimales(), align= "c",{
-  #     
-  #     if(!is.null(Reactive_tabla_1c_RMedic())) {
-  #       
-  #   
-  #       
-  #       mi_tabla <-  RMedic_1c_tablas(input_base = minibase(),
-  #                                     input_decimales = decimales(),
-  #                                     input_min = input$ns("x_min"),
-  #                                     input_max = input$ns("x_max"),
-  #                                     input_breaks = input$ns("x_breaks"),
-  #                                     input_side = input$ns("x_side")
-  #       )[[9]]
-  #       
-  #       mi_tabla[,2] <- as.character(mi_tabla[,2])
-  #       mi_tabla[,3] <- as.character(mi_tabla[,3])
-  #       mi_tabla[,5] <- as.character(mi_tabla[,5])
-  #       
-  #       mi_tabla
-  #       
-  #     } else return(NULL)
-  #   })
-  # )
+ 
   
   output$Controlador_1c_RMedic <- renderUI({
     

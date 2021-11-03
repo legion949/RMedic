@@ -2180,7 +2180,61 @@ RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   } # Fin More default values
   #################################################
   
+  {
+  diferencia1 <- input_max1 - input_min1
+  rango1 <- diferencia1/input_breaks1
   
+  cortes1 <- input_min1 + c(0:input_breaks1)*rango1
+  
+  # VerificacioN!
+  # Pasa que si la variable es constante, hay que hacer
+  # una sola categoria con todo. La funcion de R aunque
+  # la variable sea constante, te tira mas de 1 intervalo.
+  # Eso esta mal.
+  tabla1 <- table(mini_vector1)
+  cantidad_categorias1 <- length(names(tabla1))
+  cantidad_cortes1 <- length(cortes1)
+  if(cantidad_categorias1 < cantidad_cortes1) cortes1 <- cantidad_categorias1
+  
+  if(cantidad_categorias1 > 1) {
+    info1 <- cut(mini_vector1, breaks = cortes1 , right = input_side1,
+                include.lowest = T)
+    
+  } else info1 <- mini_vector1
+  
+  dim(info1) <- c(length(info1), 1)
+  info1 <- as.data.frame(info1)
+  colnames(info1) <- colnames(input_base)[1]
+  }  
+  
+  {
+    diferencia2 <- input_max2 - input_min2
+    rango2 <- diferencia2/input_breaks2
+    
+    cortes2 <- input_min2 + c(0:input_breaks2)*rango2
+    
+    # VerificacioN!
+    # Pasa que si la variable es constante, hay que hacer
+    # una sola categoria con todo. La funcion de R aunque
+    # la variable sea constante, te tira mas de 1 intervalo.
+    # Eso esta mal.
+    tabla2 <- table(mini_vector2)
+    cantidad_categorias2 <- length(names(tabla2))
+    cantidad_cortes2 <- length(cortes2)
+    if(cantidad_categorias2 < cantidad_cortes2) cortes2 <- cantidad_categorias2
+    
+    if(cantidad_categorias2 > 1) {
+      info2 <- cut(mini_vector2, breaks = cortes2 , right = input_side2,
+                   include.lowest = T)
+      
+    } else info2 <- mini_vector2
+    
+    dim(info2) <- c(length(info2), 1)
+    info2 <- as.data.frame(info2)
+    colnames(info2) <- colnames(input_base)[2]
+  }
+  
+  segunda_base <- data.frame(info1, info2)
   
   # Tablas para Variable 1
   tablas <- list()
@@ -2201,6 +2255,12 @@ RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
                                   input_max = input_max2,
                                   input_breaks = input_breaks2,
                                   input_side = input_side2)
+  
+  
+  # segunda_base <- mtcars[c(2,8)]
+  # otras_tablas <- RMedic_2q_tablas(segunda_base, 2)$df02
+  
+  otras_tablas <- RMedic_2q_tablas(segunda_base, input_decimales)$df02
   
   
   armado <- list()
@@ -2235,6 +2295,19 @@ RMedic_2c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   armado[[12]] <- tablas[[2]][[9]]
   names(armado)[12] <- paste0(names(tablas[[1]])[9], " - Variable 2")
   
+  
+  # Distribución Bivariada
+  armado[[13]] <- as.matrix(otras_tablas[[3]][[1]])
+  names(armado)[13] <- "Distribución Bivariada"
+  
+  armado[[14]] <-  as.matrix(otras_tablas[[3]][[4]])
+  names(armado)[14] <- "Porcentajes al total"
+  
+  armado[[15]] <-  as.matrix(otras_tablas[[4]][[4]])
+  names(armado)[15] <- "Porcentajes por filas"
+  
+  armado[[16]] <-  as.matrix(otras_tablas[[5]][[4]])
+  names(armado)[16] <- "Porcentajes por columnas"
   
   return(armado)
   
@@ -2330,6 +2403,8 @@ control_qc <- function(input_base = NULL, input_cadena = NULL){
 }
 
 ###############################
+
+
 
 
 
@@ -2543,16 +2618,59 @@ RMedic_qc_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
                                 armado[[k1]][1,3], " para la media") 
   }
   
-  # Distribucion de Frecuencias - Var1
-  
-  armado[[11]] <- list()
-  for(k2 in 1:length(tablas)) {
+  # Distribucion de Frecuencias - QC
+  # Tabla 11 y 12: Distribucion de Frecuencias Bivariada
+  {
+    ###
     
-    armado[[11]][[k2]] <- tablas[[k2]][[9]]
+    diferencia <- input_max - input_min
+    rango <- diferencia/input_breaks
     
-  }
+    cortes <- input_min + c(0:input_breaks)*rango
+    
+    # VerificacioN!
+    # Pasa que si la variable es constante, hay que hacer
+    # una sola categoria con todo. La funcion de R aunque
+    # la variable sea constante, te tira mas de 1 intervalo.
+    # Eso esta mal.
+    tabla <- table(vr_vector)
+    cantidad_categorias <- length(names(tabla))
+    cantidad_cortes <- length(cortes)
+    if(cantidad_categorias < cantidad_cortes) cortes <- cantidad_categorias
+    
+    if(cantidad_categorias > 1) {
+      info <- cut(vr_vector, breaks = cortes , right = input_side,
+                  include.lowest = T)
+      
+    } else info <- vr_vector
+    
+    #  dim(info) <- c(length(info), 1)
+    #  info <- as.data.frame(info)
+    #  colnames(info) <- paste0("recat_", colnames(input_base)[2])
+    
+    segunda_minibase <- as.data.frame(cbind(factor, info))
+    
+    
+    nuevas_tablas <- RMedic_2q_tablas(input_base = segunda_minibase,
+                                      input_decimales = input_decimales,
+                                      input_cadena = NULL)
+    
+    armado[[11]] <- as.matrix(nuevas_tablas$df02$`Al total`$`Frecuencias Absolutas`)
+    
+    armado[[12]] <- nuevas_tablas$df02$`Al total`$`Porcentajes al total`
+    
+    armado[[13]] <- nuevas_tablas$df02$`Por filas`$`Porcentajes por filas`
+    
+    armado[[14]] <- nuevas_tablas$df02$`Por columnas`$`Porcentajes por columnas`
+    
+    names(armado)[c(11:14)] <- c("Tabla de Frecuencias Bivariadas",
+                                 "Tabla de Porcentajes al total", 
+                                 "Tabla de Porcentajes por filas",
+                                 "Tabla de Porcentajes por columnas")
+    ###
+  } # Fin Tabla 9 Tabla de Frecuencias
+  ######################################################
   
-  names(armado[[11]]) <- armado_nombres
   
   
   return(armado)

@@ -22,7 +22,7 @@ TablasQC_SERVER <- function(input, output, session,
   # NameSpaceasing for the session
   ns <- session$ns
   
-  # Caso 4: 2C
+  # Caso 5: QC
   casoRMedic <- reactive({
     
     if(is.null(batalla_naval())) return(NULL)
@@ -35,7 +35,130 @@ TablasQC_SERVER <- function(input, output, session,
     
   })
   
-  # Todas las tablas 2C
+  
+  Rotulo_recategorizacion <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 5) return(NULL)
+    
+    referencias <- colnames(minibase())
+    
+    armado <- paste0("Recategorización para la variable '", referencias[2], "'")
+    
+    armado <- HTML(armado)
+    
+    return(armado)
+  })
+  
+  Referencias_var_qc <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 5) return(NULL)
+    
+    referencias <- colnames(minibase())
+    
+    armado <- paste0(paste0("En filas: ", referencias[1]), 
+                     "<br/>", 
+                     paste0("En columnas: ", referencias[2], " (Recategorizada)")
+                    )
+    
+    armado <- HTML(armado)
+    
+    return(armado)
+  })
+  
+  output$Controlador_qc_RMedic <- renderUI({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 5) return(NULL)
+    
+    cantidad_cortes <- nclass.Sturges(minibase()[,2])
+    tabla <- table(minibase()[,2])
+    cantidad_categorias <- length(names(tabla))
+    if(cantidad_categorias < cantidad_cortes) cantidad_cortes <- cantidad_categorias
+    
+    div(
+      fluidRow(
+        column(4,
+               numericInput(
+                 inputId = ns("x_min"),
+                 label = "Valor mínimo: ",
+                 value = min(minibase()[,2]),
+                 min = NA,
+                 max = min(minibase()[,2]),
+                 step = 0.01,
+                 width = NULL
+               ),
+               numericInput(
+                 inputId = ns("x_max"),
+                 label = "Valor máximo: ",
+                 value = max(minibase()[,2]),
+                 min = max(minibase()[,2]),
+                 max = NA,
+                 step = 0.01,
+                 width = NULL
+               )
+        ),
+        column(4,
+               radioButtons(inputId = ns("x_side"), 
+                            label = "Cierre del intervalo: ", choices = c("A la Derecha" = T , "A la Izquierda" = F)
+               )
+        ),
+        column(4, 
+               numericInput(
+                 inputId = ns("x_breaks"),
+                 label = "Cantidad de intervalos: ",
+                 value = cantidad_cortes,
+                 min = 1,
+                 max = NA,
+                 step = 1,
+                 width = NULL
+               )
+        )
+      )
+    )
+    
+  })
+  
+  # Variable criterio de inclusion
+  observeEvent(input[[ns("x_min")]],{
+    
+    if(input[[ns("x_min")]] > min(minibase()[,2])) {
+      
+      updateNumericInput(session, inputId = ns("x_min"),
+                         label = "Valor mínimo: ",
+                         value = min(minibase()[,2]),
+                         min = NA,
+                         max = min(minibase()[,2]),
+                         step = 0.01
+      )
+      
+      
+      
+    }
+  })
+  
+  
+  # Variable criterio de inclusion
+  observeEvent(input[[ns("x_max")]],{
+    
+    if(input[[ns("x_max")]] < max(minibase()[,2])) {
+      
+      updateNumericInput(session, inputId = ns("x_max"),
+                         label = "Valor máximo: ",
+                         value = max(minibase()[,2]),
+                         min = max(minibase()[,2]),
+                         max = NA,
+                         step = 0.01
+      )
+      
+      
+      
+    }
+  })
+  
+  
+  # Todas las tablas QC
   Reactive_tabla_qc_RMedic <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -51,9 +174,15 @@ TablasQC_SERVER <- function(input, output, session,
     
     salida <-  RMedic_qc_tablas(input_base =  minibase(),
                                 input_decimales = decimales(),
-                                
+                                input_min = input$x_min,
+                                input_max = input$x_max,
+                                input_breaks = na.omit(input$x_breaks)[1],
+                                input_side = input$x_side
     )
     
+    # salida[[11]] <- as.matrix(table(minibase()))
+    # salida[[11]] <- as.matrix(salida[[11]])
+     salida[[11]][1,1] <- as.character(salida[[11]][1,1])
     
     # for(k in 1:length(salida[[11]])) {
     # salida[[11]][[k]][,2] <- as.character(salida[[11]][[k]][,2])
@@ -92,16 +221,24 @@ TablasQC_SERVER <- function(input, output, session,
         names(Reactive_tabla_qc_RMedic())[i]
       })
       
+      status_rownames <- F
+      if(i >= 11) status_rownames <- T
+      
+      decimales_internos <- decimales()
+      if(i == 1) decimales_internos <- 0
       # Cada tabla
-      output[[nombre_fusion2]] <- renderTable(digits = decimales(), align= "c",{
+      output[[nombre_fusion2]] <- renderTable(digits = decimales_internos, align= "c", rownames = status_rownames, {
         Reactive_tabla_qc_RMedic()[[i]]
+        
       })
       
       
       
     })
-  ) 
+  )
   
+    
+ 
   
   
   
@@ -268,15 +405,30 @@ TablasQC_SERVER <- function(input, output, session,
                            br()
                   ),
                   tabPanel("Distribución de Frecuencias", value = 6,
-                           # h3(textOutput(ns("Salida_texto_2c_RMedic_11"))),
-                           # tableOutput(ns("Salida_tabla_2c_RMedic_11")),
-                           # uiOutput(ns("Controlador1_2c_RMedic")),
+                           h3(Rotulo_recategorizacion()),
+                           uiOutput(ns("Controlador_qc_RMedic")),
+                           br(), 
+                           h3(textOutput(ns("Salida_texto_qc_RMedic_11"))),
+                           Referencias_var_qc(),
+                           tableOutput(ns("Salida_tabla_qc_RMedic_11")),
+                           br(), 
+                           h3(textOutput(ns("Salida_texto_qc_RMedic_12"))),
+                           Referencias_var_qc(),
+                           tableOutput(ns("Salida_tabla_qc_RMedic_12")),
+                           br(), 
+                           h3(textOutput(ns("Salida_texto_qc_RMedic_13"))),
+                           Referencias_var_qc(),
+                           tableOutput(ns("Salida_tabla_qc_RMedic_13")),
+                           br(), 
+                           h3(textOutput(ns("Salida_texto_qc_RMedic_14"))),
+                           Referencias_var_qc(),
+                           tableOutput(ns("Salida_tabla_qc_RMedic_14"))
                            # br(),
                            # h3(textOutput(ns("Salida_texto_2c_RMedic_12"))),
                            # tableOutput(ns("Salida_tabla_2c_RMedic_12")),
                            # uiOutput(ns("Controlador2_2c_RMedic")),
                            # br(),
-                           "Vacío por el momento!"
+                          # "Vacío por el momento!"
                            
                   )
       )

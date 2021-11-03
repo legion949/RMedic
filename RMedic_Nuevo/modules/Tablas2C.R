@@ -35,6 +35,24 @@ Tablas2C_SERVER <- function(input, output, session,
     
   })
   
+  
+  Referencias_var_2c <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 4) return(NULL)
+    
+    referencias <- colnames(minibase())
+    
+    armado <- paste0(paste0("En filas: ", referencias[1], " (Recategorizada)"), 
+                     "<br/>", 
+                     paste0("En columnas: ", referencias[2], " (Recategorizada)")
+    )
+    
+    armado <- HTML(armado)
+    
+    return(armado)
+  })
+  
   # Todas las tablas 2C
   Reactive_tabla_2c_RMedic <- reactive({
     
@@ -70,6 +88,12 @@ Tablas2C_SERVER <- function(input, output, session,
     salida[[12]][,2] <- as.character(salida[[12]][,2])
     salida[[12]][,3] <- as.character(salida[[12]][,3])
     salida[[12]][,5] <- as.character(salida[[12]][,5])
+    
+    salida[[13]][1,1] <- as.character(salida[[13]][1,1])
+    salida[[14]][1,1] <- as.character(salida[[14]][1,1])
+    salida[[15]][1,1] <- as.character(salida[[15]][1,1])
+    salida[[16]][1,1] <- as.character(salida[[16]][1,1])
+    
     # Return Exitoso
     return(salida)
     
@@ -99,8 +123,13 @@ Tablas2C_SERVER <- function(input, output, session,
         names(Reactive_tabla_2c_RMedic())[i]
       })
       
+      
+      status_rownames <- F
+      if(i >= 13) status_rownames <- T
+      
+      
       # Cada tabla
-      output[[nombre_fusion2]] <- renderTable(digits = decimales(), align= "c",{
+      output[[nombre_fusion2]] <- renderTable(digits = decimales(), align= "c", rownames = status_rownames,{
         Reactive_tabla_2c_RMedic()[[i]]
       })
       
@@ -468,6 +497,22 @@ Tablas2C_SERVER <- function(input, output, session,
                            h3(textOutput(ns("Salida_texto_2c_RMedic_12"))),
                            tableOutput(ns("Salida_tabla_2c_RMedic_12")),
                            uiOutput(ns("Controlador2_2c_RMedic")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2c_RMedic_13"))),
+                           Referencias_var_2c(),
+                           tableOutput(ns("Salida_tabla_2c_RMedic_13")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2c_RMedic_14"))),
+                           Referencias_var_2c(),
+                           tableOutput(ns("Salida_tabla_2c_RMedic_14")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2c_RMedic_15"))),
+                           Referencias_var_2c(),
+                           tableOutput(ns("Salida_tabla_2c_RMedic_15")),
+                           br(),
+                           h3(textOutput(ns("Salida_texto_2c_RMedic_16"))),
+                           Referencias_var_2c(),
+                           tableOutput(ns("Salida_tabla_2c_RMedic_16")),
                            br(),
                            
                   )
