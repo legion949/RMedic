@@ -57,7 +57,7 @@ TablasQC_SERVER <- function(input, output, session,
     
     referencias <- colnames(minibase())
     
-    armado <- paste0(paste0("En filas: ", referencias[1]), 
+    armado <- paste0(paste0("En filas: ", referencias[1], "(Categórica)"), 
                      "<br/>", 
                      paste0("En columnas: ", referencias[2], " (Recategorizada)")
                     )
