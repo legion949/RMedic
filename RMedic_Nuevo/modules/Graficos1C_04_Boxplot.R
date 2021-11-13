@@ -20,7 +20,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
                                                       minibase, 
                                                       batalla_naval,
                                                       decimales,
-                                                      casoRMedic) {
+                                                      casoRMedic,
+                                                      tablas_1c) {
   
   
   
@@ -52,8 +53,6 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     
     for(i in 1:cantidad){ 
       nombre_input <- paste("col", i, sep="_")
-      #   cat("nombre_input: ", nombre_input, "\n" )
-      #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n" )
       if(is.null(input[[nombre_input]])) return(NULL)
       
       mis_colores[i] <- input[[nombre_input]]
@@ -61,7 +60,7 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     }
     
     
-    #   cat("mis_colores:", mis_colores, "\n")
+  
     return(mis_colores)
   })
   
@@ -92,39 +91,58 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   })
   
   
-  # pedido_cambio <- reactiveVal({0})
-  # 
-  
-  
-  
-  # observeEvent(input$ylab, {
-  # 
-  #   if(input$ylab == colnames(minibase())[1]) {
-  # 
-  #     if(input$ylab != valores_usuario()$ylab) pedido_cambio(pedido_cambio() + 1)
-  # 
-  #   }
-  # })
-  
-  
-  
-  observeEvent(input$ylab, {
-    
 
-    if(input$ylab == colnames(minibase())[1]) {
-      
-      if(input$ylab != valores_usuario()$ylab) {
-        
-        aplicador_logico(!aplicador_logico())
-        
-        #reseteo_logico(!reseteo_logico())
-      }  
-    }
+  
+  medidas_resumen <- reactive({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    
+    
+    
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
+    
+    
+    
+    salida <-  RMedic_1c_tablas(input_base =  minibase(),
+                                input_decimales = decimales(),
+                                input_min = NULL,
+                                input_max = NULL,
+                                input_breaks = NULL,
+                                input_side = NULL
+    )[[1]]
+    
+  
+    
+    # Return Exitoso
+    return(salida)
+    
+    
+  })  
+  
+  
+ 
+
+
+  observeEvent(input$ylab, {
+
+ 
+    if(input$ylab == colnames(minibase())[1]) {
+
+      if(input$ylab != valores_usuario()$ylab) {
+
+        delay(1000, aplicador_logico(!aplicador_logico()))
+
+      #  reseteo_logico(!reseteo_logico())
+      }
+    }
+
    # reseteo_logico(!reseteo_logico())
 
   })
-  
+
   
   
   # Variable criterio de inclusion
@@ -253,41 +271,49 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
                             choices = c("Sin detalle" = F,
                                         "Agregar especificaciones" = T
                             )
+               )
                ),
-               br(),
-               numericInput(inputId = ns("y_max"),
-                            label = "Máximo eje Y", 
-                            value = valores_iniciales()$y_max,
-                            min = valores_iniciales()$y_max,
-                            max = NA
-               ),
-               textOutput(ns("texto_ayudaMax_y")),
-               br(),
+        column(6,
+               uiOutput(ns("MODcolor"))
+               )
+        ),
+      br(),
+      fluidRow(
+        column(6,
                numericInput(inputId = ns("y_min"),
                             label = "Mínimo eje Y", 
                             value = valores_iniciales()$y_min,
                             min = NA,
                             max = valores_iniciales()$y_min
                ),
-               textOutput(ns("texto_ayudaMin_y")),
-               br()
+               textOutput(ns("texto_ayudaMin_y"))
         ),
         column(6,
-               uiOutput(ns("MODcolor")),
-               br(),
+               numericInput(inputId = ns("y_max"),
+                            label = "Máximo eje Y", 
+                            value = valores_iniciales()$y_max,
+                            min = valores_iniciales()$y_max,
+                            max = NA
+               ),
+               textOutput(ns("texto_ayudaMax_y"))
+               )
+        ),
+      br(),
+      fluidRow(
+        column(6,
+              textInput(inputId = ns("xlab"),
+                         label = "Rótulo eje X",
+                         value = valores_iniciales()$xlab
+               )
+              ),
+        column(6, 
                textInput(inputId = ns("ylab"),
                          label = "Rótulo eje Y",
                          value = valores_iniciales()$ylab
-               ),
-               br(),
-               textInput(inputId = ns("xlab"),
-                         label = "Rótulo eje X",
-                         value = valores_iniciales()$xlab
-               ),
-               br()
-               
-        )
-      ),
+               )
+            )
+        ),
+      br(),
       br(),
       bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
@@ -350,30 +376,12 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     
     
-    # if(is.null(input$min)) return(NULL)
-    # if(is.null(input$max)) return(NULL)
-    # if(is.null(input$ylab)) return(NULL)
-    # if(is.null(input$xlab)) return(NULL)
-    # if(is.null(input$ayuda)) return(NULL)
-    # if(is.null(input$col_1)) return(NULL)
-    
-    # valores <- list(input$min,
-    #                 input$max,
-    #                 input$ylab,
-    #                 input$xlab,
-    #                 input$ayuda,
-    #                 input$col_1)
-    
-   # names(valores) <- c("y_min", "y_max", "xlab", "ylab", "ayuda", "color")
+    # Nombre de la lista, mismo nombre que por defecto
     names(valores) <- names(valores_iniciales())
     
-    # names(valores) <- c("x_min", "x_max", 
-    #                     "y_min", "y_max", 
-    #                     "xlab", "ylab", 
-    #                     "ayuda", "color")
-    
-    if(valores[[3]] > min(minibase()[,1])) valores[[3]] <- min(minibase()[,1])
-    if(valores[[4]] < max(minibase()[,1])) valores[[4]] <- max(minibase()[,1])
+    # Correccion para los valores que min y max de cada eje Y
+    if(!is.null(valores$y_min)) if(valores$y_min > min(minibase()[,1])) valores$y_min <- min(minibase()[,1])
+    if(!is.null(valores$y_max)) if(valores$y_max < max(minibase()[,1])) valores$y_max <- max(minibase()[,1])
     
     
     
@@ -385,35 +393,43 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    if(is.null(valores_usuario())) return(NULL)
     
-    coordenadas <-    boxplot(minibase()[1], 
-                              ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
-                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                              col = valores_usuario()$color,
-                              range = 0)
     
+ 
+        
+    coordenadas <-   boxplot(minibase()[1],
+                            ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+                            ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+                            col = valores_usuario()$color,
+                            range = 0)
     
     texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
     texto02 <- c("25%", "25%", "25%", "25%")
     
     coordenadasY <- coordenadas$stats
-    
+    mis_valores <- c(tablas_1c()[[2]][1,2],
+                     tablas_1c()[[3]][1,c(2,5)],
+                     tablas_1c()[[2]][1,5])
     
     
     
     if (valores_usuario()$ayuda) {
       
-      text(1.25, coordenadas$stats, texto01, pos = 4)
+   #   text(1.25, coordenadas$stats, texto01, pos = 4, cex = 1.5)
       
       mediasY <- c()
       for(k in 1:(length(coordenadasY)-1)) mediasY[k] <- mean(coordenadasY[c(k, (k+1))])
       
       
-      text(1.25, coordenadasY, texto01, pos = 4)
+      text(1.25, coordenadasY, texto01, pos = 4, cex = 1.5)
+      text(0.75, coordenadasY, mis_valores, pos = 2, cex = 1.5)
       
       colores <- rep(c("red", "blue"), 2)
       
-      pos01 <- 0.70
+      pos01 <- 0.70 - 0.09
       pos02 <- pos01 - 0.06
       pos03 <- pos01 - 0.12
       
@@ -449,6 +465,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     div(
       h2("Gráfico de Boxplot"),
       fluidRow(

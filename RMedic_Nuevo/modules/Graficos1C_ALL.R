@@ -35,7 +35,34 @@ Graficos1C_SERVER <- function(input, output, session,
     
   })
   
-  
+  tablas_1c <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    
+    
+    
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
+    
+    
+    
+    salida <-  RMedic_1c_tablas(input_base =  minibase(),
+                                input_decimales = decimales(),
+                                input_min = NULL,
+                                input_max = NULL,
+                                input_breaks = NULL,
+                                input_side = NULL
+    )
+    
+    
+    
+    # Return Exitoso
+    return(salida)
+    
+    
+  })  
   
  # DF_interna <-  reactive({RMedic_1q_tablas(minibase(), decimales())[[1]] })
   
@@ -45,20 +72,23 @@ Graficos1C_SERVER <- function(input, output, session,
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
 
   callModule(module = Graficos1C_03_MediaErrorEstandard_SERVER, 
              id =  "graficos04C",
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)  
+             casoRMedic = casoRMedic,
+             tablas_1c)  
   
   callModule(module = Graficos1C_04_Boxplot_SERVER, id =  "graficos04D",
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   callModule(module = Graficos1C_05_Violinplot_SERVER, id =  "graficos04E",
              minibase = minibase,

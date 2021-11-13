@@ -20,30 +20,13 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
                                          minibase, 
                                          batalla_naval,
                                          decimales,
-                                         casoRMedic) {
+                                         casoRMedic,
+                                         tablas_1c) {
   
   
   
   # NameSpaceasing for the session
   ns <- session$ns
-  
-  
-  
-  
-  
-  colores_seleccionados <- reactiveVal({
-    
-    mis_colores <- "red"
-    names(mis_colores) <- paste0("color", c(1:length(mis_colores)))
-    
-    mis_colores
-  })
-  
-  
-  
-  
-  
-  
   
   
   
@@ -54,12 +37,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   
   
-  colores_seleccionados2 <- reactive({
-    # if (is.null(DF_interna())) return(NULL)
-    
-    
-    
-    
+  colores_seleccionados <- reactive({
     
     
     cantidad <- 1
@@ -75,16 +53,12 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     
     for(i in 1:cantidad){ 
       nombre_input <- paste("col", i, sep="_")
-      #   cat("nombre_input: ", nombre_input, "\n" )
-      #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n" )
       if(is.null(input[[nombre_input]])) return(NULL)
       
       mis_colores[i] <- input[[nombre_input]]
       
     }
     
-    
-    #   cat("mis_colores:", mis_colores, "\n")
     return(mis_colores)
   })
   
@@ -102,15 +76,11 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   observeEvent(input$controlador03, {
     
-    if(length(colores_seleccionados2()) > 0) {
-      
-      
-      colores_seleccionados(colores_seleccionados2())
-      
-    }
+    
     aplicador_logico(!aplicador_logico())
-    # reseteo_logico(!reseteo_logico())
+    
   })
+  
   
   observeEvent(input$reset, {
     
@@ -118,12 +88,34 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     delay(400,     aplicador_logico(!aplicador_logico()))
   })
   
-  observeEvent(colnames(minibase())[1], {
+  
+  
+  
+ 
+  
+  
+  
+  
+  
+  observeEvent(input$ylab, {
     
-    reseteo_logico(!reseteo_logico())
-    #   aplicador_logico(!aplicador_logico())
-    #     delay(1000,     aplicador_logico(!aplicador_logico()))
+    
+
+    if(input$ylab == colnames(minibase())[1]) {
+      
+      if(input$ylab != valores_usuario()$ylab) {
+        
+        delay(1000, aplicador_logico(!aplicador_logico()))
+        
+        #  reseteo_logico(!reseteo_logico())
+      }
+    }
+    
+    # reseteo_logico(!reseteo_logico())
+    
   })
+  
+  
   
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
@@ -139,20 +131,20 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     
     
     updateNumericInput(session,
-                       inputId = "max",
+                       inputId = "y_max",
                        label = "Máximo eje Y", 
-                       value = valores_iniciales()$max,
-                       min = valores_iniciales()$max,
+                       value = valores_iniciales()$y_max,
+                       min = valores_iniciales()$y_max,
                        max = NA
     )
     
     
     updateNumericInput(session,
-                       inputId = "min",
+                       inputId = "y_min",
                        label = "Mínimo eje Y", 
-                       value = valores_iniciales()$min,
+                       value = valores_iniciales()$y_min,
                        min = NA,
-                       max = valores_iniciales()$min
+                       max = valores_iniciales()$y_min
     )
     
     
@@ -221,59 +213,22 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   })
   
   
-  if (1 == 2) {
-    # Variable criterio de inclusion
-    observeEvent(input[["max"]],{
-      
-      if(input[["max"]] < max(minibase()[,1])) {
-        
-        updateNumericInput(session, 
-                           inputId = "max",
-                           label = "Máximo eje Y", 
-                           value = valores_iniciales()$max,
-                           max = NA,
-                           min = valores_iniciales()$max
-        )
-        
-        
-        
-      }
-    })
-    
-    
-    # Variable criterio de inclusion
-    observeEvent(input[["min"]],{
-      
-      if(input[["min"]] > min(minibase()[,1])) {
-        
-        updateNumericInput(session, 
-                           inputId = "min",
-                           label = "Mínimo eje Y", 
-                           value = valores_iniciales()$min,
-                           max = valores_iniciales()$min,
-                           min = NA
-        )
-        
-        
-        
-      }
-    })
-  }
   
-  output$texto_ayudaMax <- renderText({
+  
+  output$texto_ayudaMax_y <- renderText({
     texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
     valor de la variable."
     
-    if(input$max < max(minibase()[,1])) return(texto) else return(NULL)
+    if(input$y_max < max(minibase()[,1])) return(texto) else return(NULL)
     
   })
   
   
-  output$texto_ayudaMin <- renderText({
+  output$texto_ayudaMin_y <- renderText({
     texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
     valor de la variable."
     
-    if(input$min > min(minibase()[,1])) return(texto) else return(NULL)
+    if(input$y_min > min(minibase()[,1])) return(texto) else return(NULL)
     
   })
   
@@ -288,41 +243,49 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
                             choices = c("Sin detalle" = F,
                                         "Agregar especificaciones" = T
                             )
-               ),
-               br(),
-               numericInput(inputId = ns("max"),
-                            label = "Máximo eje Y", 
-                            value = valores_iniciales()$max,
-                            min = valores_iniciales()$max,
-                            max = NA
-               ),
-               textOutput(ns("texto_ayudaMax")),
-               br(),
-               numericInput(inputId = ns("min"),
-                            label = "Mínimo eje Y", 
-                            value = valores_iniciales()$min,
-                            min = NA,
-                            max = valores_iniciales()$min
-               ),
-               textOutput(ns("texto_ayudaMin")),
-               br()
+               )
         ),
         column(6,
-               uiOutput(ns("MODcolor")),
-               br(),
-               textInput(inputId = ns("ylab"),
-                         label = "Rótulo eje Y",
-                         value = valores_iniciales()$ylab
+               uiOutput(ns("MODcolor"))
+        )
+      ),
+      br(),
+      fluidRow(
+        column(6,
+               numericInput(inputId = ns("y_min"),
+                            label = "Mínimo eje Y", 
+                            value = valores_iniciales()$y_min,
+                            min = NA,
+                            max = valores_iniciales()$y_min
                ),
-               br(),
+               textOutput(ns("texto_ayudaMin_y"))
+        ),
+        column(6,
+               numericInput(inputId = ns("y_max"),
+                            label = "Máximo eje Y", 
+                            value = valores_iniciales()$y_max,
+                            min = valores_iniciales()$y_max,
+                            max = NA
+               ),
+               textOutput(ns("texto_ayudaMax_y"))
+        )
+      ),
+      br(),
+      fluidRow(
+        column(6,
                textInput(inputId = ns("xlab"),
                          label = "Rótulo eje X",
                          value = valores_iniciales()$xlab
-               ),
-               br()
-               
+               )
+        ),
+        column(6, 
+               textInput(inputId = ns("ylab"),
+                         label = "Rótulo eje Y",
+                         value = valores_iniciales()$ylab
+               )
         )
       ),
+      br(),
       br(),
       bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
@@ -350,51 +313,24 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     if(is.null(minibase())) return(NULL)
     
     
-    valores <- list(min(minibase()[1]),
-                    max(minibase()[1]),
-                    colnames(minibase())[1],
-                    "",
-                    F,
-                    c("#FF0000")
+    valores <- list(x_min = NULL,
+                    x_max = NULL,
+                    y_min = min(minibase()[1]),
+                    y_max = max(minibase()[1]),
+                    xlab = "",
+                    ylab = colnames(minibase())[1],
+                    ayuda = F,
+                    color = c("#FF0000")
     )
     
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
+    
     
     
     return(valores)
   })
   
   
-  # valores_usuario <-  reactive({
-  #   
-  #   if(is.null(minibase())) return(NULL)
-  #   if(is.null(input$min)) return(NULL)
-  #   if(is.null(input$max)) return(NULL)
-  #   if(is.null(input$ylab)) return(NULL)
-  #   if(is.null(input$xlab)) return(NULL)
-  #   if(is.null(input$ayuda)) return(NULL)
-  #   if(is.null(input$color_1)) return(NULL)
-  #   
-  #   valores <- list(input$min,
-  #                   input$max,
-  #                   input$ylab,
-  #                   input$xlab,
-  #                   input$ayuda,
-  #                   input$col_1)
-  #   
-  #   names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-  #   
-  #   
-  #   if(valores[[1]] > min(minibase()[,1])) valores[[1]] <- min(minibase()[,1])
-  #   if(valores[[2]] < max(minibase()[,1])) valores[[2]] <- max(minibase()[,1])
-  #   
-  #   
-  #   
-  #   return(valores)
-  # })
-  # 
   
-  # valores_usuario <-   eventReactive(input$controlador03, ignoreNULL = FALSE, {
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
     if(is.null(minibase())) return(NULL)
@@ -402,33 +338,22 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     
     valores <- list()
     
-    if(!is.null(input$min)) valores[[1]] <- input$min else valores[[1]] <- valores_iniciales()$min
-    if(!is.null(input$max)) valores[[2]] <- input$max else valores[[2]] <- valores_iniciales()$max
-    if(!is.null(input$ylab)) valores[[3]] <- input$ylab else valores[[3]] <- valores_iniciales()$ylab
-    if(!is.null(input$xlab)) valores[[4]] <- input$xlab else valores[[4]] <- valores_iniciales()$xlab
-    if(!is.null(input$ayuda)) valores[[5]] <- input$ayuda else valores[[5]] <- valores_iniciales()$ayuda
-    if(!is.null(input$col_1)) valores[[6]] <- input$col_1 else valores[[6]] <- valores_iniciales()$color
+    if(!is.null(input$x_min)) valores[[1]] <- input$x_min else valores[[1]] <- valores_iniciales()$x_min
+    if(!is.null(input$x_max)) valores[[2]] <- input$x_max else valores[[2]] <- valores_iniciales()$x_max
+    if(!is.null(input$y_min)) valores[[3]] <- input$y_min else valores[[3]] <- valores_iniciales()$y_min
+    if(!is.null(input$y_max)) valores[[4]] <- input$y_max else valores[[4]] <- valores_iniciales()$y_max
+    if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
+    if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
+    if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
+    if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     
     
-    # if(is.null(input$min)) return(NULL)
-    # if(is.null(input$max)) return(NULL)
-    # if(is.null(input$ylab)) return(NULL)
-    # if(is.null(input$xlab)) return(NULL)
-    # if(is.null(input$ayuda)) return(NULL)
-    # if(is.null(input$col_1)) return(NULL)
+    # Nombre de la lista, mismo nombre que por defecto
+    names(valores) <- names(valores_iniciales())
     
-    # valores <- list(input$min,
-    #                 input$max,
-    #                 input$ylab,
-    #                 input$xlab,
-    #                 input$ayuda,
-    #                 input$col_1)
-    
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-    
-    
-    if(valores[[1]] > min(minibase()[,1])) valores[[1]] <- min(minibase()[,1])
-    if(valores[[2]] < max(minibase()[,1])) valores[[2]] <- max(minibase()[,1])
+    # Correccion para los valores que min y max de cada eje Y
+    if(!is.null(valores$y_min)) if(valores$y_min > min(minibase()[,1])) valores$y_min <- min(minibase()[,1])
+    if(!is.null(valores$y_max)) if(valores$y_max < max(minibase()[,1])) valores$y_max <- max(minibase()[,1])
     
     
     
@@ -440,59 +365,42 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    if(is.null(valores_usuario())) return(NULL)
     
-    coordenadas <-    boxplot(minibase()[1], ylim = c(valores_usuario()$min, valores_usuario()$max),
-                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                              col = valores_usuario()$color)
+    texto01 <- c("Media - D.E.", "Media", "Media + D.E.")
+    
+    media <- as.numeric(as.character(tablas_1c()[[1]][1,2]))
+   # media
+    
+    desvio_estandard <- as.numeric(as.character(tablas_1c()[[1]][1,3]))
+   # desvio_estandard
     
     
-    texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
-    texto02 <- c("25%", "25%", "25%", "25%")
+    tipos_intervalos <- c("1", "2", "3", "90%", "95%", "99%")
+    coeficientes <- c(1, 2, 3, 1.96, 2.45, 3.77)
+    matriz_valores <- matrix(NA, 2, length(tipos_intervalos))
+    names(matriz_valores) <- tipos_intervalos
+    matriz_valores[1,] <- media - coeficientes*desvio_estandard
+    matriz_valores[2,] <- media + coeficientes*desvio_estandard
     
-    coordenadasY <- coordenadas$stats
-    
-    
-    
+    valores_x <- rep(1, nrow(minibase()))
+    plot( x = valores_x, y = minibase()[,1], col = "white", 
+          xlim = c(0.5, 1.5), 
+          ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+          xlab = valores_usuario()$xlab, ylab = valores_usuario()$ylab,
+          xaxt = "n")
+    lines(c(1,1), matriz_valores[,1],
+          lwd = 3)
+    points(valores_x[1], media,  cex = 2,  col="red",  pch=19)  
     
     if (valores_usuario()$ayuda) {
       
-      text(1.25, coordenadas$stats, texto01, pos = 4)
+      rejunte <- c(matriz_valores[1,1], media, matriz_valores[2,1])
       
-      mediasY <- c()
-      for(k in 1:(length(coordenadasY)-1)) mediasY[k] <- mean(coordenadasY[c(k, (k+1))])
-      
-      
-      text(1.25, coordenadasY, texto01, pos = 4)
-      
-      colores <- rep(c("red", "blue"), 2)
-      
-      pos01 <- 0.70
-      pos02 <- pos01 - 0.06
-      pos03 <- pos01 - 0.12
-      
-      for(k in 1:(length(coordenadasY)-1)) {
-        
-        
-        lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-        # lines(x = c(pos01, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-      }
-      
-      
-      for(k in 1:length(coordenadasY)) {
-        
-        
-        #  lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        #  lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-        lines(x = c(pos01, pos03), y = rep(coordenadasY[k], 2), col = "black", lwd = 4, lty = 2)
-        
-      }
-      
-      text(pos02, mediasY, texto02, srt = 90)
-      
+      text((rep(1, 3)+0.1), rejunte, texto01, pos = 4, cex = 1.5)
+      text((rep(1, 3)-0.1), rejunte, rejunte, pos = 2, cex = 1.5)
     }
     
   })
@@ -505,8 +413,10 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Gráfico de Media y Desvío"),
       fluidRow(
         column(6,
                plotOutput(ns("grafico01"))
