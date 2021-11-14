@@ -930,6 +930,9 @@ RMedic_1c_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
       
     } else info <- mini_vector
     
+    # Cambio de niveles
+    levels(info) <- gsub("[,]", " ; ", levels(info))
+    
     dim(info) <- c(length(info), 1)
     info <- as.data.frame(info)
     colnames(info) <- colnames(input_base)

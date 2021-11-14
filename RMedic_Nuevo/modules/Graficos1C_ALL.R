@@ -94,25 +94,29 @@ Graficos1C_SERVER <- function(input, output, session,
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   callModule(module = Graficos1C_06_Histograma_SERVER, id =  "graficos04F",
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   callModule(module = Graficos1C_07_Dispersion_SERVER, id =  "graficos04G",
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   callModule(module = Graficos1C_08_Puntos_SERVER, id =  "graficos04H",
              minibase = minibase,
              batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   # 
   # 

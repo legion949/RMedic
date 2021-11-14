@@ -20,40 +20,13 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
                                          minibase, 
                                          batalla_naval,
                                          decimales,
-                                         casoRMedic) {
+                                         casoRMedic,
+                                         tablas_1c) {
   
   
   
   # NameSpaceasing for the session
   ns <- session$ns
-  
-  
-  
-  valores_iniciales <-  reactive({
-    
-    if(is.null(minibase())) return(NULL)
-    
-    
-    valores <- list(min(minibase()[1]),
-                    max(minibase()[1]),
-                    colnames(minibase())[1],
-                    "",
-                    F,
-                    c("#FF0000")
-    )
-    
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-    
-    
-    return(valores)
-  })
-  
-  
-  
-  
-  
-  
-  
   
   
   
@@ -64,14 +37,38 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   
+  colores_seleccionados <- reactive({
+    
+    
+    cantidad <- 1
+    armado <- "Color..."
+    
+    
+    
+    mis_colores <- rep(NA, cantidad)
+    
+    
+    if(length(mis_colores) == 0) return(NULL)
+    
+    
+    for(i in 1:cantidad){ 
+      nombre_input <- paste("col", i, sep="_")
+      if(is.null(input[[nombre_input]])) return(NULL)
+      
+      mis_colores[i] <- input[[nombre_input]]
+      
+    }
+    
+    
+    
+    return(mis_colores)
+  })
   
-  # Armamos objetos que seran observados para implementar un reseteo o para
-  # implementar la aplicacion de las opciones elegidas
+  
   reseteo_logico <- reactiveVal(F)
   aplicador_logico <- reactiveVal(F)
   
   
-  # Mostar/Ocultar el controlador general
   observeEvent(input$controlador01, {
     
     shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
@@ -79,87 +76,77 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   })
   
   
-  # Acciones que ocurren si damos clic en el boton implementador
-  observeEvent(input$implementador, {
+  observeEvent(input$controlador03, {
     
-    # Activamos al aplicador_logico()
+    
     aplicador_logico(!aplicador_logico())
+    
   })
   
-  # Acciones que ocurren si damos clic en el boton de reset
+  
   observeEvent(input$reset, {
     
-    # Activamos el reseteo_logico()
     reseteo_logico(!reseteo_logico())
-    
-    # Activalos el aplicador logico con un delay de 400 milisegundos.
     delay(400,     aplicador_logico(!aplicador_logico()))
   })
   
   
-  pedido_de_actualizacion <- reactive({
+  
+  
+  medidas_resumen <- reactive({
     
-    # Pasa que cuando cambia de variable no resetea todos input.
-    # Entonces... Pasa que:
-    #   1) el input$ylab tiene el mismo detalle que 
-    # el nombre de la columna de minibase(), 
-    #   2) pero las opciones del usuario todavia mantienen la informacion de la variable anterior.
-    # Cuando se dan estas dos cosas, los inputs son correctos y lo que hay
-    # que hacer es actualizar los valores internos del usuario.
-    # Cuando detecta esta situacion, ejecuta entonces una implementacion
-    # sin que el usuario haya hecho clic en "Efectuar cambios".
-    
-    # Por defecto, no pedimos la actualizacion
-    pedido <- FALSE
-    
-    # Detalle 1)
-    dt_ylab <- input$ylab == colnames(minibase())[1]
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     
     
-    # Vemos si pasa o no el punto anterior...
-    if(dt_ylab) {
+    
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
+    
+    
+    
+    salida <-  RMedic_1c_tablas(input_base =  minibase(),
+                                input_decimales = decimales(),
+                                input_min = NULL,
+                                input_max = NULL,
+                                input_breaks = NULL,
+                                input_side = NULL
+    )[[1]]
+    
+    
+    
+    # Return Exitoso
+    return(salida)
+    
+    
+  })  
+  
+  
+  
+  
+  
+  observeEvent(input$ylab, {
+    
+    
+    if(input$ylab == colnames(minibase())[1]) {
       
-      # Detalle 2)
-      if(valores_usuario()$ylab != colnames(minibase())[1]) {
-        pedido <- TRUE
+      if(input$ylab != valores_usuario()$ylab) {
+        
+        delay(1000, aplicador_logico(!aplicador_logico()))
+        
+        #  reseteo_logico(!reseteo_logico())
       }
-    } 
+    }
     
-    return(pedido)
+    # reseteo_logico(!reseteo_logico())
     
   })
   
-  # Acciones que ocurren atentos al "input$ylab"
-  observeEvent(input$ylab, {
-    
-    # Pasa que cuando cambia de variable no resetea todos input.
-    # Entonces... Pasa que:
-    #   1) el input$ylab tiene el mismo detalle que 
-    # el nombre de la columna de minibase(), 
-    #   2) pero las opciones del usuario todavia mantienen la informacion de la variable anterior.
-    # Cuando se dan estas dos cosas, los inputs son correctos y lo que hay
-    # que hacer es actualizar los valores internos del usuario.
-    # Cuando detecta esta situacion, ejecuta entonces una implementacion
-    # sin que el usuario haya hecho clic en "Efectuar cambios".
-    
-    # Detalle 1)
-    dt_ylab <- input$ylab == colnames(minibase())[1]
-    
-    
-    # Vemos si pasa o no el punto anterior...
-    if(dt_ylab) {
-      
-      # Detalle 2)
-      if(valores_usuario()$ylab != colnames(minibase())[1]) {
-        aplicador_logico(!aplicador_logico())
-      }
-    }
-  })
+  
   
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
-    
-    #   reset("menu_general01")
     
     updateRadioButtons(session,
                        inputId = "ayuda",
@@ -172,20 +159,20 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
     
     
     updateNumericInput(session,
-                       inputId = "max",
-                       label = "Máximo eje Y",
-                       value = valores_iniciales()$max,
-                       min = valores_iniciales()$max,
+                       inputId = "y_max",
+                       label = "Máximo eje Y", 
+                       value = valores_iniciales()$y_max,
+                       min = valores_iniciales()$y_max,
                        max = NA
     )
     
     
     updateNumericInput(session,
-                       inputId = "min",
-                       label = "Mínimo eje Y",
-                       value = valores_iniciales()$min,
+                       inputId = "y_min",
+                       label = "Mínimo eje Y", 
+                       value = valores_iniciales()$y_min,
                        min = NA,
-                       max = valores_iniciales()$min
+                       max = valores_iniciales()$y_min
     )
     
     
@@ -255,20 +242,21 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   
-  output$texto_ayudaMax <- renderText({
+  
+  output$texto_ayudaMax_y <- renderText({
     texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
     valor de la variable."
     
-    if(input$max < max(minibase()[,1])) return(texto) else return(NULL)
+    if(input$y_max < max(minibase()[,1])) return(texto) else return(NULL)
     
   })
   
   
-  output$texto_ayudaMin <- renderText({
+  output$texto_ayudaMin_y <- renderText({
     texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
     valor de la variable."
     
-    if(input$min > min(minibase()[,1])) return(texto) else return(NULL)
+    if(input$y_min > min(minibase()[,1])) return(texto) else return(NULL)
     
   })
   
@@ -283,47 +271,54 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
                             choices = c("Sin detalle" = F,
                                         "Agregar especificaciones" = T
                             )
-               ),
-               br(),
-               numericInput(inputId = ns("max"),
-                            label = "Máximo eje Y", 
-                            value = valores_iniciales()$max,
-                            min = valores_iniciales()$max,
-                            max = NA
-               ),
-               textOutput(ns("texto_ayudaMax")),
-               br(),
-               numericInput(inputId = ns("min"),
-                            label = "Mínimo eje Y", 
-                            value = valores_iniciales()$min,
-                            min = NA,
-                            max = valores_iniciales()$min
-               ),
-               textOutput(ns("texto_ayudaMin")),
-               br()
+               )
         ),
         column(6,
-               uiOutput(ns("MODcolor")),
-               br(),
-               textInput(inputId = ns("ylab"),
-                         label = "Rótulo eje Y",
-                         value = valores_iniciales()$ylab
+               uiOutput(ns("MODcolor"))
+        )
+      ),
+      br(),
+      fluidRow(
+        column(6,
+               numericInput(inputId = ns("y_min"),
+                            label = "Mínimo eje Y", 
+                            value = valores_iniciales()$y_min,
+                            min = NA,
+                            max = valores_iniciales()$y_min
                ),
-               br(),
+               textOutput(ns("texto_ayudaMin_y"))
+        ),
+        column(6,
+               numericInput(inputId = ns("y_max"),
+                            label = "Máximo eje Y", 
+                            value = valores_iniciales()$y_max,
+                            min = valores_iniciales()$y_max,
+                            max = NA
+               ),
+               textOutput(ns("texto_ayudaMax_y"))
+        )
+      ),
+      br(),
+      fluidRow(
+        column(6,
                textInput(inputId = ns("xlab"),
                          label = "Rótulo eje X",
                          value = valores_iniciales()$xlab
-               ),
-               br()
-               
+               )
+        ),
+        column(6, 
+               textInput(inputId = ns("ylab"),
+                         label = "Rótulo eje Y",
+                         value = valores_iniciales()$ylab
+               )
         )
       ),
+      br(),
       br(),
       bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
-      bsButton(ns("implementador"), "Aplicar todos los cambios", 
-               type = "toggle", value = TRUE,
+      bsButton(ns("controlador03"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       )
     )
@@ -341,32 +336,52 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   
+  valores_iniciales <-  reactive({
+    
+    if(is.null(minibase())) return(NULL)
+    
+    
+    valores <- list(x_min = NULL,
+                    x_max = NULL,
+                    y_min = min(minibase()[1]),
+                    y_max = max(minibase()[1]),
+                    xlab = "",
+                    ylab = colnames(minibase())[1],
+                    ayuda = F,
+                    color = c("#FF0000")
+    )
+    
+    
+    
+    
+    return(valores)
+  })
   
   
   
-  
-  valores_usuario <- eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
+  valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
     if(is.null(minibase())) return(NULL)
     if(is.null(valores_iniciales())) return(NULL)
     
     valores <- list()
     
-    if(!is.null(input$min)) valores[[1]] <- input$min else valores[[1]] <- valores_iniciales()$min
-    if(!is.null(input$max)) valores[[2]] <- input$max else valores[[2]] <- valores_iniciales()$max
-    if(!is.null(input$ylab)) valores[[3]] <- input$ylab else valores[[3]] <- valores_iniciales()$ylab
-    if(!is.null(input$xlab)) valores[[4]] <- input$xlab else valores[[4]] <- valores_iniciales()$xlab
-    if(!is.null(input$ayuda)) valores[[5]] <- input$ayuda else valores[[5]] <- valores_iniciales()$ayuda
-    if(!is.null(input$col_1)) valores[[6]] <- input$col_1 else valores[[6]] <- valores_iniciales()$color
+    if(!is.null(input$x_min)) valores[[1]] <- input$x_min else valores[[1]] <- valores_iniciales()$x_min
+    if(!is.null(input$x_max)) valores[[2]] <- input$x_max else valores[[2]] <- valores_iniciales()$x_max
+    if(!is.null(input$y_min)) valores[[3]] <- input$y_min else valores[[3]] <- valores_iniciales()$y_min
+    if(!is.null(input$y_max)) valores[[4]] <- input$y_max else valores[[4]] <- valores_iniciales()$y_max
+    if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
+    if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
+    if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
+    if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     
     
+    # Nombre de la lista, mismo nombre que por defecto
+    names(valores) <- names(valores_iniciales())
     
-    
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-    
-    
-    if(valores[[1]] > min(minibase()[,1])) valores[[1]] <- min(minibase()[,1])
-    if(valores[[2]] < max(minibase()[,1])) valores[[2]] <- max(minibase()[,1])
+    # Correccion para los valores que min y max de cada eje Y
+    if(!is.null(valores$y_min)) if(valores$y_min > min(minibase()[,1])) valores$y_min <- min(minibase()[,1])
+    if(!is.null(valores$y_max)) if(valores$y_max < max(minibase()[,1])) valores$y_max <- max(minibase()[,1])
     
     
     
@@ -376,36 +391,45 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   
-  
   output$grafico01 <- renderPlot({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    if(is.null(valores_usuario())) return(NULL)
     
-    coordenadas <-    vioplot(minibase()[1], ylim = c(valores_usuario()$min, valores_usuario()$max),
-                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                              col = valores_usuario()$color)
     
+    
+    
+    coordenadas <-   boxplot(minibase()[1],
+                             ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+                             ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+                             col = valores_usuario()$color,
+                             range = 0)
     
     texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
     texto02 <- c("25%", "25%", "25%", "25%")
     
     coordenadasY <- coordenadas$stats
-    
+    mis_valores <- c(tablas_1c()[[2]][1,2],
+                     tablas_1c()[[3]][1,c(2,5)],
+                     tablas_1c()[[2]][1,5])
     
     
     
     if (valores_usuario()$ayuda) {
       
-      text(1.25, coordenadas$stats, texto01, pos = 4)
+      #   text(1.25, coordenadas$stats, texto01, pos = 4, cex = 1.5)
       
       mediasY <- c()
       for(k in 1:(length(coordenadasY)-1)) mediasY[k] <- mean(coordenadasY[c(k, (k+1))])
       
       
-      text(1.25, coordenadasY, texto01, pos = 4)
+      text(1.25, coordenadasY, texto01, pos = 4, cex = 1.5)
+      text(0.75, coordenadasY, mis_valores, pos = 2, cex = 1.5)
       
       colores <- rep(c("red", "blue"), 2)
       
-      pos01 <- 0.70
+      pos01 <- 0.70 - 0.09
       pos02 <- pos01 - 0.06
       pos03 <- pos01 - 0.12
       
@@ -415,7 +439,6 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
         lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
         lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
         
-        # lines(x = c(pos01, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
         
       }
       
@@ -423,8 +446,6 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
       for(k in 1:length(coordenadasY)) {
         
         
-        #  lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        #  lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
         
         lines(x = c(pos01, pos03), y = rep(coordenadasY[k], 2), col = "black", lwd = 4, lty = 2)
         
@@ -444,6 +465,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     div(
       h2("Gráfico de Boxplot"),
       fluidRow(

@@ -1,11 +1,8 @@
-
-
-
+## Segmento del UI
 Graficos1C_06_Histograma_UI <- function(id) {
-  
   ns <- NS(id)
   
-  uiOutput(ns("armado_grafico"))
+  uiOutput(ns("rejunte_grafico"))
   
   
 }
@@ -13,170 +10,216 @@ Graficos1C_06_Histograma_UI <- function(id) {
 
 
 
-
-
 ## Segmento del server
 Graficos1C_06_Histograma_SERVER <- function(input, output, session, 
-                                         minibase, 
-                                         batalla_naval,
-                                         decimales,
-                                         casoRMedic) {
+                                            minibase,
+                                            batalla_naval,
+                                            decimales,
+                                            casoRMedic,
+                                            tablas_1c) {
+  
   
   
   
   # NameSpaceasing for the session
   ns <- session$ns
   
-  
-  
-  
-  
-  colores_seleccionados <- reactiveVal({
+ 
+  tabla_histograma_inicial <- reactive({
     
-    mis_colores <- "red"
-    names(mis_colores) <- paste0("color", c(1:length(mis_colores)))
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     
-    mis_colores
+    
+    
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
+    
+    
+    salida <-  RMedic_1c_tablas(input_base =  minibase(),
+                                input_decimales = decimales(),
+                                input_min = NULL,
+                                input_max = NULL,
+                                input_breaks = NULL,
+                                input_side = NULL
+    )
+    
+   
+    
+    
+    salida[[9]][,2] <- as.character(salida[[9]][,2])
+    salida[[9]][,3] <- as.character(salida[[9]][,3])
+    salida[[9]][,5] <- as.character(salida[[9]][,5])
+    
+    rownames(salida[[9]]) <- c(1:nrow(salida[[9]]))
+    
+    # Return Exitoso
+    return(salida[[9]])
+    
+    
+  }) 
+ 
+  n_total <- reactive({
+    
+    as.numeric(as.character(tabla_histograma_inicial()[1,3]))
+    
+  })
+  
+  frecuencia_maxima <- reactive({
+    
+    0
+    
   })
   
   
   
+   
+  # Todas las tablas 1C
+  tabla_histograma <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    
+    
+    
+    # Nota: al valor input$x_breaks lo tuve que poner
+    #      como na.omit(input$x_breaks)[1] por que algunas veces
+    #      otorga un vector con dos valores, pero uno de ellos es NA.
+    
+    
+    salida <-  RMedic_1c_tablas(input_base =  minibase(),
+                                input_decimales = decimales(),
+                                input_min = valores_usuario()$x_min,
+                                input_max = valores_usuario()$x_max,
+                                input_breaks = valores_usuario()$x_breaks,
+                                input_side = valores_usuario()$x_side
+    )
+    
+    # salida <-  RMedic_1c_tablas(input_base =  minibase(),
+    #                             input_decimales = decimales(),
+    #                             input_min = input$x_min,
+    #                             input_max = input$x_max,
+    #                             input_breaks = na.omit(input$x_breaks)[1],
+    #                             input_side = input$x_side
+    # )
+    
+    
+    salida[[9]][,2] <- as.character(salida[[9]][,2])
+    salida[[9]][,3] <- as.character(salida[[9]][,3])
+    salida[[9]][,5] <- as.character(salida[[9]][,5])
+    
+    rownames(salida[[9]]) <- c(1:nrow(salida[[9]]))
+    
+    # Return Exitoso
+    return(salida[[9]])
+    
+    
+  })  
   
-  
-  
-  
-  
-  
-  
-  # xxchange <- reactive({
-  #   paste(ylab_interno())
-  # })
-  
-  
-  
-  colores_seleccionados2 <- reactive({
-    # if (is.null(DF_interna())) return(NULL)
+  valores_de_cortes <- reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    
+    inicio <- tabla_histograma()[,1]
+    
+    metralla <- unlist(strsplit(inicio, ";"))
+    metralla <- gsub(" ", "", metralla)
+    metralla <- gsub("[(]", "", metralla)
+    metralla <- gsub("[)]", "", metralla)
+    metralla <- gsub("[[]", "", metralla)
+    metralla <- gsub("[]]", "", metralla)
+    #metralla <- metralla[c(T, F)]
+    metralla <- as.numeric(metralla)
+    metralla <- unique(metralla)
+    metralla <- sort(metralla)
+    
+    return(metralla)
     
     
-    
-    
-    
-    
-    cantidad <- 1
-    armado <- "Color..."
-    
-    
-    
-    mis_colores <- rep(NA, cantidad)
-    
-    
-    if(length(mis_colores) == 0) return(NULL)
-    
-    
-    for(i in 1:cantidad){ 
-      nombre_input <- paste("col", i, sep="_")
-      #   cat("nombre_input: ", nombre_input, "\n" )
-      #   cat("input[[nombre_input]]: ", input[[nombre_input]], "\n" )
-      if(is.null(input[[nombre_input]])) return(NULL)
-      
-      mis_colores[i] <- input[[nombre_input]]
-      
-    }
-    
-    
-    #   cat("mis_colores:", mis_colores, "\n")
-    return(mis_colores)
   })
   
   
+  
+  MEGA_ARMADO <- reactive({
+    
+  parte01 <- paste0(valores_de_cortes(), sep="-")
+  
+  parte02 <- unlist(valores_usuario())
+
+  parte03 <- c(parte01, parte02)
+      
+  dim(parte03) <- c(1, length(parte03))
+  
+  # colnames(parte03) <- c(1:length(parte01), names(valores_usuario()))
+  parte03
+  })
+  
+  output$MEGA_ARMADO <- renderTable({
+    
+    MEGA_ARMADO()
+  })
+  
+  
+  output$tabla_histograma <- renderTable(rownames = TRUE, {
+    
+    tabla_histograma()
+  })
+  
+  
+  
+  valores_iniciales <-  reactive({
+    
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    if(is.null(minibase())) return(NULL)
+    if(is.null(tabla_histograma_inicial())) return(NULL)
+    if(is.null(frecuencia_maxima())) return(NULL)
+    #############
+    
+    
+    
+    valores <- list(x_min = min(minibase()[,1]),
+                    x_max = max(minibase()[,1]),
+                    y_min = 0,
+                    y_max = n_total(),
+                    y_limite = frecuencia_maxima(),
+                    x_side = T, 
+                    x_breaks = nrow(tabla_histograma_inicial()),
+                    color = c("#FF0000")
+                  #  color = c("#FF0000", "#00FF00")
+    )
+    
+    
+    
+    return(valores)
+  })
+  
+  ################################################
   reseteo_logico <- reactiveVal(F)
   aplicador_logico <- reactiveVal(F)
   
-  
-  observeEvent(input$controlador01, {
+  observeEvent(input$controlador02, {
     
-    shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
     
-  })
-  
-  
-  observeEvent(input$controlador03, {
-    
-    if(length(colores_seleccionados2()) > 0) {
-      
-      
-      colores_seleccionados(colores_seleccionados2())
-      
-    }
     aplicador_logico(!aplicador_logico())
-    # reseteo_logico(!reseteo_logico())
+    
   })
+  
   
   observeEvent(input$reset, {
     
     reseteo_logico(!reseteo_logico())
-    delay(400,     aplicador_logico(!aplicador_logico()))
+    delay(800,     aplicador_logico(!aplicador_logico()))
   })
   
-  observeEvent(colnames(minibase())[1], {
-    
-    reseteo_logico(!reseteo_logico())
-    #   aplicador_logico(!aplicador_logico())
-    #     delay(1000,     aplicador_logico(!aplicador_logico()))
-  })
-  
-  # Variable criterio de inclusion
+  # Reseteo
   observeEvent(reseteo_logico(),{
     
-    updateRadioButtons(session,
-                       inputId = "ayuda",
-                       label = "Ayuda en el gráfico...",
-                       choices = c("Sin detalle" = F,
-                                   "Agregar especificaciones" = T
-                       ),
-                       selected = F
-    )
-    
-    
-    updateNumericInput(session,
-                       inputId = "max",
-                       label = "Máximo eje Y", 
-                       value = valores_iniciales()$max,
-                       min = valores_iniciales()$max,
-                       max = NA
-    )
-    
-    
-    updateNumericInput(session,
-                       inputId = "min",
-                       label = "Mínimo eje Y", 
-                       value = valores_iniciales()$min,
-                       min = NA,
-                       max = valores_iniciales()$min
-    )
-    
-    
-    
-    updateTextInput(session,
-                    inputId = "ylab",
-                    label = "Rótulo eje Y",
-                    value = valores_iniciales()$ylab
-    )
-    
-    updateTextInput(session,
-                    inputId = "xlab",
-                    label = "Rótulo eje X",
-                    value = valores_iniciales()$xlab
-    )
-    
-    
-    # colourpicker::updateColourInput(session,
-    #                                 inputId = "col_1",
-    #                                 label = "Color...",
-    #                                 value =  valores_iniciales()$color[1])
-    
+  
     label_armado <- "Color..."
-    colores_internos <- valores_iniciales()$color
+    colores_internos <- valores_iniciales()$color[1]
     cantidad <- length(colores_internos)
     
     lapply(1:cantidad, function(i) {
@@ -190,28 +233,272 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
       
     })
     
+    updateNumericInput(session,
+                       inputId = "x_min",
+                       label = "Valor mínimo eje X",
+                       value = valores_iniciales()$x_min,
+                       min = NA,
+                       max = valores_iniciales()$x_min
+    )
     
-    #  delay(100,     aplicador_logico(!aplicador_logico()))
+    updateNumericInput(session,
+                       inputId = "x_max",
+                       label = "Valor máximo eje X",
+                       value = valores_iniciales()$x_max,
+                       min = valores_iniciales()$x_max,
+                       max = NA
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "y_min",
+                       label = "Valor mínimo eje Y: ",
+                       value = valores_iniciales()$y_min,
+                       max = valores_iniciales()$y_min,
+                       min = valores_iniciales()$y_min,
+                       step = 0.01
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "y_max",
+                       label = "Valor máximo Y: ",
+                       value = valores_iniciales()$y_max,
+                       min = valores_iniciales()$y_limite,
+                       max = NA,
+                       step = 0.01
+    )
+    # 
+    # 
+    
+    # 
+    # 
+    updateTextInput(session,
+                    inputId = "ylab",
+                    label = "Rótulo eje Y",
+                    value = valores_iniciales()$ylab
+    )
+    
+    updateTextInput(session,
+                    inputId = "xlab",
+                    label = "Rótulo eje X",
+                    value = valores_iniciales()$xlab
+    )
     
     
     
+    updateRadioButtons(session,
+                       inputId = "x_side", 
+                       label = "Cierre del intervalo: ", 
+                       choices = c("A la Derecha" = T , 
+                                   "A la Izquierda" = F),
+                       selected = valores_iniciales()$x_side
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "x_breaks",
+                       label = "Cantidad de intervalos: ",
+                       value = valores_iniciales()$x_breaks,
+                       min = 1,
+                       max = NA,
+                       step = 1
+    )
+    
+    
+    
+   
+    
+    # label_armado <- "Color..."
+    # colores_internos <- valores_iniciales()$color
+    # cantidad <- length(colores_internos)
+    # 
+    # lapply(1:cantidad, function(i) {
+    # 
+    #   nombre_input <- paste("col", i, sep="_")
+    # 
+    #   freezeReactiveValue(input, "nombre_input")
+    #   colourpicker::updateColourInput(session,
+    #                                   inputId = nombre_input,
+    #                                   label = label_armado[i],
+    #                                  # value = colores_internos[i])
+    #                                  value = "#FF0000")
+    # 
+    # })
+    
+    
+  
   })
   
   
   
+  if ( 1 == 2) {
+  # Valores nuevos aplicados...
+  observeEvent(aplicador_logico(),{
+    
+    
+    
+    updateNumericInput(session,
+                       inputId = "x_min",
+                       label = "Valor mínimo eje X",
+                       value = valores_usuario()$x_min,
+                       min = NA,
+                       max = valores_usuario()$x_min
+    )
+    
+    updateNumericInput(session,
+                       inputId = "x_max",
+                       label = "Valor máximo eje X",
+                       value = valores_usuario()$x_max,
+                       min = valores_usuario()$x_max,
+                       max = NA
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "y_min",
+                       label = "Valor mínimo eje Y: ",
+                       value = valores_usuario()$y_min,
+                       max = valores_usuario()$y_min,
+                       min = valores_usuario()$y_min,
+                       step = 0.01
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "y_max",
+                       label = "Valor máximo Y: ",
+                       value = valores_usuario()$y_max,
+                       min = valores_usuario()$y_limite,
+                       max = NA,
+                       step = 0.01
+    )
+    # 
+    # 
+    
+    # 
+    # 
+    updateTextInput(session,
+                    inputId = "ylab",
+                    label = "Rótulo eje Y",
+                    value = valores_usuario()$ylab
+    )
+    
+    updateTextInput(session,
+                    inputId = "xlab",
+                    label = "Rótulo eje X",
+                    value = valores_usuario()$xlab
+    )
+    
+    
+    
+    updateRadioButtons(session,
+                       inputId = "x_side", 
+                       label = "Cierre del intervalo: ", 
+                       choices = c("A la Derecha" = T , 
+                                   "A la Izquierda" = F),
+                       selected = valores_usuario()$x_side
+    )
+    
+    
+    updateNumericInput(session,
+                       inputId = "x_breaks",
+                       label = "Cantidad de intervalos: ",
+                       value = valores_usuario()$x_breaks,
+                       min = 1,
+                       max = NA,
+                       step = 1
+    )
+    
+  })
+  ##################################################################
+  }
+  
+  
+ 
+  valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
+    
+    if(is.null(minibase())) return(NULL)
+    if(is.null(valores_iniciales())) return(NULL)
+   # if(is.null(colores_seleccionados())) return(NULL)
+    
+    
+    valores <- valores_iniciales()
+    
+    # Valores X
+    if(!is.null(input$x_min)) valores$x_min <- input$x_min else valores$x_min <- valores_iniciales()$x_min
+    if(!is.null(input$x_max)) valores$x_max <- input$x_max else valores$x_max <- valores_iniciales()$x_max
+  
+    # Valores Y
+    if(!is.null(input$y_min)) valores$y_min <- input$y_min else valores$y_min <- valores_iniciales()$y_min
+    if(!is.null(input$y_max)) valores$y_max <- input$y_max else valores$y_max <- valores_iniciales()$y_max
+    if(!is.null(input$y_limite)) valores$y_limite <- input$y_limite else valores$y_limite <- valores_iniciales()$y_limite
+
+    # Lado de los corchetes (x_side)
+    if(!is.null(input$x_side)) valores$x_side <- input$x_side else valores$x_side <- valores_iniciales()$x_side
+    
+    # Cantidad de categorias (x_breaks)
+    if(!is.null(input$x_breaks)) valores$x_breaks <- input$x_breaks else valores$x_breaks <- valores_iniciales()$x_breaks
+    
+    # Color
+    if(!is.null(colores_seleccionados())) valores$color <- colores_seleccionados() else valores$color <- valores_iniciales()$color
+
+    
+      
+    
+    # Correccion interna para los valores que estan fuera de rango
+    # # La variable no puede ser recategorizada en menos de una categoria
+    if(!is.null(valores$x_breaks)) if(valores$x_breaks < 1) valores$x_breaks <- 1
+    
+    # El minimo del eje X debe ser mayor o igual al minimo de la variable
+    if(!is.null(valores$x_min)) if(valores$x_min > valores_iniciales()$x_min) valores$x_min <- valores_iniciales()$x_min
+    
+    # El maximo del eje Y debe ser mayor o igual al maximo de la variable
+    if(!is.null(valores$x_max)) if(valores$x_max < valores_iniciales()$x_max) valores$x_max <- valores_iniciales()$x_max
+    
+    
+    
+  
+    return(valores)
+  })
+  
+  
+
+  observeEvent(input$controlador01, {
+    
+    shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+    
+  })
+  
+  
+ 
   
   # Salida de colores
   output$MODcolor <- renderUI({
     
-    label_armado <- "Color..."
-    colores_internos <- valores_iniciales()$color
-    cantidad <- length(colores_internos)
+ # ACAA PARAAAAAAAAAA  
+# Queda ver si cambio todo... para que los input tomen a "valores_iniciales()"
+# y yo aparte hago un update de los valores como cuando hace reseteo, pero para
+# llevar a cabo la implementacion!
+
     
+ #   colores_internos <- valores_iniciales()$color
+    colores_internos <- valores_usuario()$color
+ #   colores_internos <- "#FF0000"
+    
+    cantidad <- length(colores_internos)
+    ordenamiento <- c(1:cantidad)
+    label_armado <- paste0("Color ", ordenamiento)
+    if(cantidad == 1) label_armado <- "Color..." 
+    
+    nombre_input <- paste("col", ordenamiento, sep="_")
+    
+
+
     lapply(1:cantidad, function(i) {
       
-      nombre_input <- paste("col", i, sep="_")
       div(
-        colourpicker::colourInput(inputId = ns(nombre_input),
+        colourpicker::colourInput(inputId = ns(nombre_input[i]),
                                   label = label_armado[i], 
                                   value = colores_internos[i]), br()
       )
@@ -220,313 +507,259 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     
   })
   
+ 
   
-  if (1 == 2) {
-    # Variable criterio de inclusion
-    observeEvent(input[["max"]],{
+  colores_seleccionados <-  eventReactive(input$controlador02,({
+    
+    
+    
+   # colores_internos <- valores_iniciales()$color
+ #   cantidad <- length(colores_internos)
+    cantidad <- 1
+    ordenamiento <- c(1:cantidad)
+    label_armado <- paste0("Color ", ordenamiento)
+    if(cantidad == 1) label_armado <- "Color..." 
+    
+    nombre_input <- paste("col", ordenamiento, sep="_")
+    
+    
+    
+
+    mis_colores <- c()
+    for(i in 1:cantidad){ 
+  
       
-      if(input[["max"]] < max(minibase()[,1])) {
-        
-        updateNumericInput(session, 
-                           inputId = "max",
-                           label = "Máximo eje Y", 
-                           value = valores_iniciales()$max,
-                           max = NA,
-                           min = valores_iniciales()$max
-        )
-        
-        
-        
-      }
-    })
-    
-    
-    # Variable criterio de inclusion
-    observeEvent(input[["min"]],{
+      if(is.null(input[[nombre_input[i]]])) return(NULL)
       
-      if(input[["min"]] > min(minibase()[,1])) {
-        
-        updateNumericInput(session, 
-                           inputId = "min",
-                           label = "Mínimo eje Y", 
-                           value = valores_iniciales()$min,
-                           max = valores_iniciales()$min,
-                           min = NA
-        )
-        
-        
-        
-      }
-    })
-  }
-  
-  output$texto_ayudaMax <- renderText({
-    texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
-    valor de la variable."
+      mis_colores[i] <- input[[nombre_input[i]]]
+      
+      cat(input[[nombre_input[i]]], "\n")
+    }
     
-    if(input$max < max(minibase()[,1])) return(texto) else return(NULL)
+    # Return Exitoso
+    return(mis_colores)
     
-  })
+  }),ignoreNULL  = FALSE)
   
   
-  output$texto_ayudaMin <- renderText({
-    texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
-    valor de la variable."
+ output$Controlador_1c_RMedic <- renderUI({
     
-    if(input$min > min(minibase()[,1])) return(texto) else return(NULL)
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
     
-  })
-  
-  
-  output$menu_general01 <- renderUI({
+    cantidad_cortes <- nclass.Sturges(minibase()[,1])
+    tabla <- table(minibase()[,1])
+    cantidad_categorias <- length(names(tabla))
+    if(cantidad_categorias < cantidad_cortes) cantidad_cortes <- cantidad_categorias
     
     div(
+      bsButton(inputId = ns("controlador01"), 
+               label = "Mostrar/Ocultar opciones gráficas",
+               icon = icon("bars"), 
+               type = "toggle", 
+               value = FALSE,
+               style = "primary", 
+               size = "large"
+      ), br(),
+      br(), 
+      br(),
+    div(id = ns("James01"), 
       fluidRow(
         column(6,
-               radioButtons(inputId = ns("ayuda"),
-                            label = "Ayuda en el gráfico...",
-                            choices = c("Sin detalle" = F,
-                                        "Agregar especificaciones" = T
-                            )
+               numericInput(
+                 inputId = ns("x_min"),
+                 label = "Valor mínimo eje X: ",
+                 value = valores_usuario()$x_min,
+                 min = NA,
+                 max = valores_usuario()$x_min,
+                 step = 0.01
+               )
                ),
-               br(),
-               numericInput(inputId = ns("max"),
-                            label = "Máximo eje Y", 
-                            value = valores_iniciales()$max,
-                            min = valores_iniciales()$max,
-                            max = NA
-               ),
-               textOutput(ns("texto_ayudaMax")),
-               br(),
-               numericInput(inputId = ns("min"),
-                            label = "Mínimo eje Y", 
-                            value = valores_iniciales()$min,
-                            min = NA,
-                            max = valores_iniciales()$min
-               ),
-               textOutput(ns("texto_ayudaMin")),
-               br()
+        column(6,
+               numericInput(
+                 inputId = ns("x_max"),
+                 label = "Valor máximo eje X: ",
+                 value = valores_usuario()$x_max,
+                 min = valores_usuario()$x_max,
+                 max = NA,
+                 step = 0.01
+               )
+        )
+        ),
+      br(), br(),
+      fluidRow(
+        column(6,
+               numericInput(
+                 inputId = ns("y_min"),
+                 label = "Valor mínimo eje Y: ",
+                 value = valores_usuario()$y_min,
+                 max = valores_usuario()$y_min,
+                 min = valores_usuario()$y_min,
+                 step = 0.01
+               )
         ),
         column(6,
-               uiOutput(ns("MODcolor")),
-               br(),
-               textInput(inputId = ns("ylab"),
-                         label = "Rótulo eje Y",
-                         value = valores_iniciales()$ylab
-               ),
-               br(),
-               textInput(inputId = ns("xlab"),
-                         label = "Rótulo eje X",
-                         value = valores_iniciales()$xlab
-               ),
-               br()
-               
+               numericInput(
+                 inputId = ns("y_max"),
+                 label = "Valor máximo Y: ",
+                 value = valores_usuario()$y_max,
+                 min = valores_usuario()$y_limite,
+                 max = NA,
+                 step = 0.01
+               )
         )
       ),
-      br(),
+      br(), br(),
+      fluidRow(
+        column(6,
+               radioButtons(inputId = ns("x_side"), 
+                            label = "Cierre del intervalo: ", 
+                            choices = c("A la Derecha" = T , "A la Izquierda" = F),
+                            selected = valores_usuario()$x_side
+                            
+               )
+        ),
+        column(6, 
+               numericInput(
+                 inputId = ns("x_breaks"),
+                 label = "Cantidad de intervalos: ",
+                 value = valores_usuario()$x_breaks,
+                 min = 1,
+                 max = NA,
+                 step = 1,
+                 width = NULL
+               )
+        )
+      ),
+      br(), br(),
+      fluidRow(
+        column(6),
+        column(6, 
+               uiOutput(ns("MODcolor"))
+        )
+        ), br(), br(),
       bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
-      bsButton(ns("controlador03"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
+      bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       )
+     )
     )
     
     
-    
-    
-    
   })
   
   
-  
-  
-  
-  
-  
-  
-  valores_iniciales <-  reactive({
+  if (1 == 2) {
+  # Variable criterio de inclusion
+  observeEvent(input[["x_min"]],{
     
-    if(is.null(minibase())) return(NULL)
-    
-    
-    valores <- list(min(minibase()[1]),
-                    max(minibase()[1]),
-                    colnames(minibase())[1],
-                    "",
-                    F,
-                    c("#FF0000")
-    )
-    
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-    
-    
-    return(valores)
-  })
-  
-  
-  # valores_usuario <-  reactive({
-  #   
-  #   if(is.null(minibase())) return(NULL)
-  #   if(is.null(input$min)) return(NULL)
-  #   if(is.null(input$max)) return(NULL)
-  #   if(is.null(input$ylab)) return(NULL)
-  #   if(is.null(input$xlab)) return(NULL)
-  #   if(is.null(input$ayuda)) return(NULL)
-  #   if(is.null(input$color_1)) return(NULL)
-  #   
-  #   valores <- list(input$min,
-  #                   input$max,
-  #                   input$ylab,
-  #                   input$xlab,
-  #                   input$ayuda,
-  #                   input$col_1)
-  #   
-  #   names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-  #   
-  #   
-  #   if(valores[[1]] > min(minibase()[,1])) valores[[1]] <- min(minibase()[,1])
-  #   if(valores[[2]] < max(minibase()[,1])) valores[[2]] <- max(minibase()[,1])
-  #   
-  #   
-  #   
-  #   return(valores)
-  # })
-  # 
-  
-  # valores_usuario <-   eventReactive(input$controlador03, ignoreNULL = FALSE, {
-  valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
-    
-    if(is.null(minibase())) return(NULL)
-    if(is.null(valores_iniciales())) return(NULL)
-    
-    valores <- list()
-    
-    if(!is.null(input$min)) valores[[1]] <- input$min else valores[[1]] <- valores_iniciales()$min
-    if(!is.null(input$max)) valores[[2]] <- input$max else valores[[2]] <- valores_iniciales()$max
-    if(!is.null(input$ylab)) valores[[3]] <- input$ylab else valores[[3]] <- valores_iniciales()$ylab
-    if(!is.null(input$xlab)) valores[[4]] <- input$xlab else valores[[4]] <- valores_iniciales()$xlab
-    if(!is.null(input$ayuda)) valores[[5]] <- input$ayuda else valores[[5]] <- valores_iniciales()$ayuda
-    if(!is.null(input$col_1)) valores[[6]] <- input$col_1 else valores[[6]] <- valores_iniciales()$color
-    
-    
-    # if(is.null(input$min)) return(NULL)
-    # if(is.null(input$max)) return(NULL)
-    # if(is.null(input$ylab)) return(NULL)
-    # if(is.null(input$xlab)) return(NULL)
-    # if(is.null(input$ayuda)) return(NULL)
-    # if(is.null(input$col_1)) return(NULL)
-    
-    # valores <- list(input$min,
-    #                 input$max,
-    #                 input$ylab,
-    #                 input$xlab,
-    #                 input$ayuda,
-    #                 input$col_1)
-    
-    names(valores) <- c("min", "max", "ylab", "xlab", "ayuda", "color")
-    
-    
-    if(valores[[1]] > min(minibase()[,1])) valores[[1]] <- min(minibase()[,1])
-    if(valores[[2]] < max(minibase()[,1])) valores[[2]] <- max(minibase()[,1])
-    
-    
-    
-    return(valores)
-  })
-  
-  
-  
-  
-  output$grafico01 <- renderPlot({
-    
-    
-    coordenadas <-    boxplot(minibase()[1], ylim = c(valores_usuario()$min, valores_usuario()$max),
-                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                              col = valores_usuario()$color)
-    
-    
-    texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
-    texto02 <- c("25%", "25%", "25%", "25%")
-    
-    coordenadasY <- coordenadas$stats
-    
-    
-    
-    
-    if (valores_usuario()$ayuda) {
+    if(input[["x_min"]] > min(minibase()[,1])) {
       
-      text(1.25, coordenadas$stats, texto01, pos = 4)
-      
-      mediasY <- c()
-      for(k in 1:(length(coordenadasY)-1)) mediasY[k] <- mean(coordenadasY[c(k, (k+1))])
+      updateNumericInput(session, inputId = "x_min",
+                         label = "Valor mínimo eje X: ",
+                         value = min(minibase()[,1]),
+                         min = NA,
+                         max = min(minibase()[,1]),
+                         step = 0.01
+      )
       
       
-      text(1.25, coordenadasY, texto01, pos = 4)
-      
-      colores <- rep(c("red", "blue"), 2)
-      
-      pos01 <- 0.70
-      pos02 <- pos01 - 0.06
-      pos03 <- pos01 - 0.12
-      
-      for(k in 1:(length(coordenadasY)-1)) {
-        
-        
-        lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-        # lines(x = c(pos01, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-      }
-      
-      
-      for(k in 1:length(coordenadasY)) {
-        
-        
-        #  lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        #  lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-        lines(x = c(pos01, pos03), y = rep(coordenadasY[k], 2), col = "black", lwd = 4, lty = 2)
-        
-      }
-      
-      text(pos02, mediasY, texto02, srt = 90)
       
     }
-    
   })
   
   
-  
-  
-  
-  
-  
-  output$armado_grafico <- renderUI({
+  # Variable criterio de inclusion
+  observeEvent(input[["x_max"]],{
     
-    div(
-      h2("Gráfico de Boxplot"),
-      fluidRow(
-        column(6,
-               plotOutput(ns("grafico01"))
-        ),
-        column(6,
-               bsButton(inputId = ns("controlador01"), 
-                        label = "Mostrar/Ocultar opciones gráficas",
-                        icon = icon("bars"), 
-                        type = "toggle", 
-                        value = TRUE,
-                        style = "primary", 
-                        size = "large"
-               ), br(),br(), br(),
-               div(id = ns("James01"), uiOutput(ns("menu_general01")))
-               
-               
-        )
-        
+    if(input[["x_max"]] < max(minibase()[,1])) {
+      
+      updateNumericInput(session, inputId = "x_max",
+                         label = "Valor máximo: ",
+                         value = max(minibase()[,1]),
+                         min = max(minibase()[,1]),
+                         max = NA,
+                         step = 0.01
       )
-    )
+      
+      
+      
+    }
   })
+  }
+  
+ 
+ 
+ output$grafico01 <- renderPlot({
+   
+   if(is.null(casoRMedic())) return(NULL)
+   if(casoRMedic() != 2) return(NULL)
+   ###   if(is.null(valores_usuario())) return(NULL)
+   
+  
+   
+   hist(minibase()[,1], 
+        col = valores_usuario()$color[1],
+        main = "",
+        xlab = valores_usuario()$xlab,
+        ylab = valores_usuario()$ylab,
+        xlim = c(min(valores_de_cortes()), max(valores_de_cortes())),
+        #  xlim = c(valores_usuario()$x_min, valores_usuario()$x_max),
+        #  ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+        include.lowest = TRUE, # No cambiar!
+        #   right = valores_usuario_especiales()$x_side,
+     #   freq =TRUE,
+     freq =FALSE,
+        xaxt = "n",
+        #   breaks = length(valores_de_cortes())
+        breaks = valores_de_cortes()
+   )
+   
+   axis(side=1, at= valores_de_cortes(), labels = TRUE)
+   
+   
+ 
+   
+ })
+ 
+ 
+ 
+  
+  output$rejunte_grafico <- renderUI({
+    
+    # Especificaciones de cumplimiento
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    
+    # Si es el caso 1, seguimos!
+    div(
+      fluidRow(
+      column(7,
+      h2("Histograma"),
+      plotOutput(ns("grafico01")),
+      h2("Distribución de Frecuencias"),
+      tableOutput(ns("tabla_histograma"))
+      ),
+      column(5,
+      uiOutput(ns("Controlador_1c_RMedic")),
+      )
+      ),
+      br(), br(),
+      tableOutput(ns("MEGA_ARMADO"))
+    )
+    
+  })
+  
+  
+  
+  
+  
+  
+  
+  
   
 }
+
+

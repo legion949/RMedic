@@ -393,7 +393,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
           xaxt = "n")
     lines(c(1,1), matriz_valores[,1],
           lwd = 3)
-    points(valores_x[1], media,  cex = 2,  col="red",  pch=19)  
+    points(valores_x[1], media,  cex = 2,  col=valores_usuario()$color,  pch=19)  
     
     if (valores_usuario()$ayuda) {
       
