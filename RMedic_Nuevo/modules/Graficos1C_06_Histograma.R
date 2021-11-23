@@ -24,7 +24,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
   # NameSpaceasing for the session
   ns <- session$ns
   
- 
+  # Tabla inicial para generar el histograma
   tabla_histograma_inicial <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -60,11 +60,13 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     
   }) 
  
+  # "n" de la muestra
   n_total <- reactive({
     
     as.numeric(as.character(tabla_histograma_inicial()[1,3]))
     
   })
+  
   
   frecuencia_maxima <- reactive({
     
@@ -72,10 +74,12 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     
   })
   
+  # Cantidad de categorias de la tabla inicial
   cantidad_de_categorias_inicial <- reactive({
     nrow(tabla_histograma_inicial())
   })
   
+  # Valores de corte de la tabla inicial
   valores_de_cortes_inicial <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -99,7 +103,8 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     
   })
   
-  # Todas las tablas 1C
+  # # # Nuevo Histograma
+  # Tabla del histograma final
   tabla_histograma_final <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -141,6 +146,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     
   })  
   
+  # Valores de corte final
   valores_de_cortes_final <- reactive({
     
     if(is.null(casoRMedic())) return(NULL)
@@ -166,24 +172,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
   
   
   
-  MEGA_ARMADO <- reactive({
-    
-  parte01 <- paste0(valores_de_cortes_final(), sep="-")
-  
-  parte02 <- unlist(valores_usuario())
-
-  parte03 <- c(parte01, parte02)
-      
-  dim(parte03) <- c(1, length(parte03))
-  
-  # colnames(parte03) <- c(1:length(parte01), names(valores_usuario()))
-  parte03
-  })
-  
-  output$MEGA_ARMADO <- renderTable({
-    
-    MEGA_ARMADO()
-  })
+ 
   
   
   output$tabla_histograma_final <- renderTable(rownames = TRUE, align= "c",{
@@ -358,89 +347,6 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
   
   
   
-  if ( 1 == 2) {
-  # Valores nuevos aplicados...
-  observeEvent(aplicador_logico(),{
-    
-    
-    
-    updateNumericInput(session,
-                       inputId = "x_min",
-                       label = "Valor mínimo eje X",
-                       value = valores_usuario()$x_min,
-                       min = NA,
-                       max = valores_usuario()$x_min
-    )
-    
-    updateNumericInput(session,
-                       inputId = "x_max",
-                       label = "Valor máximo eje X",
-                       value = valores_usuario()$x_max,
-                       min = valores_usuario()$x_max,
-                       max = NA
-    )
-    
-    
-    updateNumericInput(session,
-                       inputId = "y_min",
-                       label = "Valor mínimo eje Y: ",
-                       value = valores_usuario()$y_min,
-                       max = valores_usuario()$y_min,
-                       min = valores_usuario()$y_min,
-                       step = 0.01
-    )
-    
-    
-    updateNumericInput(session,
-                       inputId = "y_max",
-                       label = "Valor máximo Y: ",
-                       value = valores_usuario()$y_max,
-                       min = valores_usuario()$y_limite,
-                       max = NA,
-                       step = 0.01
-    )
-    # 
-    # 
-    
-    # 
-    # 
-    updateTextInput(session,
-                    inputId = "ylab",
-                    label = "Rótulo eje Y",
-                    value = valores_usuario()$ylab
-    )
-    
-    updateTextInput(session,
-                    inputId = "xlab",
-                    label = "Rótulo eje X",
-                    value = valores_usuario()$xlab
-    )
-    
-    
-    
-    updateRadioButtons(session,
-                       inputId = "x_side", 
-                       label = "Cierre del intervalo: ", 
-                       choices = c("A la Derecha" = T , 
-                                   "A la Izquierda" = F),
-                       selected = valores_usuario()$x_side
-    )
-    
-    
-    updateNumericInput(session,
-                       inputId = "x_breaks",
-                       label = "Cantidad de intervalos: ",
-                       value = valores_usuario()$x_breaks,
-                       min = 1,
-                       max = NA,
-                       step = 1
-    )
-    
-  })
-  ##################################################################
-  }
-  
-  
  
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
@@ -476,10 +382,10 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     # # La variable no puede ser recategorizada en menos de una categoria
     if(!is.null(valores$x_breaks)) if(valores$x_breaks < 1) valores$x_breaks <- 1
     
-    # El minimo del eje X debe ser mayor o igual al minimo de la variable
+    # # El minimo del eje X debe ser mayor o igual al minimo de la variable
     if(!is.null(valores$x_min)) if(valores$x_min > valores_iniciales()$x_min) valores$x_min <- valores_iniciales()$x_min
     
-    # El maximo del eje Y debe ser mayor o igual al maximo de la variable
+    # # El maximo del eje Y debe ser mayor o igual al maximo de la variable
     if(!is.null(valores$x_max)) if(valores$x_max < valores_iniciales()$x_max) valores$x_max <- valores_iniciales()$x_max
     
     
@@ -562,7 +468,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
       
       mis_colores[i] <- input[[nombre_input[i]]]
       
-      cat(input[[nombre_input[i]]], "\n")
+      #cat(input[[nombre_input[i]]], "\n")
     }
     
     # Return Exitoso
@@ -609,9 +515,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
   output$texto_x_breaks <- renderText({
     texto <- "La cantidad mínima de categorías posibles es 1."
   
-    cat("input$x_breaks: ", input$x_breaks, "\n")
-    
-    if(input$x_breaks < 1) return(texto)
+     if(input$x_breaks < 1) return(texto)
     
   
   })
@@ -733,55 +637,17 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
   })
   
   
-  if (1 == 2) {
-  # Variable criterio de inclusion
-  observeEvent(input[["x_min"]],{
-    
-    if(input[["x_min"]] > min(minibase()[,1])) {
-      
-      updateNumericInput(session, inputId = "x_min",
-                         label = "Valor mínimo eje X: ",
-                         value = min(minibase()[,1]),
-                         min = NA,
-                         max = min(minibase()[,1]),
-                         step = 0.01
-      )
-      
-      
-      
-    }
-  })
-  
-  
-  # Variable criterio de inclusion
-  observeEvent(input[["x_max"]],{
-    
-    if(input[["x_max"]] < max(minibase()[,1])) {
-      
-      updateNumericInput(session, inputId = "x_max",
-                         label = "Valor máximo: ",
-                         value = max(minibase()[,1]),
-                         min = max(minibase()[,1]),
-                         max = NA,
-                         step = 0.01
-      )
-      
-      
-      
-    }
-  })
-  }
-  
  
  
  output$grafico01 <- renderPlot({
    
    if(is.null(casoRMedic())) return(NULL)
    if(casoRMedic() != 2) return(NULL)
-   ###   if(is.null(valores_usuario())) return(NULL)
-   
-  cat("valores_usuario()$color[1]: ", valores_usuario()$color[1], "\n")
-   
+  
+   # Suprimimos un cartel del warning que sale al generar el histograma.
+   # No es un error, es solo un aviso.
+   suppressWarnings(
+     
    hist(minibase()[,1], 
         col = valores_usuario()$color[1],
         main = "",
@@ -798,11 +664,12 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
         #   breaks = length(valores_de_cortes())
         breaks = valores_de_cortes_final()
    )
+   )
    
    axis(side=1, at= valores_de_cortes_final(), labels = TRUE)
    
    
- 
+   
    
  })
  
@@ -829,7 +696,6 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
       )
       ),
       br(), br(),
-   #   tableOutput(ns("MEGA_ARMADO"))
    br()
     )
     

@@ -204,15 +204,7 @@ function(input, output, session) {
     
   }))
   
-  # output$RMedicSoft <- renderUI({
-  #   tabsetPanel(
-  #     tabPanel("Base", value = 1, 
-  #              MiBase01_UI("tablas05")),
-  #     tabPanel("Control", value = 2),
-  #     tabPanel("Tablas", value = 3,
-  #              BatallaNavalUI("tablas01"))
-  #   )
-  # })
+ 
   
   
 }
