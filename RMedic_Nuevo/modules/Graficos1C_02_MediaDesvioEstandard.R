@@ -37,7 +37,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   
   
-  colores_seleccionados <- reactive({
+  colores_usuario <- reactive({
     
     
     cantidad <- 1
@@ -345,7 +345,8 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
     if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
     if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
-    if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
+  #  if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
+    if(!is.null(colores_usuario())) valores$color <- colores_usuario() else valores$color <- valores_iniciales()$color
     
     
     # Nombre de la lista, mismo nombre que por defecto
@@ -426,11 +427,13 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = TRUE,
+                        value = FALSE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),
+               conditionalPanel(condition = "input.controlador01", ns = ns,
                div(id = ns("James01"), uiOutput(ns("menu_general01")))
+               )
                
                
         )

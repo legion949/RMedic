@@ -66,6 +66,13 @@ Graficos1C_SERVER <- function(input, output, session,
   
  # DF_interna <-  reactive({RMedic_1q_tablas(minibase(), decimales())[[1]] })
   
+  callModule(module = Graficos1C_01_RMedicHelp_SERVER, 
+             id =  "graficos04A",
+             minibase = minibase,
+             batalla_naval = batalla_naval,
+             decimales = decimales,
+             casoRMedic = casoRMedic,
+             tablas_1c = tablas_1c)
   
   callModule(module = Graficos1C_02_MediaDesvioEstandard_SERVER, 
              id =  "graficos04B",
@@ -142,7 +149,8 @@ Graficos1C_SERVER <- function(input, output, session,
       div(
         h2("RMedic - Gráficos para 1 Variable Cuantitativa"),
         tabsetPanel(id = ns("Graficos_1c"),
-                    tabPanel(title = "RMedic Help!", value = 1),
+                    tabPanel(title = "RMedic Help!", value = 1,
+                             Graficos1C_01_RMedicHelp_UI(ns("graficos04A"))),
                     tabPanel(title = "Media y Desvío Estándard", value = 2,
                              Graficos1C_02_MediaDesvioEstandard_UI(ns("graficos04B"))),
                     tabPanel(title = "Media y Error Estándard", value = 3,

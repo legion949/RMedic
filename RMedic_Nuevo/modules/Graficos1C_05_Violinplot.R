@@ -76,7 +76,7 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   })
   
   
-  observeEvent(input$controlador03, {
+  observeEvent(input$controlador02, {
     
     
     aplicador_logico(!aplicador_logico())
@@ -318,7 +318,7 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
       bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
-      bsButton(ns("controlador03"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
+      bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       )
     )
@@ -398,13 +398,26 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
     if(is.null(valores_usuario())) return(NULL)
     
     
-    
+    library("vioplot")
     
     coordenadas <-   boxplot(minibase()[1],
+                              ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+                              col = valores_usuario()$color,
+                              range = 0)
+    
+   vioplot(minibase()[1],
                              ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
                              col = valores_usuario()$color,
                              range = 0)
+    
+ 
+    
+    # vioplot(minibase()[1],
+    #         ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+    #         ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+    #         col = valores_usuario()$color)
     
     texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
     texto02 <- c("25%", "25%", "25%", "25%")
@@ -478,11 +491,13 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = TRUE,
+                        value = FALSE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),
+               conditionalPanel(condition = "input.controlador01", ns = ns,
                div(id = ns("James01"), uiOutput(ns("menu_general01")))
+               )
                
                
         )

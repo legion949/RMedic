@@ -159,7 +159,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     
     if(length(mis_colores) == 0) return(NULL)
     
-    
+    # Recolectamos todos los colores en un vector
     for(i in 1:cantidad){ 
       nombre_input <- paste("col", i, sep="_")
       if(is.null(input[[nombre_input]])) return(NULL)
@@ -169,7 +169,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     }
     
     
-    
+    # Return Exitoso
     return(mis_colores)
   })
     
@@ -181,6 +181,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     if(!control_interno01()) return(NULL)
     
     valores <- list()
+    
     # Valores X
     if(!is.null(input$x_min)) valores[[1]] <- input$x_min else valores[[1]] <- valores_iniciales()$x_min
     if(!is.null(input$x_max)) valores[[2]] <- input$x_max else valores[[2]] <- valores_iniciales()$x_max
@@ -213,7 +214,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     if(!is.null(valores$y_max)) if(valores$y_max < max(tabla_frecuencias())) valores$y_max <- max(tabla_frecuencias())
     
     
-    
+    # Return exitoso
     return(valores)
   })
   
@@ -286,16 +287,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
     
-    freezeReactiveValue(input, "ayuda")
-    updateRadioButtons(session,
-                       inputId = "ayuda",
-                       label = "Ayuda en el gráfico...",
-                       choices = c("Sin detalle" = F,
-                                   "Agregar especificaciones" = T
-                       ),
-                       selected = F
-    )
-    
+   
     freezeReactiveValue(input, "x_max")
     updateNumericInput(session,
                        inputId = "x_max",
@@ -371,8 +363,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     })
     
     
-    #  delay(100,     aplicador_logico(!aplicador_logico()))
-    
+   
     
     
   })
