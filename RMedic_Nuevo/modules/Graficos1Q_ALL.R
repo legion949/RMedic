@@ -88,7 +88,7 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                        HTML(
                       "Los gráficos más utilizados aplicados a una variable categórica son:<br/>
                       - Gráfico de <b>Barras</b>.<br/>
-                      - Gráfico de <b>Torgas</b>.<br/>
+                      - Gráfico de <b>Tortas</b>.<br/>
                       Seleccionando la ayuda de cada uno encontrarás un resumen con
                       detalles teóricos y estructura de la base de datos.<br/>
                       Estos te ayudarán a determinar si estas herramientas pueden ser
@@ -100,10 +100,9 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                      div(
                                                        h3("Gráfico de Barras"),
                                                        HTML(
-                            "Agregar texto aquí.<br/><br/>
-                          
-                            Se aplica sobre una columna de la base de datos.<br/>
-                            La variable debe contener al menos una categoría."
+                            "Se presenta un gráfico que manifiesta las categorías 
+                            de la variable en el eje X. La altura de las barras 
+                            representa las frecuencias de las categorías en el eje Y."
                                                        )
                                                      )
                                     ),
@@ -111,10 +110,10 @@ Graficos1Q_SERVER <- function(input, output, session,
                                                      div(
                                                        h3("Gráfico de Tortas"),
                                                        HTML(
-                                                         "Agregar texto aquí.<br/><br/>
-                          
-                            Se aplica sobre una columna de la base de datos.<br/>
-                            La variable debe contener al menos una categoría."
+                            "Se presenta un gráfico que manifiesta las categorías 
+                            de una variable cualitativa como porciones de una torta.
+                            El tamaño de cada porción manifiesta la frecuencia de cada 
+                            categoría."
                                                        )
                                                      )
                                     ),

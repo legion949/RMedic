@@ -35,6 +35,20 @@ Graficos1C_03_MediaErrorEstandard_SERVER <- function(input, output, session,
   #   paste(ylab_interno())
   # })
   
+  limites <- reactive({
+    
+    media <- as.numeric(as.character(tablas_1c()[[1]][1,2]))
+    error_estandard <- as.numeric(as.character(tablas_1c()[[6]][1,5]))
+    lim_inf <- media - error_estandard
+    lim_sup <- media + error_estandard
+    
+    salida <- c(lim_inf, lim_sup)
+    names(salida) <- c("Inferior", "Superior")
+    return(salida)
+    
+  })
+  
+  
   
   
   colores_usuario <- reactive({
@@ -217,20 +231,22 @@ Graficos1C_03_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   
   
-  output$texto_ayudaMax_y <- renderText({
-    texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
-    valor de la variable."
+  output$texto_ayudaMin_y <- renderText({
     
-    if(input$y_max < max(minibase()[,1])) return(texto) else return(NULL)
+    texto <- paste0("El límite inferior del eje Y debe ser igual o menor al valor obtenido
+    como 'Media - Error Estánrdard', que es ", limites()[1], ".")
+    
+    if(!(input$y_min <= limites()[1])) return(texto) else return(NULL)
     
   })
   
   
-  output$texto_ayudaMin_y <- renderText({
-    texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
-    valor de la variable."
+  output$texto_ayudaMax_y <- renderText({
     
-    if(input$y_min > min(minibase()[,1])) return(texto) else return(NULL)
+    texto <- paste0("El límite superior del eje Y debe ser igual o mayor al valor obtenido
+    como 'Media + Error Estánrdard', que es ", limites()[2], ".")
+    
+    if(!(input$y_max >= limites()[2])) return(texto) else return(NULL)
     
   })
   
@@ -258,7 +274,7 @@ Graficos1C_03_MediaErrorEstandard_SERVER <- function(input, output, session,
                             label = "Mínimo eje Y", 
                             value = valores_iniciales()$y_min,
                             min = NA,
-                            max = valores_iniciales()$y_min
+                            max = limites()[1]
                ),
                textOutput(ns("texto_ayudaMin_y"))
         ),
@@ -266,7 +282,7 @@ Graficos1C_03_MediaErrorEstandard_SERVER <- function(input, output, session,
                numericInput(inputId = ns("y_max"),
                             label = "Máximo eje Y", 
                             value = valores_iniciales()$y_max,
-                            min = valores_iniciales()$y_max,
+                            min = limites()[2],
                             max = NA
                ),
                textOutput(ns("texto_ayudaMax_y"))
@@ -289,7 +305,7 @@ Graficos1C_03_MediaErrorEstandard_SERVER <- function(input, output, session,
       ),
       br(),
       br(),
-      bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
+      bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
       bsButton(ns("controlador03"), "Aplicar todos los cambios", type = "toggle", value = TRUE,

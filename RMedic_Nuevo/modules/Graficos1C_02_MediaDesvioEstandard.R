@@ -35,8 +35,22 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   #   paste(ylab_interno())
   # })
   
+  limites <- reactive({
+    
+    media <- as.numeric(as.character(tablas_1c()[[1]][1,2]))
+    desvio_estandard <- as.numeric(as.character(tablas_1c()[[1]][1,3]))
+    lim_inf <- media - desvio_estandard
+    lim_sup <- media + desvio_estandard
+    
+    salida <- c(lim_inf, lim_sup)
+    names(salida) <- c("Inferior", "Superior")
+    return(salida)
+    
+  })
   
-  
+
+ 
+
   colores_usuario <- reactive({
     
     
@@ -74,7 +88,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   })
   
   
-  observeEvent(input$controlador03, {
+  observeEvent(input$controlador02, {
     
     
     aplicador_logico(!aplicador_logico())
@@ -215,20 +229,23 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   
   
   
-  output$texto_ayudaMax_y <- renderText({
-    texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
-    valor de la variable."
+  
+  output$texto_ayudaMin_y <- renderText({
+
+    texto <- paste0("El límite inferior del eje Y debe ser igual o menor al valor obtenido
+    como 'Media - Desvio Estánrdard', que es ", limites()[1], ".")
     
-    if(input$y_max < max(minibase()[,1])) return(texto) else return(NULL)
+    if(!(input$y_min <= limites()[1])) return(texto) else return(NULL)
     
   })
   
   
-  output$texto_ayudaMin_y <- renderText({
-    texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
-    valor de la variable."
+  output$texto_ayudaMax_y <- renderText({
     
-    if(input$y_min > min(minibase()[,1])) return(texto) else return(NULL)
+    texto <- paste0("El límite superior del eje Y debe ser igual o mayor al valor obtenido
+    como 'Media + Desvio Estánrdard', que es ", limites()[2], ".")
+    
+    if(!(input$y_max >= limites()[2])) return(texto) else return(NULL)
     
   })
   
@@ -256,7 +273,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
                             label = "Mínimo eje Y", 
                             value = valores_iniciales()$y_min,
                             min = NA,
-                            max = valores_iniciales()$y_min
+                            max = limites()[1]
                ),
                textOutput(ns("texto_ayudaMin_y"))
         ),
@@ -264,7 +281,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
                numericInput(inputId = ns("y_max"),
                             label = "Máximo eje Y", 
                             value = valores_iniciales()$y_max,
-                            min = valores_iniciales()$y_max,
+                            min = limites()[2],
                             max = NA
                ),
                textOutput(ns("texto_ayudaMax_y"))
@@ -287,10 +304,10 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
       ),
       br(),
       br(),
-      bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
+      bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
-      bsButton(ns("controlador03"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
+      bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       )
     )
@@ -311,6 +328,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
   valores_iniciales <-  reactive({
     
     if(is.null(minibase())) return(NULL)
+    
     
     
     valores <- list(x_min = NULL,
@@ -417,7 +435,7 @@ Graficos1C_02_MediaDesvioEstandard_SERVER <- function(input, output, session,
     if(is.null(casoRMedic())) return(NULL)
     if(casoRMedic() != 2) return(NULL)
     div(
-      h2("Gráfico de Media y Desvío"),
+      h2("Gráfico de Media y Desvío Estándard"),
       fluidRow(
         column(6,
                plotOutput(ns("grafico01"))

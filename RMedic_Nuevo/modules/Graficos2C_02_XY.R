@@ -1,7 +1,7 @@
 
 
 
-Graficos1C_04_Boxplot_UI <- function(id) {
+Graficos2C_02_XY_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Graficos1C_04_Boxplot_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_04_Boxplot_SERVER <- function(input, output, session, 
+Graficos2C_02_XY_SERVER <- function(input, output, session, 
                                          minibase, 
                                          batalla_naval,
                                          decimales,
-                                         casoRMedic,
-                                         tablas_1c) {
+                                         casoRMedic) {
   
   
   
@@ -35,8 +34,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   #   paste(ylab_interno())
   # })
   
-  
-  
+ 
+
   colores_usuario <- reactive({
     
     
@@ -58,8 +57,6 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
       mis_colores[i] <- input[[nombre_input]]
       
     }
-    
-    
     
     return(mis_colores)
   })
@@ -93,34 +90,7 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   
-  medidas_resumen <- reactive({
-    
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
-    
-    
-    
-    # Nota: al valor input$x_breaks lo tuve que poner
-    #      como na.omit(input$x_breaks)[1] por que algunas veces
-    #      otorga un vector con dos valores, pero uno de ellos es NA.
-    
-    
-    
-    salida <-  RMedic_1c_tablas(input_base =  minibase(),
-                                input_decimales = decimales(),
-                                input_min = NULL,
-                                input_max = NULL,
-                                input_breaks = NULL,
-                                input_side = NULL
-    )[[1]]
-    
-    
-    
-    # Return Exitoso
-    return(salida)
-    
-    
-  })  
+ 
   
   
   
@@ -129,6 +99,7 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   observeEvent(input$ylab, {
     
     
+
     if(input$ylab == colnames(minibase())[1]) {
       
       if(input$ylab != valores_usuario()$ylab) {
@@ -241,22 +212,47 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   })
   
   
-  
-  
-  output$texto_ayudaMax_y <- renderText({
-    texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
-    valor de la variable."
+  output$texto_ayudaMin_x <- renderText({
     
-    if(input$y_max < max(minibase()[,1])) return(texto) else return(NULL)
+    texto <- paste0("El límite inferior del eje X debe ser igual o menor al 
+                      mínimo valor de la variable '", valores_usuario()$xlab, "' que es ",
+                    valores_usuario()$x_min, ".")
+    
+       if(!(input$x_min <= valores_usuario()$x_min)) return(texto) else return(NULL)
     
   })
   
   
-  output$texto_ayudaMin_y <- renderText({
-    texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
-    valor de la variable."
+  output$texto_ayudaMax_x <- renderText({
     
-    if(input$y_min > min(minibase()[,1])) return(texto) else return(NULL)
+    texto <- paste0("El límite superior del eje X debe ser igual o mayor al 
+                      máximo valor de la variable '", valores_usuario()$ylab, "' que es ",
+                    valores_usuario()$x_max, ".")
+    
+    if(!(input$x_max >= valores_usuario()$x_max)) return(texto) else return(NULL)
+    
+  })
+  
+  
+  
+  output$texto_ayudaMin_y <- renderText({
+    
+    texto <- paste0("El límite inferior del eje Y debe ser igual o menor al 
+                      mínimo valor de la variable '", valores_usuario()$ylab, "' que es ", 
+                    valores_usuario()$y_min, ".")
+    
+    if(!(input$y_min <= valores_usuario()$y_min)) return(texto) else return(NULL)
+    
+  })
+  
+  
+  output$texto_ayudaMax_y <- renderText({
+    
+    texto <- paste0("El límite superior del eje Y debe ser igual o mayor al 
+                      máximo valor de la variable '", valores_usuario()$ylab, "' que es ",
+                    valores_usuario()$y_max, ".")
+    
+    if(!(input$y_max >= valores_usuario()$y_max)) return(texto) else return(NULL)
     
   })
   
@@ -266,15 +262,36 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     div(
       fluidRow(
         column(6,
-               radioButtons(inputId = ns("ayuda"),
-                            label = "Ayuda en el gráfico...",
-                            choices = c("Sin detalle" = F,
-                                        "Agregar especificaciones" = T
-                            )
-               )
+               # radioButtons(inputId = ns("ayuda"),
+               #              label = "Ayuda en el gráfico...",
+               #              choices = c("Sin detalle" = F,
+               #   e                       "Agregar especificaciones" = T
+               #              )
+               # )
         ),
         column(6,
                uiOutput(ns("MODcolor"))
+        )
+      ),
+      br(),
+      fluidRow(
+        column(6,
+               numericInput(inputId = ns("x_min"),
+                            label = "Mínimo eje X", 
+                            value = valores_iniciales()$x_min,
+                            min = NA,
+                            max = valores_iniciales()$x_min
+               ),
+               textOutput(ns("texto_ayudaMin_x"))
+        ),
+        column(6,
+               numericInput(inputId = ns("x_max"),
+                            label = "Máximo eje X", 
+                            value = valores_iniciales()$x_max,
+                            min = valores_iniciales()$x_max,
+                            max = NA
+               ),
+               textOutput(ns("texto_ayudaMax_x"))
         )
       ),
       br(),
@@ -341,12 +358,13 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     if(is.null(minibase())) return(NULL)
     
     
-    valores <- list(x_min = NULL,
-                    x_max = NULL,
-                    y_min = min(minibase()[1]),
-                    y_max = max(minibase()[1]),
-                    xlab = "",
-                    ylab = colnames(minibase())[1],
+    
+    valores <- list(x_min = min(minibase()[1]),
+                    x_max = max(minibase()[1]),
+                    y_min = min(minibase()[2]),
+                    y_max = max(minibase()[2]),
+                    xlab = colnames(minibase())[1],
+                    ylab = colnames(minibase())[2],
                     ayuda = F,
                     color = c("#FF0000")
     )
@@ -366,23 +384,14 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     
     valores <- list()
     
-    # Valores X
     if(!is.null(input$x_min)) valores[[1]] <- input$x_min else valores[[1]] <- valores_iniciales()$x_min
     if(!is.null(input$x_max)) valores[[2]] <- input$x_max else valores[[2]] <- valores_iniciales()$x_max
-    
-    # Valores Y
     if(!is.null(input$y_min)) valores[[3]] <- input$y_min else valores[[3]] <- valores_iniciales()$y_min
     if(!is.null(input$y_max)) valores[[4]] <- input$y_max else valores[[4]] <- valores_iniciales()$y_max
-    
-    # Rotulos
     if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
     if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
-    
-    # Ayuda
     if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
-    
-    # Colores
-   # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
+  #  if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     if(!is.null(colores_usuario())) valores$color <- colores_usuario() else valores$color <- valores_iniciales()$color
     
     
@@ -390,8 +399,11 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     names(valores) <- names(valores_iniciales())
     
     # Correccion para los valores que min y max de cada eje Y
-    if(!is.null(valores$y_min)) if(valores$y_min > min(minibase()[,1])) valores$y_min <- min(minibase()[,1])
-    if(!is.null(valores$y_max)) if(valores$y_max < max(minibase()[,1])) valores$y_max <- max(minibase()[,1])
+    if(!is.null(valores$x_min)) if(valores$x_min > min(minibase()[,1])) valores$x_min <- min(minibase()[,1])
+    if(!is.null(valores$x_max)) if(valores$x_max < max(minibase()[,1])) valores$x_max <- max(minibase()[,1])
+    
+    if(!is.null(valores$y_min)) if(valores$y_min > min(minibase()[,2])) valores$y_min <- min(minibase()[,2])
+    if(!is.null(valores$y_max)) if(valores$y_max < max(minibase()[,2])) valores$y_max <- max(minibase()[,2])
     
     
     
@@ -403,69 +415,28 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    # if(is.null(casoRMedic())) return(NULL)
-    # if(casoRMedic() != 2) return(NULL)
-    # if(is.null(valores_usuario())) return(NULL)
-    # 
-    # 
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 4) return(NULL)
+    if(is.null(valores_usuario())) return(NULL)
     
-    
-    coordenadas <-   boxplot(minibase()[1],
-                             ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
-                             ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                             col = valores_usuario()$color,
-                             range = 0)
-    
-   # coordenadas <- round2(coordenadas, decimales())
-    
-    texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
-    texto02 <- c("25%", "25%", "25%", "25%")
-    
-    coordenadasY <- coordenadas$stats
-    mis_valores <- c(tablas_1c()[[2]][1,2],
-                     tablas_1c()[[3]][1,c(2,5)],
-                     tablas_1c()[[2]][1,5])
-    
-    
-    
-    if (valores_usuario()$ayuda) {
+      plot(x = minibase()[,1], y = minibase()[,2],
+           col = valores_usuario()$color, 
+           cex = 2,
+           pch = 19,
+           xlab = valores_usuario()$xlab,
+           ylab = valores_usuario()$ylab,
+           xlim = c(valores_usuario()$x_min, valores_usuario()$x_max),
+           ylim = c(valores_usuario()$y_min, valores_usuario()$y_max)
+           )
       
-      #   text(1.25, coordenadas$stats, texto01, pos = 4, cex = 1.5)
-      
-      mediasY <- c()
-      for(k in 1:(length(coordenadasY)-1)) mediasY[k] <- mean(coordenadasY[c(k, (k+1))])
-      
-      
-      text(1.25, coordenadasY, texto01, pos = 4, cex = 1.5)
-      text(0.75, coordenadasY, mis_valores, pos = 2, cex = 1.5)
-      
-      colores <- rep(c("red", "blue"), 2)
-      
-      pos01 <- 0.70 - 0.09
-      pos02 <- pos01 - 0.06
-      pos03 <- pos01 - 0.12
-      
-      for(k in 1:(length(coordenadasY)-1)) {
-        
-        
-        lines(x = c(pos01, pos01), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        lines(x = c(pos03, pos03), y = coordenadasY[c(k, (k+1))], col = colores[k], lwd = 4)
-        
-        
-      }
-      
-      
-      for(k in 1:length(coordenadasY)) {
-        
-        
-        
-        lines(x = c(pos01, pos03), y = rep(coordenadasY[k], 2), col = "black", lwd = 4, lty = 2)
-        
-      }
-      
-      text(pos02, mediasY, texto02, srt = 90)
-      
-    }
+
+    # if (valores_usuario()$ayuda) {
+    #   
+    #   rejunte <- c(matriz_valores[1,1], media, matriz_valores[2,1])
+    #   
+    #   text((rep(1, 3)+0.1), rejunte, texto01, pos = 4, cex = 1.5)
+    #   text((rep(1, 3)-0.1), rejunte, rejunte, pos = 2, cex = 1.5)
+    # }
     
   })
   
@@ -478,9 +449,9 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   output$armado_grafico <- renderUI({
     
     if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    if(casoRMedic() != 4) return(NULL)
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Gráfico XY"),
       fluidRow(
         column(6,
                plotOutput(ns("grafico01"))

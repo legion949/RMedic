@@ -462,7 +462,7 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas generales",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = TRUE,
+                        value = FALSE,
                         style = "primary", 
                         size = "large"
                )
@@ -472,7 +472,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                bsButton(inputId = ns("controlador02"),
                         label = "Mostrar/Ocultar opciones gráficas específicas",
                         icon = icon("bars"), 
-                        type = "toggle", value = TRUE,
+                        type = "toggle", 
+                        value = FALSE,
                         style = "primary", 
                         size = "large"
                )
@@ -482,7 +483,10 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
       h2("Gráfico de Barras"),
       fluidRow(
         column(4,
+               conditionalPanel(condition = "input.controlador01", ns = ns,
+                                
                div(id = ns("James04"), uiOutput(ns("menu_general01")))
+               )
         ),
         column(8,
                fluidRow(
@@ -491,6 +495,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                         plotOutput(ns("grafico01"))
                  ),
                  column(6,
+                        conditionalPanel(condition = "input.controlador02", ns = ns,
+                                         
                         div(id = ns("James01"),
                             h3("Cambios específicos"),
                             numericInput(inputId = ns("graf_1q_barras_max_FA"),
@@ -515,6 +521,7 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                             
                             
                         )
+                        )
                  )
                ),
                br(),
@@ -524,6 +531,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                         plotOutput(ns("grafico02"))
                  ),
                  column(6,
+                        conditionalPanel(condition = "input.controlador02", ns = ns,
+                                         
                         div(id = ns("James02"),
                             h3("Cambios específicos"),
                             numericInput(inputId = ns("graf_1q_barras_max_FR"),
@@ -547,7 +556,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                             ),
                             br(),
                             
-                        )      
+                        ) 
+                        )
                  )
                ),
                br(),
@@ -557,6 +567,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                         plotOutput(ns("grafico03"))
                  ),
                  column(6,
+                        conditionalPanel(condition = "input.controlador02", ns = ns,
+                                         
                         div(id = ns("James03"),
                             h3("Cambios específicos"),
                             numericInput(inputId = ns("graf_1q_barras_max_PORCENTAJE"),
@@ -580,7 +592,8 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
                             ),
                             br()
                             
-                        )      
+                        ) 
+                        )
                  )
                )
         )

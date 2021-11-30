@@ -1,7 +1,7 @@
 
 
 
-Graficos1C_08_Puntos_UI <- function(id) {
+Graficos2C_07_Dispersion_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Graficos1C_08_Puntos_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_08_Puntos_SERVER <- function(input, output, session, 
-                                         minibase, 
-                                         batalla_naval,
-                                         decimales,
-                                         casoRMedic,
-                                         tablas_1c) {
+Graficos2C_07_Dispersion_SERVER <- function(input, output, session, 
+                                        minibase, 
+                                        batalla_naval,
+                                        decimales,
+                                        casoRMedic) {
   
   
   
@@ -108,19 +107,18 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   aplicador_logico <- reactiveVal(F)
   
   
-  # Valores iniciales por defecto para 
-  # todas las opciones del usuario
+  # Valores iniciales
   valores_iniciales <-  reactive({
     
     if(is.null(minibase())) return(NULL)
     
     
-    valores <- list(x_min = min(minibase()[1]),
-                    x_max = max(minibase()[1]),
-                    y_min = 0,
-                    y_max = max(tabla_frecuencias())*10,
-                    xlab = colnames(minibase())[1],
-                    ylab = "Frecuencia",
+    valores <- list(x_min = NULL,
+                    x_max = NULL,
+                    y_min = min(minibase()[1]),
+                    y_max = max(minibase()[1]),
+                    xlab = "",
+                    ylab = colnames(minibase())[1],
                     ayuda = F,
                     color = c("#FF0000")
     )
@@ -132,7 +130,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   })
   
   
-
+  
   # xxchange <- reactive({
   #   paste(ylab_interno())
   # })
@@ -172,11 +170,11 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     # Return Exitoso
     return(mis_colores)
   })
-    
+  
   # Valores elegidos por el usuario
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
-
+    
     # Control interno 01
     if(!control_interno01()) return(NULL)
     
@@ -199,7 +197,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
     
     # Colores
-   # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
+    # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     if(!is.null(colores_usuario())) valores$color <- colores_usuario() else valores$color <- valores_iniciales()$color
     
     
@@ -222,8 +220,8 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   # Controlador 01
   observeEvent(input$controlador01, {
     
-  delay(100, shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade"))
-
+    delay(100, shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade"))
+    
   })
   
   # Controlador 02
@@ -231,16 +229,16 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     
     if(!is.null(input$controlador01)) {
       if(input$controlador01) {
-    aplicador_logico(!aplicador_logico())
-  }
+        aplicador_logico(!aplicador_logico())
+      }
     }
   })
   
   # Reseteo
   observeEvent(input$reset, {
     
-   if(is.null(input$controlador01)) return(NULL)
-   if(!input$controlador01) return(NULL)
+    if(is.null(input$controlador01)) return(NULL)
+    if(!input$controlador01) return(NULL)
     
     # Damos la orden de setear!
     reseteo_logico(!reseteo_logico())
@@ -274,11 +272,11 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
         
         delay(1000, aplicador_logico(!aplicador_logico()))
         
-
+        
       }
     }
     
-
+    
     
   })
   
@@ -287,7 +285,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
     
-   
+    
     freezeReactiveValue(input, "x_max")
     updateNumericInput(session,
                        inputId = "x_max",
@@ -363,7 +361,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     })
     
     
-   
+    
     
     
   })
@@ -391,7 +389,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     
   })
   
- 
+  
   output$texto_ayudaMin_x <- renderText({
     texto <- paste0("El límite inferior del eje X debe ser igual o menor al mínimo 
     valor de la variable. ", "En este caso debe ser igual o menor a ",
@@ -401,7 +399,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
     
   })
   
-   
+  
   output$texto_ayudaMax_x <- renderText({
     texto <- paste0("El límite superior del eje X debe ser igual o mayor al máximo
     de la variable. ", "En este caso debe ser igual o mayor a ",
@@ -412,7 +410,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   })
   
   
- 
+  
   
   output$texto_ayudaMax_y <- renderText({
     texto <- paste0("El límite superior del eje Y debe ser igual o mayor al máximo
@@ -435,34 +433,13 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   
   output$menu_general01 <- renderUI({
     
-  
+    
     
     div(
       fluidRow(
         column(6),
         column(6,
                uiOutput(ns("MODcolor"))
-        )
-      ),
-      br(),
-      fluidRow(
-        column(6,
-               numericInput(inputId = ns("x_min"),
-                            label = "Mínimo eje X", 
-                            value = valores_iniciales()$x_min,
-                            min = NA,
-                            max = valores_iniciales()$x_min
-               ),
-               textOutput(ns("texto_ayudaMin_x"))
-        ),
-        column(6,
-               numericInput(inputId = ns("x_max"),
-                            label = "Máximo eje X", 
-                            value = valores_iniciales()$x_max,
-                            min = valores_iniciales()$x_max,
-                            max = NA
-               ),
-               textOutput(ns("texto_ayudaMax_x"))
         )
       ),
       br(),
@@ -503,7 +480,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
       ),
       br(),
       br(),
-      bsButton(ns("reset"), "Resetear (Valores Iniciales)", type = "toggle", value = TRUE,
+      bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
       bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle",
@@ -527,29 +504,35 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   
   
   
- 
+  
   
   
   
   
   output$grafico01 <- renderPlot({
     
-   # if(is.null(casoRMedic())) return(NULL)
-  #  if(casoRMedic() != 2) return(NULL)
-  #  if(is.null(valores_usuario())) return(NULL)
-  #  if(is.null(base_interna())) return(NULL)
-
-   # Grafico de puntos
-    plot(x = base_interna()$valores_x, y = base_interna()$valores_y, 
-         col = valores_usuario()$color, 
-         xlim =c(valores_usuario()$x_min, valores_usuario()$x_max),
-         ylim =c(valores_usuario()$y_min, valores_usuario()$y_max),
-         xlab = valores_usuario()$xlab,
-         ylab = valores_usuario()$ylab,
-         cex = 2,  
-         pch = 19)
+    # if(is.null(casoRMedic())) return(NULL)
+    #  if(casoRMedic() != 2) return(NULL)
+    #  if(is.null(valores_usuario())) return(NULL)
+    #  if(is.null(base_interna())) return(NULL)
     
-   
+    # # Grafico de puntos
+    # plot(x = base_interna()$valores_x, y = base_interna()$valores_y, 
+    #      col = valores_usuario()$color, 
+    #      xlim =c(valores_usuario()$x_min, valores_usuario()$x_max),
+    #      ylim =c(valores_usuario()$y_min, valores_usuario()$y_max),
+    #      xlab = valores_usuario()$xlab,
+    #      ylab = valores_usuario()$ylab,
+    #      cex = 2,  
+    #      pch = 19)
+    
+    plot( x = rep(1, nrow(minibase())), y = minibase()[,1], col = valores_usuario()$color, 
+          xlim = c(0.5, 1.5), 
+          ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+          xlab = valores_usuario()$xlab, ylab = valores_usuario()$ylab,
+          xaxt = "n",
+          cex = 2,
+          lwd = 2)
     
   })
   
@@ -561,12 +544,12 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
-  #  if(is.null(casoRMedic())) return(NULL)
-  #  if(casoRMedic() != 2) return(NULL)
-  #  if(is.null(valores_usuario())) return(NULL)
+    #  if(is.null(casoRMedic())) return(NULL)
+    #  if(casoRMedic() != 2) return(NULL)
+    #  if(is.null(valores_usuario())) return(NULL)
     
     div(
-      h2("Gráfico de Puntos"),
+      h2("Gráfico de Dispersión"),
       fluidRow(
         column(6,
                plotOutput(ns("grafico01"))
@@ -581,7 +564,7 @@ Graficos1C_08_Puntos_SERVER <- function(input, output, session,
                         size = "large"
                ), br(),br(), br(),
                conditionalPanel(condition = "input.controlador01", ns = ns,
-               div(id = ns("James01"), uiOutput(ns("menu_general01")))
+                                div(id = ns("James01"), uiOutput(ns("menu_general01")))
                )
                
                

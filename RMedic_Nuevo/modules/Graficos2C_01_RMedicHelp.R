@@ -1,25 +1,25 @@
 
 
 
-Graficos1C_01_RMedicHelp_UI <- function(id) {
+Graficos2C_01_RMedicHelp_UI <- function(id) {
   
   ns <- NS(id)
   
   fluidRow(
     column(4,
-           radioButtons(inputId = "help_graficos_1c",
+           radioButtons(inputId = "help_graficos_2c",
                         label = h3("Selección de Ayuda Automática"),
                         choices = c("RMedic Here!" = 1,
-                                    "Media y Desvío Estándard" = 2,
-                                    "Media y Error Estándard" = 3,
-                                    "Boxplot" = 4,
-                                    "Violín plot" = 5,
-                                    "Histograma" = 6,
+                                    "XY" = 2,
+                                    "Media y Desvío Estándard" = 3,
+                                    "Media y Error Estándard" = 4,
+                                    "Boxplot" = 5,
+                                    "Violín plot" = 6,
                                     "Dispersión" = 7,
-                                    "Puntos" = 8)
+                                    "Conectores" = 8)
            )),
     column(8,
-           conditionalPanel(condition = "input.help_graficos_1c == 1", 
+           conditionalPanel(condition = "input.help_graficos_2c == 1", 
                             div(
                               h3("RMedic Here!"),
                               HTML(
@@ -38,7 +38,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
                             ),
-           conditionalPanel(condition = "input.help_graficos_1c == 2", 
+           conditionalPanel(condition = "input.help_graficos_2c == 2", 
                             div(
                               h3("Gráfico de Medias y Desvío Estándard"),
                               HTML(
@@ -48,7 +48,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 )
                               )
                             ),
-           conditionalPanel(condition = "input.help_graficos_1c == 3", 
+           conditionalPanel(condition = "input.help_graficos_2c == 3", 
                             div(
                               h3("Gráfico de Medias y Error Estándard"),
                               HTML(
@@ -58,7 +58,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 4", 
+           conditionalPanel(condition = "input.help_graficos_2c == 4", 
                             div(
                               h3("Boxplot"),
                               HTML(
@@ -70,7 +70,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 5", 
+           conditionalPanel(condition = "input.help_graficos_2c == 5", 
                             div(
                               h3("Violín Plot"),
                               HTML(
@@ -83,7 +83,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 6", 
+           conditionalPanel(condition = "input.help_graficos_2c == 6", 
                             div(
                               h3("Histograma"),
                               HTML(
@@ -94,7 +94,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 ser abiertos o cerrados a elección del usuario.")
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 7", 
+           conditionalPanel(condition = "input.help_graficos_2c == 7", 
                             div(
                               h3("Dispersión"),
                               HTML(
@@ -104,7 +104,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 8", 
+           conditionalPanel(condition = "input.help_graficos_2c == 8", 
                             div(
                               h3("Puntos"),
                               HTML(
@@ -127,7 +127,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_01_RMedicHelp_SERVER <- function(input, output, session,
+Graficos2C_01_RMedicHelp_SERVER <- function(input, output, session,
                                             minibase, 
                                             batalla_naval,
                                             decimales,

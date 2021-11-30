@@ -2679,3 +2679,95 @@ RMedic_qc_tablas <- function(input_base = NULL, input_decimales = NULL, input_ca
   return(armado)
   
 } # Fin function
+
+############################
+
+graficos_2c <- function(minibase = NULL, 
+                        tipo_grafico = NULL,
+                        cols = c("red", "blue"),
+                        xlab = NULL,
+                        ylab = NULL,
+                        xlim = NULL,
+                        ylim = NULL
+                        ){
+  
+  # Tabla de para 2C
+  tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+  
+  # Medias
+  media <- as.numeric(as.character(tablas_2c[[1]][,2]))
+  names(media) <- tablas_2c[[1]][,1]
+  
+  # Desvios estandard
+  desvio_estandard <- as.numeric(as.character(tablas_2c[[1]][,3]))
+  names(desvio_estandard) <- tablas_2c[[1]][,1]
+  
+  
+  # Errores estandard
+  error_estandard <- as.numeric(as.character(tablas_2c[[6]][,5]))
+  names(error_estandard) <- tablas_2c[[1]][,1]
+  
+  # Otros detalles
+  cantidad_grupos <- 2
+  margen <- 0.5
+  
+  if(tipo_grafico == "mee") {
+    
+    # Rotulos
+    if(is.null(xlab)) xlab <- "Variables"
+    if(is.null(ylab)) ylab <- "Rango de ambas variables"
+    
+    if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+    if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+    
+    # 
+
+    # Pasamos toda la minibase a un vector
+    VR <- as.vector(as.matrix(minibase))
+    
+    # Armamos la estructura que necesitamos
+    FACTOR <- rep(c(1:2), each = nrow(minibase))
+    
+    # Colores de cada punto... Un vector de colores
+    vector_colores <- rep(cols, each = nrow(minibase))
+    
+    
+    # Calculamos los margenes del intervalo
+    lista_grafica <- list()
+    
+    for (k in 1:length(media)){
+      
+      tipos_intervalos <- c("1", "2", "3", "90%", "95%", "99%")
+      coeficientes <- c(1, 2, 3, 1.96, 2.45, 3.77)
+      matriz_valores <- matrix(NA, 2, length(tipos_intervalos))
+      matriz_valores[1,] <- media[k] - coeficientes*error_estandard[k]
+      matriz_valores[2,] <- media[k] + coeficientes*error_estandard[k]
+      colnames(matriz_valores) <- tipos_intervalos
+      rownames(matriz_valores) <- c("LI", "LS")
+      
+      lista_grafica[[k]] <- matriz_valores
+    }  
+    
+    plot( x = FACTOR[1], y = VR[1], col = "white", 
+          xlim = xlim, 
+          ylim = ylim,
+          xlab = xlab, 
+          ylab = ylab,
+          xaxt = "n",
+          cex = 2,
+          pch = 19)
+    axis(1, at=1:cantidad_grupos, labels=colnames(minibase))
+    
+    
+    # Graficamos las medias +- 1 error estandard  
+    for (k in 1:length(media)){
+      
+      lines(c(k,k), lista_grafica[[k]][,1], lwd = 3)
+      points(k, media[k],  cex = 2,  col = cols[k],  pch=19)  
+      
+      
+    }
+    
+  }
+  
+}

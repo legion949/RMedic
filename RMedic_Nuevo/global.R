@@ -45,9 +45,17 @@ source("modules/Graficos1C_08_Puntos.R")
 
 source("modules/Graficos2Q_ALL.R")
 
-source("modules/Graficos2C_ALL.R")
 
-source("modules/GraficosQC_ALL.R")
+source("modules/Graficos2C_ALL.R")
+source("modules/Graficos2C_01_RMedicHelp.R")
+source("modules/Graficos2C_02_XY.R")
+source("modules/Graficos2C_03_MediaDesvioEstandard.R")
+source("modules/Graficos2C_04_MediaErrorEstandard.R")
+source("modules/Graficos2C_05_Boxplot.R")
+source("modules/Graficos2C_06_Violinplot.R")
+source("modules/Graficos2C_07_Dispersion.R")
+source("modules/Graficos2C_08_Conectores.R")
+source("modules/Graficos2C_ALL.R")
 
 
 source("modules2/ModuleBase.R")

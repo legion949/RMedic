@@ -481,7 +481,7 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
       ),
       br(),
       br(),
-      bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
+      bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
       bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle",
@@ -531,7 +531,9 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
           xlim = c(0.5, 1.5), 
           ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
           xlab = valores_usuario()$xlab, ylab = valores_usuario()$ylab,
-          xaxt = "n")
+          xaxt = "n",
+          cex = 2,
+          lwd = 2)
     
   })
   
@@ -548,7 +550,7 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
     #  if(is.null(valores_usuario())) return(NULL)
     
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Gráfico de Dispersión"),
       fluidRow(
         column(6,
                plotOutput(ns("grafico01"))

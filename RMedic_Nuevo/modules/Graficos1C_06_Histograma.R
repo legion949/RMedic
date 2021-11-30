@@ -646,7 +646,7 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
             )
           ),
           br(), br(),
-          bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
+          bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                    icon("bars"), style = "primary", size = "large"
           ),
           bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
@@ -707,10 +707,12 @@ Graficos1C_06_Histograma_SERVER <- function(input, output, session,
     #  if(is.null(valores_usuario())) return(NULL)
     
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Histograma"),
       fluidRow(
         column(7,
                plotOutput(ns("grafico01")),
+               br(),
+               br(),
                h2("Distribución de Frecuencias"),
                tableOutput(ns("tabla_histograma_final"))
         ),

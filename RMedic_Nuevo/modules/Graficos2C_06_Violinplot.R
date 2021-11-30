@@ -1,7 +1,7 @@
 
 
 
-Graficos1C_04_Boxplot_UI <- function(id) {
+Graficos2C_06_Violinplot_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Graficos1C_04_Boxplot_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_04_Boxplot_SERVER <- function(input, output, session, 
+Graficos2C_06_Violinplot_SERVER <- function(input, output, session, 
                                          minibase, 
                                          batalla_naval,
                                          decimales,
-                                         casoRMedic,
-                                         tablas_1c) {
+                                         casoRMedic) {
   
   
   
@@ -37,7 +36,7 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   
-  colores_usuario <- reactive({
+  colores_seleccionados <- reactive({
     
     
     cantidad <- 1
@@ -366,24 +365,14 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     
     valores <- list()
     
-    # Valores X
     if(!is.null(input$x_min)) valores[[1]] <- input$x_min else valores[[1]] <- valores_iniciales()$x_min
     if(!is.null(input$x_max)) valores[[2]] <- input$x_max else valores[[2]] <- valores_iniciales()$x_max
-    
-    # Valores Y
     if(!is.null(input$y_min)) valores[[3]] <- input$y_min else valores[[3]] <- valores_iniciales()$y_min
     if(!is.null(input$y_max)) valores[[4]] <- input$y_max else valores[[4]] <- valores_iniciales()$y_max
-    
-    # Rotulos
     if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
     if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
-    
-    # Ayuda
     if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
-    
-    # Colores
-   # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
-    if(!is.null(colores_usuario())) valores$color <- colores_usuario() else valores$color <- valores_iniciales()$color
+    if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     
     
     # Nombre de la lista, mismo nombre que por defecto
@@ -403,20 +392,33 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    # if(is.null(casoRMedic())) return(NULL)
-    # if(casoRMedic() != 2) return(NULL)
-    # if(is.null(valores_usuario())) return(NULL)
-    # 
-    # 
+    if(is.null(casoRMedic())) return(NULL)
+    if(casoRMedic() != 2) return(NULL)
+    if(is.null(valores_usuario())) return(NULL)
     
+    
+    # library("vioplot")
     
     coordenadas <-   boxplot(minibase()[1],
-                             ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
-                             ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                             col = valores_usuario()$color,
-                             range = 0)
+                              ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+                              ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+                              col = valores_usuario()$color,
+                              range = 0)
     
-   # coordenadas <- round2(coordenadas, decimales())
+   vioplot(minibase()[1],
+           ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+           ylab = valores_usuario()$ylab, 
+           xlab = valores_usuario()$xlab,
+           col = valores_usuario()$color,
+           range = 0,
+           xaxt = "n")
+    
+ 
+    
+    # vioplot(minibase()[1],
+    #         ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+    #         ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
+    #         col = valores_usuario()$color)
     
     texto01 <- c("Mínimo", "Q1", "Q2 (Mediana)", "Q3", "Máximo")
     texto02 <- c("25%", "25%", "25%", "25%")
@@ -480,10 +482,10 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     if(is.null(casoRMedic())) return(NULL)
     if(casoRMedic() != 2) return(NULL)
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Gráfico Violín"),
       fluidRow(
         column(6,
-               plotOutput(ns("grafico01"))
+               plotOutput(ns("grafico01")) 
         ),
         column(6,
                bsButton(inputId = ns("controlador01"), 

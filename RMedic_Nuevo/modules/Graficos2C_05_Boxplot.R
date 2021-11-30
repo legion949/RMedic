@@ -1,7 +1,7 @@
 
 
 
-Graficos1C_04_Boxplot_UI <- function(id) {
+Graficos2C_05_Boxplot_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Graficos1C_04_Boxplot_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_04_Boxplot_SERVER <- function(input, output, session, 
+Graficos2C_05_Boxplot_SERVER <- function(input, output, session, 
                                          minibase, 
                                          batalla_naval,
                                          decimales,
-                                         casoRMedic,
-                                         tablas_1c) {
+                                         casoRMedic) {
   
   
   

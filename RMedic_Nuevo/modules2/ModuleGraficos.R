@@ -59,10 +59,10 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
              decimales = UserSelection$decimales)
   
   
-  callModule(module = GraficosQC_SERVER, id =  "graficos07",
-             minibase = MiniBase,
-             batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+  # callModule(module = GraficosQC_SERVER, id =  "graficos07",
+  #            minibase = MiniBase,
+  #            batalla_naval = UserSelection$batalla_naval,
+  #            decimales = UserSelection$decimales)
   
  
   
@@ -124,7 +124,7 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                     Graficos1C_UI(ns("graficos04")),
                     Graficos2Q_UI(ns("graficos05")),
                     Graficos2C_UI(ns("graficos06")),
-                    GraficosQC_UI(ns("graficos07")),
+                  #  GraficosQC_UI(ns("graficos07")),
                br(), br(), br(), br(), br(),
                     Tablas1Q_UI(ns("graficos08")),
                     Tablas1C_UI(ns("graficos09")),

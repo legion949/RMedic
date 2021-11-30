@@ -315,7 +315,7 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
       ),
       br(),
       br(),
-      bsButton(ns("reset"), "Resetear", type = "toggle", value = TRUE,
+      bsButton(ns("reset"), "Resetear Gráfico", type = "toggle", value = TRUE,
                icon("bars"), style = "primary", size = "large"
       ),
       bsButton(ns("controlador02"), "Aplicar todos los cambios", type = "toggle", value = TRUE,
@@ -398,7 +398,7 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
     if(is.null(valores_usuario())) return(NULL)
     
     
-    library("vioplot")
+    # library("vioplot")
     
     coordenadas <-   boxplot(minibase()[1],
                               ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
@@ -407,10 +407,12 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
                               range = 0)
     
    vioplot(minibase()[1],
-                             ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
-                             ylab = valores_usuario()$ylab, xlab = valores_usuario()$xlab,
-                             col = valores_usuario()$color,
-                             range = 0)
+           ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+           ylab = valores_usuario()$ylab, 
+           xlab = valores_usuario()$xlab,
+           col = valores_usuario()$color,
+           range = 0,
+           xaxt = "n")
     
  
     
@@ -481,10 +483,10 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
     if(is.null(casoRMedic())) return(NULL)
     if(casoRMedic() != 2) return(NULL)
     div(
-      h2("Gráfico de Boxplot"),
+      h2("Gráfico Violín"),
       fluidRow(
         column(6,
-               plotOutput(ns("grafico01"))
+               plotOutput(ns("grafico01")) 
         ),
         column(6,
                bsButton(inputId = ns("controlador01"), 
