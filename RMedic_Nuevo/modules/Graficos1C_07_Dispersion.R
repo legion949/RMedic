@@ -17,11 +17,10 @@ Graficos1C_07_Dispersion_UI <- function(id) {
 
 ## Segmento del server
 Graficos1C_07_Dispersion_SERVER <- function(input, output, session, 
-                                        minibase, 
-                                        batalla_naval,
-                                        decimales,
-                                        casoRMedic,
-                                        tablas_1c) {
+                                            minibase,
+                                            decimales,
+                                            control_ejecucion,
+                                            tablas_1c) {
   
   
   
@@ -31,11 +30,8 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   # Control interno 01
   control_interno01 <- reactive({
     
-    if(is.null(casoRMedic())) return(FALSE)
-    if(casoRMedic() != 2) return(FALSE)
-    
-    # Return Exitoso
-    return(TRUE)
+    if(is.null(control_ejecucion())) return(FALSE)
+    else return(control_ejecucion())
   })
   
   # Tabla de Medidas Resumen
@@ -111,6 +107,8 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   # Valores iniciales
   valores_iniciales <-  reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     
     
@@ -125,7 +123,7 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
     )
     
     
-    
+   
     
     return(valores)
   })
@@ -139,6 +137,9 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   
   # Colores seleccionados por el usuario
   colores_usuario <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     # Nota: la cantidad de colores seleccionados por el usuario por ser
     #        una cantidad que puede ser dinamica para algunas partes de RMedic.
@@ -218,12 +219,21 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   })
   
   
-  # Controlador 01
-  observeEvent(input$controlador01, {
+  
+  observeEvent(minibase(), {
     
-    delay(100, shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade"))
+    reseteo_logico(!reseteo_logico())
+    delay(400,     aplicador_logico(!aplicador_logico()))
+    # aplicador_logico(!aplicador_logico())
     
   })
+  
+  # # Controlador 01
+  # observeEvent(input$controlador01, {
+  #   
+  #   delay(100, shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade"))
+  #   
+  # })
   
   # Controlador 02
   observeEvent(input$controlador02, {
@@ -255,32 +265,32 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   
   
   
-  # Reseteo forzado
-  observeEvent(input$ylab, {
-    
-    
-    # Este reseteo forzado ocurre por que cuando cambia de variable
-    # no termina de resetear los valores del grafico anterior. 
-    # Entre otras cosas pasaba que como ylab salia la nueva variable, 
-    # pero no el resto de los valores, entonces cuando pasa que
-    # ylab es una columna elegida, se resetea todo.
-    #
-    # Seria un golazo encontrar otra forma para que al cambiar de variable
-    # efectivamente resetee tooodo.
-    if(input$ylab == colnames(minibase())[1]) {
-      
-      if(input$ylab != valores_usuario()$ylab) {
-        
-        delay(1000, aplicador_logico(!aplicador_logico()))
-        
-        
-      }
-    }
-    
-    
-    
-  })
-  
+  # # Reseteo forzado
+  # observeEvent(input$ylab, {
+  #   
+  #   
+  #   # Este reseteo forzado ocurre por que cuando cambia de variable
+  #   # no termina de resetear los valores del grafico anterior. 
+  #   # Entre otras cosas pasaba que como ylab salia la nueva variable, 
+  #   # pero no el resto de los valores, entonces cuando pasa que
+  #   # ylab es una columna elegida, se resetea todo.
+  #   #
+  #   # Seria un golazo encontrar otra forma para que al cambiar de variable
+  #   # efectivamente resetee tooodo.
+  #   if(input$ylab == colnames(minibase())[1]) {
+  #     
+  #     if(input$ylab != valores_usuario()$ylab) {
+  #       
+  #       delay(1000, aplicador_logico(!aplicador_logico()))
+  #       
+  #       
+  #     }
+  #   }
+  #   
+  #   
+  #   
+  # })
+  # 
   
   
   # Variable criterio de inclusion
@@ -373,6 +383,9 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   # Salida de colores
   output$MODcolor <- renderUI({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     label_armado <- "Color..."
     colores_internos <- valores_iniciales()$color
     cantidad <- length(colores_internos)
@@ -391,49 +404,40 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   })
   
   
-  output$texto_ayudaMin_x <- renderText({
-    texto <- paste0("El límite inferior del eje X debe ser igual o menor al mínimo 
+ 
+  
+  output$texto_ayudaMin_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    texto <- paste0("El límite inferior del eje Y debe ser igual o menor al mínimo 
     valor de la variable. ", "En este caso debe ser igual o menor a ",
-                    valores_iniciales()$x_min, ".")
+                    valores_iniciales()$y_min, ".")
     
-    if(input$x_min > valores_iniciales()$x_min) return(texto) else return(NULL)
-    
-  })
-  
-  
-  output$texto_ayudaMax_x <- renderText({
-    texto <- paste0("El límite superior del eje X debe ser igual o mayor al máximo
-    de la variable. ", "En este caso debe ser igual o mayor a ",
-                    valores_iniciales()$x_max, ".")
-    
-    if(input$x_max < valores_iniciales()$x_max) return(texto) else return(NULL)
+    if(!(input$y_min <= valores_iniciales()$y_min)) return(texto) else return(NULL)
     
   })
-  
-  
   
   
   output$texto_ayudaMax_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- paste0("El límite superior del eje Y debe ser igual o mayor al máximo
-    valor de frecuencias para las variables. En este caso debe ser mayor o igual a ",
-                    max(tabla_frecuencias()), ".")
+    de la variable. ", "En este caso debe ser igual o mayor a ",
+                    valores_iniciales()$y_max, ".")
     
-    if(input$y_max < max(tabla_frecuencias())) return(texto) else return(NULL)
-    
-  })
-  
-  
-  output$texto_ayudaMin_y <- renderText({
-    texto <- "El límite inferior del eje Y debe ser igual o mayor a cero ya que
-    el eje Y representa a las frecuencias de los valores de la variable."
-    
-    if(input$y_min < 0) return(texto) else return(NULL)
+    if(!(input$y_max >= valores_iniciales()$y_max)) return(texto) else return(NULL)
     
   })
   
   
   output$menu_general01 <- renderUI({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     
     div(
@@ -512,8 +516,10 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    # if(is.null(casoRMedic())) return(NULL)
-    #  if(casoRMedic() != 2) return(NULL)
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     #  if(is.null(valores_usuario())) return(NULL)
     #  if(is.null(base_interna())) return(NULL)
     
@@ -530,7 +536,8 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
     plot( x = rep(1, nrow(minibase())), y = minibase()[,1], col = valores_usuario()$color, 
           xlim = c(0.5, 1.5), 
           ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
-          xlab = valores_usuario()$xlab, ylab = valores_usuario()$ylab,
+          xlab = valores_usuario()$xlab, 
+          ylab = valores_usuario()$ylab,
           xaxt = "n",
           cex = 2,
           lwd = 2)
@@ -545,9 +552,11 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
-    #  if(is.null(casoRMedic())) return(NULL)
-    #  if(casoRMedic() != 2) return(NULL)
-    #  if(is.null(valores_usuario())) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    
+     # if(is.null(valores_usuario())) return(NULL)
     
     div(
       h2("Gráfico de Dispersión"),
@@ -560,7 +569,8 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = FALSE,
+                      #  value = FALSE,
+                        value = TRUE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),
@@ -576,3 +586,5 @@ Graficos1C_07_Dispersion_SERVER <- function(input, output, session,
   })
   
 }
+
+

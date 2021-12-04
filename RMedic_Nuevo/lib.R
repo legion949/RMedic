@@ -2688,40 +2688,66 @@ graficos_2c <- function(minibase = NULL,
                         xlab = NULL,
                         ylab = NULL,
                         xlim = NULL,
-                        ylim = NULL
+                        ylim = NULL,
+                        labvar1 = NULL, 
+                        labvar2 = NULL
                         ){
   
-  # Tabla de para 2C
-  tablas_2c <- RMedic_2c_tablas(input_base = minibase)
-  
-  # Medias
-  media <- as.numeric(as.character(tablas_2c[[1]][,2]))
-  names(media) <- tablas_2c[[1]][,1]
-  
-  # Desvios estandard
-  desvio_estandard <- as.numeric(as.character(tablas_2c[[1]][,3]))
-  names(desvio_estandard) <- tablas_2c[[1]][,1]
-  
-  
-  # Errores estandard
-  error_estandard <- as.numeric(as.character(tablas_2c[[6]][,5]))
-  names(error_estandard) <- tablas_2c[[1]][,1]
-  
+
   # Otros detalles
   cantidad_grupos <- 2
   margen <- 0.5
   
-  if(tipo_grafico == "mee") {
+  if(tipo_grafico == "xy") {
     
     # Rotulos
+    if(is.null(xlab)) xlab <- colnames(minibase)[1]
+    if(is.null(ylab)) ylab <- colnames(minibase)[2]
+    
+    if(is.null(xlim)) xlim <- c(min(minibase[,1]), max(minibase[,1]))
+    if(is.null(ylim)) ylim <- c(min(minibase[,2]), max(minibase[,2]))
+    
+    
+    # Tabla de para 2C
+    tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+    
+    plot(x = minibase[,1], y = minibase[,2],
+         col = cols,
+         cex = 2,
+         pch = 19,
+         xlab = xlab,
+         ylab = ylab,
+         xlim = xlim,
+         ylim = ylim
+    )
+    
+  } else
+    if(tipo_grafico == "mde") {
+    
+    # Rotulos de los ejes
     if(is.null(xlab)) xlab <- "Variables"
     if(is.null(ylab)) ylab <- "Rango de ambas variables"
     
+    # Limite del eje Y
     if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
     if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
     
-    # 
-
+    # Rotulos de las variables
+    if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+    if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+    
+    # Tabla de para 2C
+    tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+    
+    # Medias
+    media <- as.numeric(as.character(tablas_2c[[1]][,2]))
+    names(media) <- tablas_2c[[1]][,1]
+    
+    # Errores estandard
+    desvio_estandard <- as.numeric(as.character(tablas_2c[[1]][,3]))
+    names(desvio_estandard) <- tablas_2c[[1]][,1]
+    
+    
     # Pasamos toda la minibase a un vector
     VR <- as.vector(as.matrix(minibase))
     
@@ -2735,18 +2761,12 @@ graficos_2c <- function(minibase = NULL,
     # Calculamos los margenes del intervalo
     lista_grafica <- list()
     
-    for (k in 1:length(media)){
-      
-      tipos_intervalos <- c("1", "2", "3", "90%", "95%", "99%")
-      coeficientes <- c(1, 2, 3, 1.96, 2.45, 3.77)
-      matriz_valores <- matrix(NA, 2, length(tipos_intervalos))
-      matriz_valores[1,] <- media[k] - coeficientes*error_estandard[k]
-      matriz_valores[2,] <- media[k] + coeficientes*error_estandard[k]
-      colnames(matriz_valores) <- tipos_intervalos
-      rownames(matriz_valores) <- c("LI", "LS")
-      
-      lista_grafica[[k]] <- matriz_valores
-    }  
+    matriz_valores <- matrix(NA, 2, 2)
+    matriz_valores[1,] <- media - desvio_estandard 
+    matriz_valores[2,] <- media + desvio_estandard
+    colnames(matriz_valores) <- colnames(minibase)
+    rownames(matriz_valores) <- c("LI", "LS")
+    
     
     plot( x = FACTOR[1], y = VR[1], col = "white", 
           xlim = xlim, 
@@ -2756,18 +2776,536 @@ graficos_2c <- function(minibase = NULL,
           xaxt = "n",
           cex = 2,
           pch = 19)
-    axis(1, at=1:cantidad_grupos, labels=colnames(minibase))
+    axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
     
     
     # Graficamos las medias +- 1 error estandard  
-    for (k in 1:length(media)){
+    for (k in 1:ncol(matriz_valores)){
       
-      lines(c(k,k), lista_grafica[[k]][,1], lwd = 3)
+      lines(rep(k,nrow(matriz_valores)), matriz_valores[,k], lwd = 3)
       points(k, media[k],  cex = 2,  col = cols[k],  pch=19)  
       
       
     }
     
-  }
+  } else
+      if(tipo_grafico == "mee") {
+    
+        # Rotulos de los ejes
+        if(is.null(xlab)) xlab <- "Variables"
+        if(is.null(ylab)) ylab <- "Rango de ambas variables"
+        
+        # Limite del eje Y
+        if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+        if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+        
+        # Rotulos de las variables
+        if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+        if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+    
+
+    # Tabla de para 2C
+    tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+    
+    # Medias
+    media <- as.numeric(as.character(tablas_2c[[1]][,2]))
+    names(media) <- tablas_2c[[1]][,1]
+    
+    # Errores estandard
+    error_estandard <- as.numeric(as.character(tablas_2c[[6]][,5]))
+    names(error_estandard) <- tablas_2c[[1]][,1]
+    
+    
+    # Pasamos toda la minibase a un vector
+    VR <- as.vector(as.matrix(minibase))
+    
+    # Armamos la estructura que necesitamos
+    FACTOR <- rep(c(1:2), each = nrow(minibase))
+    
+    # Colores de cada punto... Un vector de colores
+    vector_colores <- rep(cols, each = nrow(minibase))
+    
+    
+    # Calculamos los margenes del intervalo
+    lista_grafica <- list()
+    
+      matriz_valores <- matrix(NA, 2, 2)
+      matriz_valores[1,] <- media - error_estandard 
+      matriz_valores[2,] <- media + error_estandard
+      colnames(matriz_valores) <- colnames(minibase)
+      rownames(matriz_valores) <- c("LI", "LS")
+      
+    
+    plot( x = FACTOR[1], y = VR[1], col = "white", 
+          xlim = xlim, 
+          ylim = ylim,
+          xlab = xlab, 
+          ylab = ylab,
+          xaxt = "n",
+          cex = 2,
+          pch = 19)
+    axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+    
+    
+    # Graficamos las medias +- 1 error estandard  
+    for (k in 1:ncol(matriz_valores)){
+      
+      lines(rep(k,nrow(matriz_valores)), matriz_valores[,k], lwd = 3)
+      points(k, media[k],  cex = 2,  col = cols[k],  pch=19)  
+      
+      
+    }
+    
+  } else 
+        if(tipo_grafico == "boxplot") {
+      
+          # Rotulos de los ejes
+          if(is.null(xlab)) xlab <- "Variables"
+          if(is.null(ylab)) ylab <- "Rango de ambas variables"
+          
+          # Limite del eje Y
+          if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+          if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+          
+          # Rotulos de las variables
+          if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+          if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+      
+      
+     
+      
+      
+      boxplot(minibase, 
+              col = cols, 
+              xlim = xlim, 
+              xlab = xlab, 
+              ylab = ylab,
+              xaxt = "n"
+              )
+      axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+   
+      
+    } else
+          if(tipo_grafico == "violinplot") {
+        
+            # Rotulos de los ejes
+            if(is.null(xlab)) xlab <- "Variables"
+            if(is.null(ylab)) ylab <- "Rango de ambas variables"
+            
+            # Limite del eje Y
+            if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+            if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+            
+            # Rotulos de las variables
+            if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+            if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+        
+        
+        
+        library(vioplot)
+        
+           
+        vioplot(minibase, 
+                col = cols, 
+              #  xlim = xlim,  # Lo cancele, por que sino tira mensaje!
+                xlab = xlab, 
+                ylab = ylab,
+                xaxt = "n"
+        
+            )
+        axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+        
+        
+      } else
+            if(tipo_grafico == "dispersion") {
+          
+              # Rotulos de los ejes
+              if(is.null(xlab)) xlab <- "Variables"
+              if(is.null(ylab)) ylab <- "Rango de ambas variables"
+              
+              # Limite del eje Y
+              if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+              if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+              
+              # Rotulos de las variables
+              if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+              if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+          
+         
+          
+          # Pasamos toda la minibase a un vector
+          VR <- as.vector(as.matrix(minibase))
+          
+          # Armamos la estructura que necesitamos
+          FACTOR <- rep(c(1:2), each = nrow(minibase))
+          
+          # Colores de cada punto... Un vector de colores
+          vector_colores <- rep(cols, each = nrow(minibase))
+          
+          
+          
+          
+          plot( x = FACTOR, y = VR, col = vector_colores, 
+                xlim = xlim, 
+                ylim = ylim,
+                xlab = xlab, 
+                ylab = ylab,
+                xaxt = "n",
+                cex = 2,
+                pch = 19)
+          axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+          
+          
+        
+          
+        } else
+              if(tipo_grafico == "conectores") {
+            
+                # Rotulos de los ejes
+                if(is.null(xlab)) xlab <- "Variables"
+                if(is.null(ylab)) ylab <- "Rango de ambas variables"
+                
+                # Limite del eje Y
+                if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+                if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+                
+                # Rotulos de las variables
+                if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+                if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+            
+            
+            
+            # Pasamos toda la minibase a un vector
+            VR <- as.vector(as.matrix(minibase))
+            
+            # Armamos la estructura que necesitamos
+            FACTOR <- rep(c(1:2), each = nrow(minibase))
+            
+            # Colores de cada punto... Un vector de colores
+            vector_colores <- rep(cols, each = nrow(minibase))
+            
+            
+            
+            
+            plot( x = FACTOR, y = VR, col = vector_colores, 
+                  xlim = xlim, 
+                  ylim = ylim,
+                  xlab = xlab, 
+                  ylab = ylab,
+                  xaxt = "n",
+                  cex = 2,
+                  pch = 19)
+            axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+            
+            for (k in 2:ncol(minibase)) {
+              for(m in 1:nrow(minibase))
+                lines(c((k-1), k), minibase[m,c((k-1), k)])  
+            }
+            
+            
+            
+            
+            
+          }
+    
+      
   
 }
+
+
+###################################################
+
+graficos_qc <- function(minibase = NULL, 
+                        tipo_grafico = NULL,
+                        cols = NULL,
+                        xlab = NULL,
+                        ylab = NULL,
+                        ylim = NULL
+
+){
+  
+  
+ 
+
+    if(tipo_grafico == "mde") {
+      
+      # Rotulos de los ejes
+      if(is.null(xlab)) xlab <- "Variables"
+      if(is.null(ylab)) ylab <- "Rango de ambas variables"
+      
+      # Limite del eje Y
+      if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+      if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+      
+      # Rotulos de las variables
+      if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+      if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+      
+      # Tabla de para 2C
+      tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+      
+      # Medias
+      media <- as.numeric(as.character(tablas_2c[[1]][,2]))
+      names(media) <- tablas_2c[[1]][,1]
+      
+      # Errores estandard
+      desvio_estandard <- as.numeric(as.character(tablas_2c[[1]][,3]))
+      names(desvio_estandard) <- tablas_2c[[1]][,1]
+      
+      
+      # Pasamos toda la minibase a un vector
+      VR <- as.vector(as.matrix(minibase))
+      
+      # Armamos la estructura que necesitamos
+      FACTOR <- rep(c(1:2), each = nrow(minibase))
+      
+      # Colores de cada punto... Un vector de colores
+      vector_colores <- rep(cols, each = nrow(minibase))
+      
+      
+      # Calculamos los margenes del intervalo
+      lista_grafica <- list()
+      
+      matriz_valores <- matrix(NA, 2, 2)
+      matriz_valores[1,] <- media - desvio_estandard 
+      matriz_valores[2,] <- media + desvio_estandard
+      colnames(matriz_valores) <- colnames(minibase)
+      rownames(matriz_valores) <- c("LI", "LS")
+      
+      
+      plot( x = FACTOR[1], y = VR[1], col = "white", 
+            xlim = xlim, 
+            ylim = ylim,
+            xlab = xlab, 
+            ylab = ylab,
+            xaxt = "n",
+            cex = 2,
+            pch = 19)
+      axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+      
+      
+      # Graficamos las medias +- 1 error estandard  
+      for (k in 1:ncol(matriz_valores)){
+        
+        lines(rep(k,nrow(matriz_valores)), matriz_valores[,k], lwd = 3)
+        points(k, media[k],  cex = 2,  col = cols[k],  pch=19)  
+        
+        
+      }
+      
+    } else
+      if(tipo_grafico == "mee") {
+        
+        # Rotulos de los ejes
+        if(is.null(xlab)) xlab <- "Variables"
+        if(is.null(ylab)) ylab <- "Rango de ambas variables"
+        
+        # Limite del eje Y
+        if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+        if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+        
+        # Rotulos de las variables
+        if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+        if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+        
+        
+        # Tabla de para 2C
+        tablas_2c <- RMedic_2c_tablas(input_base = minibase)
+        
+        # Medias
+        media <- as.numeric(as.character(tablas_2c[[1]][,2]))
+        names(media) <- tablas_2c[[1]][,1]
+        
+        # Errores estandard
+        error_estandard <- as.numeric(as.character(tablas_2c[[6]][,5]))
+        names(error_estandard) <- tablas_2c[[1]][,1]
+        
+        
+        # Pasamos toda la minibase a un vector
+        VR <- as.vector(as.matrix(minibase))
+        
+        # Armamos la estructura que necesitamos
+        FACTOR <- rep(c(1:2), each = nrow(minibase))
+        
+        # Colores de cada punto... Un vector de colores
+        vector_colores <- rep(cols, each = nrow(minibase))
+        
+        
+        # Calculamos los margenes del intervalo
+        lista_grafica <- list()
+        
+        matriz_valores <- matrix(NA, 2, 2)
+        matriz_valores[1,] <- media - error_estandard 
+        matriz_valores[2,] <- media + error_estandard
+        colnames(matriz_valores) <- colnames(minibase)
+        rownames(matriz_valores) <- c("LI", "LS")
+        
+        
+        plot( x = FACTOR[1], y = VR[1], col = "white", 
+              xlim = xlim, 
+              ylim = ylim,
+              xlab = xlab, 
+              ylab = ylab,
+              xaxt = "n",
+              cex = 2,
+              pch = 19)
+        axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+        
+        
+        # Graficamos las medias +- 1 error estandard  
+        for (k in 1:ncol(matriz_valores)){
+          
+          lines(rep(k,nrow(matriz_valores)), matriz_valores[,k], lwd = 3)
+          points(k, media[k],  cex = 2,  col = cols[k],  pch=19)  
+          
+          
+        }
+        
+      } else 
+        if(tipo_grafico == "boxplot") {
+          
+          # Rotulos de los ejes
+          if(is.null(xlab)) xlab <- colnames(minibase)[1]
+          if(is.null(ylab)) ylab <- colnames(minibase)[2]
+          
+          # Limite del eje Y
+          if(is.null(ylim)) ylim <- c(min(minibase[,2]), max(minibase[,2]))
+
+
+          boxplot(minibase[,2] ~ minibase[,1], 
+                  col = cols, 
+                  ylim = ylim, 
+                  xlab = xlab, 
+                  ylab = ylab,
+                  xaxt = "n"
+          )
+        #  axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+          
+          
+        } else
+          if(tipo_grafico == "violinplot") {
+            
+            # Rotulos de los ejes
+            if(is.null(xlab)) xlab <- "Variables"
+            if(is.null(ylab)) ylab <- "Rango de ambas variables"
+            
+            # Limite del eje Y
+            if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+            if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+            
+            # Rotulos de las variables
+            if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+            if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+            
+            
+            
+            library(vioplot)
+            
+            
+            vioplot(minibase, 
+                    col = cols, 
+                    #  xlim = xlim,  # Lo cancele, por que sino tira mensaje!
+                    xlab = xlab, 
+                    ylab = ylab,
+                    xaxt = "n"
+                    
+            )
+            axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+            
+            
+          } else
+            if(tipo_grafico == "dispersion") {
+              
+              # Rotulos de los ejes
+              if(is.null(xlab)) xlab <- "Variables"
+              if(is.null(ylab)) ylab <- "Rango de ambas variables"
+              
+              # Limite del eje Y
+              if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+              if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+              
+              # Rotulos de las variables
+              if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+              if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+              
+              
+              
+              # Pasamos toda la minibase a un vector
+              VR <- as.vector(as.matrix(minibase))
+              
+              # Armamos la estructura que necesitamos
+              FACTOR <- rep(c(1:2), each = nrow(minibase))
+              
+              # Colores de cada punto... Un vector de colores
+              vector_colores <- rep(cols, each = nrow(minibase))
+              
+              
+              
+              
+              plot( x = FACTOR, y = VR, col = vector_colores, 
+                    xlim = xlim, 
+                    ylim = ylim,
+                    xlab = xlab, 
+                    ylab = ylab,
+                    xaxt = "n",
+                    cex = 2,
+                    pch = 19)
+              axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+              
+              
+              
+              
+            } else
+              if(tipo_grafico == "conectores") {
+                
+                # Rotulos de los ejes
+                if(is.null(xlab)) xlab <- "Variables"
+                if(is.null(ylab)) ylab <- "Rango de ambas variables"
+                
+                # Limite del eje Y
+                if(is.null(ylim)) ylim <- c(min(minibase), max(minibase))
+                if(is.null(xlim)) xlim <- c(margen, (cantidad_grupos + margen))
+                
+                # Rotulos de las variables
+                if(is.null(labvar1)) labvar1 <- colnames(minibase)[1]
+                if(is.null(labvar2)) labvar2 <- colnames(minibase)[2]
+                
+                
+                
+                # Pasamos toda la minibase a un vector
+                VR <- as.vector(as.matrix(minibase))
+                
+                # Armamos la estructura que necesitamos
+                FACTOR <- rep(c(1:2), each = nrow(minibase))
+                
+                # Colores de cada punto... Un vector de colores
+                vector_colores <- rep(cols, each = nrow(minibase))
+                
+                
+                
+                
+                plot( x = FACTOR, y = VR, col = vector_colores, 
+                      xlim = xlim, 
+                      ylim = ylim,
+                      xlab = xlab, 
+                      ylab = ylab,
+                      xaxt = "n",
+                      cex = 2,
+                      pch = 19)
+                axis(1, at=1:cantidad_grupos, labels = c(labvar1, labvar2))
+                
+                for (k in 2:ncol(minibase)) {
+                  for(m in 1:nrow(minibase))
+                    lines(c((k-1), k), minibase[m,c((k-1), k)])  
+                }
+                
+                
+                
+                
+                
+              }
+  
+  
+  
+}
+

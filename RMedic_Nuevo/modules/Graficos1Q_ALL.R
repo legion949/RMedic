@@ -12,10 +12,10 @@ Graficos1Q_UI <- function(id) {
 
 ## Segmento del server
 Graficos1Q_SERVER <- function(input, output, session, 
-                            minibase, 
-                            batalla_naval,
-                            casoRMedic = casoRMedic,
-                            decimales) {
+                              minibase, 
+                              casoRMedic,
+                              caso,
+                              decimales) {
   
   
   
@@ -23,46 +23,53 @@ Graficos1Q_SERVER <- function(input, output, session,
   # NameSpaceasing for the session
   ns <- session$ns
   
-  # Caso 1: 1Q
-  casoRMedic <- reactive({
+  
+  # Control ejecucion 01
+  control_ejecucion <- reactive({
     
-    if(is.null(batalla_naval())) return(NULL)
-    if(is.null(batalla_naval()[[4]])) return(NULL)
-    if(length(batalla_naval()[[4]]) == 0) return(NULL)
-    if(batalla_naval()[[4]] == '') return(NULL)
-    casoRMedic <- batalla_naval()[[4]]
-    #casoRMedic <- as.numeric(as.character(as.vector(batalla_naval()[[4]])))
-    casoRMedic
+    
+    if(is.null(casoRMedic())) return(FALSE)
+    if(is.null(caso)) return(FALSE)
+    
+    if(casoRMedic() == caso) return(TRUE) else return(FALSE)
     
   })
   
-
   
-  DF_interna <-  reactive({RMedic_1q_tablas(minibase(), decimales())[[1]] })
-
   
-  callModule(module = Graficos1Q_02_Barras_SERVER, id =  "graficos03B",
+  
+  tablas_1q <-  reactive({RMedic_1q_tablas(minibase(), decimales())[[1]] })
+  
+  callModule(module = Graficos1Q_01_RMedicHelp_SERVER, 
+             id =  "graficos03A",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic,
-             DF_interna = DF_interna)
+             control_ejecucion = control_ejecucion,
+             tablas_1q = tablas_1q)
   
   
-  callModule(module = Graficos1Q_03_Tortas_SERVER, id =  "graficos03C",
+  callModule(module = Graficos1Q_02_Barras_SERVER, 
+             id =  "graficos03B",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic,
-             DF_interna = DF_interna)
+             control_ejecucion = control_ejecucion,
+             tablas_1q = tablas_1q)
+   
   
+  callModule(module = Graficos1Q_03_Tortas_SERVER, 
+             id =  "graficos03C",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             tablas_1q = tablas_1q)
+
   
  
   output$SeccionGraficos1Q <- renderUI({
     
     # Especificaciones de cumplimiento
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 1) return(NULL)
+    if(is.null(control_ejecucion())) return(NULL)
+    if(!control_ejecucion()) return(NULL)
     
     
     
@@ -71,73 +78,15 @@ Graficos1Q_SERVER <- function(input, output, session,
       h2("RMedic - Gráficos para 1 Variable Categórica"),
       tabsetPanel(id = ns("Graficos_1q"),
                   tabPanel(title = "RMedic Help!", value = 1,
-                           fluidRow(
-                             column(4, 
-                                    radioButtons(inputId = "help_graficos_1q",
-                                                 label = h3("Selección de Ayuda Automática"),
-                                                 choices = c("RMedic Here!" = 1,
-                                                             "Barras" = 2,
-                                                             "Tortas" = 3)
-                                    )
-                             ),
-                             column(8,
-                                    br(),
-                                    conditionalPanel(condition = "input.help_graficos_1q == 1",
-                                                     div(
-                                                       h3("RMedic Here!"),
-                                                       HTML(
-                      "Los gráficos más utilizados aplicados a una variable categórica son:<br/>
-                      - Gráfico de <b>Barras</b>.<br/>
-                      - Gráfico de <b>Tortas</b>.<br/>
-                      Seleccionando la ayuda de cada uno encontrarás un resumen con
-                      detalles teóricos y estructura de la base de datos.<br/>
-                      Estos te ayudarán a determinar si estas herramientas pueden ser
-                      aplicadas en tu trabajo."
-                                                       )
-                                                     )
-                                    ),
-                                    conditionalPanel(condition = "input.help_graficos_1q == 2",
-                                                     div(
-                                                       h3("Gráfico de Barras"),
-                                                       HTML(
-                            "Se presenta un gráfico que manifiesta las categorías 
-                            de la variable en el eje X. La altura de las barras 
-                            representa las frecuencias de las categorías en el eje Y."
-                                                       )
-                                                     )
-                                    ),
-                                    conditionalPanel(condition = "input.help_graficos_1q == 3",
-                                                     div(
-                                                       h3("Gráfico de Tortas"),
-                                                       HTML(
-                            "Se presenta un gráfico que manifiesta las categorías 
-                            de una variable cualitativa como porciones de una torta.
-                            El tamaño de cada porción manifiesta la frecuencia de cada 
-                            categoría."
-                                                       )
-                                                     )
-                                    ),
-                             )
-                           )
-                  ),
+                           Graficos1Q_01_RMedicHelp_UI(ns("graficos04A")),
+                          ),
                   tabPanel(title = "Barras", value = 2,
                            Graficos1Q_02_Barras_UI(ns("graficos03B"))
                            ),
                   tabPanel(title = "Tortas", value = 3,
-                           # h3(textOutput(ns("Salida_texto_1q_RMedic_02"))),
-                           # tableOutput(ns("Salida_tabla_1q_RMedic_02")),
-                           # br(),
-                           # h3(textOutput(ns("Salida_texto_1q_RMedic_03"))),
-                           # tableOutput(ns("Salida_tabla_1q_RMedic_03")),
-                           # br(),
-                           # h3(textOutput(ns("Salida_texto_1q_RMedic_04"))),
-                           # tableOutput(ns("Salida_tabla_1q_RMedic_04")),
-                           # br() 
-                         
-                           #plotOutput(ns("grafico_tortas_1q"))
                            Graficos1Q_03_Tortas_UI(ns("graficos03C"))
                            )
-      ),
+      )
     )
   })
   

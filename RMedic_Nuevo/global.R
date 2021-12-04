@@ -29,6 +29,7 @@ source("modules/Tablas2C.R")
 source("modules/TablasQC.R")
 
 source("modules/Graficos1Q_ALL.R")
+source("modules/Graficos1Q_01_RMedicHelp.R")
 source("modules/Graficos1Q_02_Barras.R")
 source("modules/Graficos1Q_03_Tortas.R")
 
@@ -45,7 +46,7 @@ source("modules/Graficos1C_08_Puntos.R")
 
 source("modules/Graficos2Q_ALL.R")
 
-
+# Graficos 2C
 source("modules/Graficos2C_ALL.R")
 source("modules/Graficos2C_01_RMedicHelp.R")
 source("modules/Graficos2C_02_XY.R")
@@ -55,7 +56,18 @@ source("modules/Graficos2C_05_Boxplot.R")
 source("modules/Graficos2C_06_Violinplot.R")
 source("modules/Graficos2C_07_Dispersion.R")
 source("modules/Graficos2C_08_Conectores.R")
-source("modules/Graficos2C_ALL.R")
+
+
+
+# Graficos QC
+source("modules/GraficosQC_ALL.R")
+source("modules/GraficosQC_01_RMedicHelp.R")
+source("modules/GraficosQC_02_MediaDesvioEstandard.R")
+source("modules/GraficosQC_03_MediaErrorEstandard.R")
+source("modules/GraficosQC_04_Boxplot.R")
+source("modules/GraficosQC_05_Violinplot.R")
+source("modules/GraficosQC_06_Dispersion.R")
+
 
 
 source("modules2/ModuleBase.R")

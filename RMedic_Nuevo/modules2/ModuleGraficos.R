@@ -25,6 +25,21 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                               zocalo_CIE = zocalo_CIE,
                               verbatim = FALSE)
   
+  batalla_naval <- UserSelection$batalla_naval
+  casoRMedic <- reactive({
+    
+    if(is.null(batalla_naval())) return(NULL)
+    if(is.null(batalla_naval()[[4]])) return(NULL)
+    if(length(batalla_naval()[[4]]) == 0) return(NULL)
+    if(batalla_naval()[[4]] == '') return(NULL)
+    casoRMedic <- batalla_naval()[[4]]
+    #casoRMedic <- as.numeric(as.character(as.vector(batalla_naval()[[4]])))
+    casoRMedic
+    
+  })
+  decimales <- UserSelection$decimales
+  
+ # observe(cat("casoRMedic()1: ", casoRMedic(), "\n"))
   
   MiniBase <- callModule(module = MiniBaseSERVER, id =  "graficos02",
                          base = base,
@@ -33,36 +48,51 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
   
   
 
+    
 
-  callModule(module = Graficos1Q_SERVER, id =  "graficos03",
-             minibase = MiniBase,
-             batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
-  
-  
-  callModule(module = Graficos1C_SERVER, id =  "graficos04",
-             minibase = MiniBase,
-             batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
-  
-  
-  callModule(module = Graficos2Q_SERVER, id =  "graficos05",
-             minibase = MiniBase,
-             batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
-  
- 
-  
-  callModule(module = Graficos2C_SERVER, id =  "graficos06",
-             minibase = MiniBase,
-             batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
-  
-  
-  # callModule(module = GraficosQC_SERVER, id =  "graficos07",
+    
+    
+  # # Caso 1: 1Q
+  # callModule(module = Graficos1Q_SERVER, id =  "graficos03",
+  #            minibase = MiniBase,
+  #            casoRMedic = casoRMedic,
+  #            caso = 1,
+  #            decimales = decimales)
+  # 
+  # 
+  # 
+  # # Caso 2 : 1C
+  # callModule(module = Graficos1C_SERVER, id =  "graficos04",
+  #            minibase = MiniBase,
+  #            casoRMedic = casoRMedic,
+  #            caso = 2,
+  #            decimales = decimales,
+  #            batalla_naval = batalla_naval)
+
+  # callModule(module = Graficos2Q_SERVER, id =  "graficos05",
   #            minibase = MiniBase,
   #            batalla_naval = UserSelection$batalla_naval,
   #            decimales = UserSelection$decimales)
+  # 
+  # 
+  # 
+  
+  # # Caso 4: 2C
+  # callModule(module = Graficos2C_SERVER, id =  "graficos06",
+  #            minibase = MiniBase,
+  #            casoRMedic = casoRMedic,
+  #            caso = 4,
+  #            decimales = decimales,
+  #            batalla_naval = batalla_naval)
+
+  
+  # Caso 5: QC
+  callModule(module = GraficosQC_SERVER, id =  "graficos07",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 5,
+             decimales = decimales,
+             batalla_naval = batalla_naval)
   
  
   
@@ -72,29 +102,29 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
   callModule(module = Tablas1Q_SERVER, id =  "graficos08",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+             decimales = decimales)
   
   
   callModule(module = Tablas1C_SERVER, id =  "graficos09",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+             decimales = decimales)
   
  
   callModule(module = Tablas2Q_SERVER, id =  "graficos10",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+             decimales = decimales)
   
   callModule(module = Tablas2C_SERVER, id =  "graficos11",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+             decimales = decimales)
   
   callModule(module = TablasQC_SERVER, id =  "graficos12",
              minibase = MiniBase,
              batalla_naval = UserSelection$batalla_naval,
-             decimales = UserSelection$decimales)
+             decimales = decimales)
   
   menuGRAFICOS <- reactive({
     
@@ -124,7 +154,7 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
                     Graficos1C_UI(ns("graficos04")),
                     Graficos2Q_UI(ns("graficos05")),
                     Graficos2C_UI(ns("graficos06")),
-                  #  GraficosQC_UI(ns("graficos07")),
+                    GraficosQC_UI(ns("graficos07")),
                br(), br(), br(), br(), br(),
                     Tablas1Q_UI(ns("graficos08")),
                     Tablas1C_UI(ns("graficos09")),

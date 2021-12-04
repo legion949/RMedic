@@ -128,11 +128,9 @@ Graficos2C_01_RMedicHelp_UI <- function(id) {
 
 ## Segmento del server
 Graficos2C_01_RMedicHelp_SERVER <- function(input, output, session,
-                                            minibase, 
-                                            batalla_naval,
+                                            minibase,
                                             decimales,
-                                            casoRMedic,
-                                            tablas_1c) {
+                                            control_ejecucion) {
   
   
   

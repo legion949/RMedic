@@ -514,7 +514,8 @@ BatallaNavalSERVER <- function(input, output, session,
       armado <- paste0("<b><u>Advertencia:</u> ", 
                        "La variable 1 '", input$var1, "' no puede
                         ser considerada numérica ya que posee letras y/o símbolos.
-                        Realice un CONTROL sobre esta variable.</b>", 
+                        Esto imposibilita la generación de cualquier tipo de tablas, gráficos y test
+                        estadísticos. Realice un CONTROL sobre esta variable.</b>", 
                        "<br/><br/><br/><br/>")
       
       armado
@@ -531,6 +532,8 @@ BatallaNavalSERVER <- function(input, output, session,
       armado <- paste0("<b><u>Advertencia:</u> ", 
                        "La variable 2 '", input$var2, "' no puede
                         ser considerada numérica ya que posee letras y/o símbolos.
+                        Esto imposibilita la generación de cualquier tipo de tablas, gráficos y test
+                        estadísticos.
                         Realice un CONTROL sobre esta variable.</b>", 
                        "<br/><br/><br/><br/>")
       

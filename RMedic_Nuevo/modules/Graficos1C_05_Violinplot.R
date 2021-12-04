@@ -17,11 +17,10 @@ Graficos1C_05_Violinplot_UI <- function(id) {
 
 ## Segmento del server
 Graficos1C_05_Violinplot_SERVER <- function(input, output, session, 
-                                         minibase, 
-                                         batalla_naval,
-                                         decimales,
-                                         casoRMedic,
-                                         tablas_1c) {
+                                            minibase,
+                                            decimales,
+                                            control_ejecucion,
+                                            tablas_1c) {
   
   
   
@@ -29,6 +28,12 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   ns <- session$ns
   
   
+  # Control interno 01
+  control_interno01 <- reactive({
+    
+    if(is.null(control_ejecucion())) return(FALSE)
+    else return(control_ejecucion())
+  })
   
   
   # xxchange <- reactive({
@@ -38,6 +43,9 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   colores_seleccionados <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     
     cantidad <- 1
@@ -69,11 +77,24 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   aplicador_logico <- reactiveVal(F)
   
   
-  observeEvent(input$controlador01, {
+  
+  observeEvent(minibase(), {
     
-    shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+    reseteo_logico(!reseteo_logico())
+    delay(400,     aplicador_logico(!aplicador_logico()))
+    # aplicador_logico(!aplicador_logico())
     
   })
+  
+  
+  # 
+  # observeEvent(input$controlador01, {
+  #   
+  #   shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+  #   
+  # })
+  # 
+  
   
   
   observeEvent(input$controlador02, {
@@ -95,8 +116,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   medidas_resumen <- reactive({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     
     
@@ -126,22 +147,22 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   
-  observeEvent(input$ylab, {
-    
-    
-    if(input$ylab == colnames(minibase())[1]) {
-      
-      if(input$ylab != valores_usuario()$ylab) {
-        
-        delay(1000, aplicador_logico(!aplicador_logico()))
-        
-        #  reseteo_logico(!reseteo_logico())
-      }
-    }
-    
-    # reseteo_logico(!reseteo_logico())
-    
-  })
+  # observeEvent(input$ylab, {
+  #   
+  #   
+  #   if(input$ylab == colnames(minibase())[1]) {
+  #     
+  #     if(input$ylab != valores_usuario()$ylab) {
+  #       
+  #       delay(1000, aplicador_logico(!aplicador_logico()))
+  #       
+  #       #  reseteo_logico(!reseteo_logico())
+  #     }
+  #   }
+  #   
+  #   # reseteo_logico(!reseteo_logico())
+  #   
+  # })
   
   
   
@@ -223,6 +244,9 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   # Salida de colores
   output$MODcolor <- renderUI({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     label_armado <- "Color..."
     colores_internos <- valores_iniciales()$color
     cantidad <- length(colores_internos)
@@ -244,6 +268,10 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   output$texto_ayudaMax_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
     valor de la variable."
     
@@ -253,6 +281,10 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   output$texto_ayudaMin_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
     valor de la variable."
     
@@ -262,6 +294,9 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   
   output$menu_general01 <- renderUI({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     div(
       fluidRow(
@@ -338,6 +373,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   valores_iniciales <-  reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     
     
@@ -361,6 +398,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     if(is.null(valores_iniciales())) return(NULL)
     
@@ -393,8 +432,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(valores_usuario())) return(NULL)
     
     
@@ -480,8 +519,12 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    
+    # if(is.null(valores_usuario())) return(NULL)
+    
     div(
       h2("Gráfico Violín"),
       fluidRow(
@@ -493,7 +536,8 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = FALSE,
+                      #  value = FALSE,
+                      value = TRUE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),
@@ -509,3 +553,4 @@ Graficos1C_05_Violinplot_SERVER <- function(input, output, session,
   })
   
 }
+

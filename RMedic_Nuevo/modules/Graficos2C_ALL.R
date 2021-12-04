@@ -11,10 +11,11 @@ Graficos2C_UI <- function(id) {
 
 ## Segmento del server
 Graficos2C_SERVER <- function(input, output, session, 
-                              minibase, 
-                              batalla_naval,
+                              minibase,
                               casoRMedic,
-                              decimales) {
+                              caso,
+                              decimales,
+                              batalla_naval) {
   
   
   
@@ -22,104 +23,99 @@ Graficos2C_SERVER <- function(input, output, session,
   # NameSpaceasing for the session
   ns <- session$ns
   
-  # Caso 4: 2C
-  casoRMedic <- reactive({
+  # Control ejecucion 01
+  control_ejecucion <- reactive({
     
-    if(is.null(batalla_naval())) return(NULL)
-    if(is.null(batalla_naval()[[4]])) return(NULL)
-    if(length(batalla_naval()[[4]]) == 0) return(NULL)
-    if(batalla_naval()[[4]] == '') return(NULL)
-    casoRMedic <- batalla_naval()[[4]]
-    #casoRMedic <- as.numeric(as.character(as.vector(batalla_naval()[[4]])))
-    casoRMedic
+    ejecucion <- FALSE
+    if(is.null(casoRMedic())) return(ejecucion)
+    if(is.null(caso)) return(ejecucion)
+    
+    if(casoRMedic() == caso) {
+      
+      if(batalla_naval()[[6]]) ejecucion <- TRUE else ejecucion <- FALSE 
+      
+    } else ejecucion <- FALSE
+    
+    
+    return(ejecucion)
     
   })
   
   
-  callModule(module = Graficos2C_01_RMedicHelp_SERVER, 
+  
+  callModule(module = Graficos2C_01_RMedicHelp_SERVER,
              id =  "graficos06A",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             control_ejecucion = control_ejecucion)
+
+
   
-  
-  callModule(module = Graficos2C_02_XY_SERVER, 
+  # Grafico 1 : XY
+  callModule(module = Graficos2C_02_XY_SERVER,
              id =  "graficos06B",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
+             control_ejecucion = control_ejecucion)
 
-  
-  callModule(module = Graficos2C_03_MediaDesvioEstandard_SERVER, 
+
+  callModule(module = Graficos2C_03_MediaDesvioEstandard_SERVER,
              id =  "graficos06C",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)  
+             control_ejecucion = control_ejecucion)
   
-  
-  callModule(module = Graficos2C_04_MediaErrorEstandard_SERVER, 
+
+
+  callModule(module = Graficos2C_04_MediaErrorEstandard_SERVER,
              id =  "graficos06D",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)  
-  
-  
-  callModule(module = Graficos2C_05_Boxplot_SERVER, 
+             control_ejecucion = control_ejecucion)
+
+
+  callModule(module = Graficos2C_05_Boxplot_SERVER,
              id =  "graficos06E",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
-  
-  
-  callModule(module = Graficos2C_06_Violinplot_SERVER, 
-             id =  "graficos06F",
-             minibase = minibase,
-             batalla_naval = batalla_naval,
-             decimales = decimales,
-             casoRMedic = casoRMedic)
+             control_ejecucion = control_ejecucion)
   
   
 
-  callModule(module = Graficos2C_07_Dispersion_SERVER, 
+
+  callModule(module = Graficos2C_06_Violinplot_SERVER,
+             id =  "graficos06F",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion)
+  
+
+
+
+  callModule(module = Graficos2C_07_Dispersion_SERVER,
              id =  "graficos06G",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
-  
-  
-  callModule(module = Graficos2C_08_Conectores_SERVER, 
+             control_ejecucion = control_ejecucion)
+
+
+  callModule(module = Graficos2C_08_Conectores_SERVER,
              id =  "graficos06H",
              minibase = minibase,
-             batalla_naval = batalla_naval,
              decimales = decimales,
-             casoRMedic = casoRMedic)
-  
-  # 
-  # 
-  # callModule(module = Graficos1Q_03_Tortas_SERVER, id =  "graficos03C",
-  #            minibase = minibase,
-  #            batalla_naval = batalla_naval,
-  #            decimales = decimales,
-  #            casoRMedic = casoRMedic,
-  #            DF_interna = DF_interna)
-  
+             control_ejecucion = control_ejecucion)
+
+ 
   
   
   output$SeccionGraficos2C <- renderUI({
 
     # Especificaciones de cumplimiento
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 4) return(NULL)
+    if(is.null(control_ejecucion())) return(NULL)
+    if(!control_ejecucion()) return(NULL)
 
 
 
-    # Si es el caso 1, seguimos!
 
       div(
         h2("RMedic - Gráficos para 2 Variables Cuantitativas"),

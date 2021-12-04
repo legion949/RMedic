@@ -1,36 +1,32 @@
 
 
 
-Graficos1C_01_RMedicHelp_UI <- function(id) {
+GraficosQC_01_RMedicHelp_UI <- function(id) {
   
   ns <- NS(id)
   
   fluidRow(
     column(4,
-           radioButtons(inputId = "help_graficos_1c",
+           radioButtons(inputId = "help_graficos_qc",
                         label = h3("Selección de Ayuda Automática"),
                         choices = c("RMedic Here!" = 1,
                                     "Media y Desvío Estándard" = 2,
                                     "Media y Error Estándard" = 3,
                                     "Boxplot" = 4,
                                     "Violín plot" = 5,
-                                    "Histograma" = 6,
-                                    "Dispersión" = 7,
-                                    "Puntos" = 8)
+                                    "Dispersión" = 6)
            )),
     column(8,
-           conditionalPanel(condition = "input.help_graficos_1c == 1", 
+           conditionalPanel(condition = "input.help_graficos_qc == 1", 
                             div(
                               h3("RMedic Here!"),
                               HTML(
-                                "Los gráficos más utilizados aplicados a una variable numérica son:<br/>
+                                "Los gráficos más utilizados aplicados a dos variables siendo 1 categórica y 1 numérica son:<br/>
                       - Gráfico de <b>Media y Desvío Estándard</b>.<br/>
                       - Gráfico de <b>Media y Error Estándard</b>.<br/>
                       - Gráfico de <b>Boxplot</b>.<br/>
                       - Gráfico de <b>Violín</b>.<br/>
-                      - Gráfico de <b>Histograma</b>.<br/>
                       - Gráfico de <b>Dispersión</b>.<br/>
-                      - Gráfico de <b>Puntos</b>.<br/>
                       Seleccionando la ayuda de cada uno encontrarás un resumen con
                       detalles teóricos y estructura de la base de datos.<br/>
                       Estos te ayudarán a determinar si estas herramientas pueden ser
@@ -38,7 +34,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
                             ),
-           conditionalPanel(condition = "input.help_graficos_1c == 2", 
+           conditionalPanel(condition = "input.help_graficos_qc == 2", 
                             div(
                               h3("Gráfico de Medias y Desvío Estándard"),
                               HTML(
@@ -48,7 +44,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 )
                               )
                             ),
-           conditionalPanel(condition = "input.help_graficos_1c == 3", 
+           conditionalPanel(condition = "input.help_graficos_qc == 3", 
                             div(
                               h3("Gráfico de Medias y Error Estándard"),
                               HTML(
@@ -58,7 +54,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 4", 
+           conditionalPanel(condition = "input.help_graficos_qc == 4", 
                             div(
                               h3("Boxplot"),
                               HTML(
@@ -70,7 +66,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 5", 
+           conditionalPanel(condition = "input.help_graficos_qc == 5", 
                             div(
                               h3("Violín Plot"),
                               HTML(
@@ -83,18 +79,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                               )
                             )
            ),
-           conditionalPanel(condition = "input.help_graficos_1c == 6", 
-                            div(
-                              h3("Histograma"),
-                              HTML(
-                                "Se presenta un histograma de frecuencias. La cantidad de 
-                                intervalos corresponde a la estimación otorgada por el 
-                                cálculo de Sturges. El usuario puede cambiar la cantidad 
-                                de intervalos. Los valores extremos de los intervalos pueden 
-                                ser abiertos o cerrados a elección del usuario.")
-                            )
-           ),
-           conditionalPanel(condition = "input.help_graficos_1c == 7", 
+           conditionalPanel(condition = "input.help_graficos_qc == 6", 
                             div(
                               h3("Dispersión"),
                               HTML(
@@ -103,17 +88,7 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
                                 circunsferencia."
                                 )
                             )
-           ),
-           conditionalPanel(condition = "input.help_graficos_1c == 8", 
-                            div(
-                              h3("Puntos"),
-                              HTML(
-                                "Se presenta un gráfico donde todos los valores 
-                                de la variable están alineados respecto al eje X, y 
-                                son apilados en la medida de su frecuencia."
-                              )
-                            )
-           ),
+           )
            )
            )
   
@@ -127,11 +102,11 @@ Graficos1C_01_RMedicHelp_UI <- function(id) {
 
 
 ## Segmento del server
-Graficos1C_01_RMedicHelp_SERVER <- function(input, output, session,
+GraficosQC_01_RMedicHelp_SERVER <- function(input, output, session,
                                             minibase,
                                             decimales,
                                             control_ejecucion,
-                                            tablas_1c) {
+                                            tabla_qc) {
   
   
   
@@ -145,10 +120,3 @@ Graficos1C_01_RMedicHelp_SERVER <- function(input, output, session,
   
   
 }
-
-
-
-
-
-
-

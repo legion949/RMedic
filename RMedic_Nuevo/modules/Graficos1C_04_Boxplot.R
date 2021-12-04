@@ -17,10 +17,9 @@ Graficos1C_04_Boxplot_UI <- function(id) {
 
 ## Segmento del server
 Graficos1C_04_Boxplot_SERVER <- function(input, output, session, 
-                                         minibase, 
-                                         batalla_naval,
+                                         minibase,
                                          decimales,
-                                         casoRMedic,
+                                         control_ejecucion,
                                          tablas_1c) {
   
   
@@ -30,15 +29,26 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   
+  # Control interno 01
+  control_interno01 <- reactive({
+    
+    if(is.null(control_ejecucion())) return(FALSE)
+    else return(control_ejecucion())
+  })
+  
   
   # xxchange <- reactive({
   #   paste(ylab_interno())
   # })
   
   
+#  initialInputs <- isolate(reactiveValuesToList(input))
+
   
   colores_usuario <- reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     cantidad <- 1
     armado <- "Color..."
@@ -69,11 +79,20 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   aplicador_logico <- reactiveVal(F)
   
   
-  observeEvent(input$controlador01, {
+  observeEvent(minibase(), {
     
-    shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+    reseteo_logico(!reseteo_logico())
+    delay(400,     aplicador_logico(!aplicador_logico()))
+    # aplicador_logico(!aplicador_logico())
     
   })
+  
+  
+  # observeEvent(input$controlador01, {
+  #   
+  #   shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+  #   
+  # })
   
   
   observeEvent(input$controlador02, {
@@ -82,6 +101,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     aplicador_logico(!aplicador_logico())
     
   })
+  
+  
   
   
   observeEvent(input$reset, {
@@ -95,8 +116,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   medidas_resumen <- reactive({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     
     
@@ -126,38 +147,39 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   
-  observeEvent(input$ylab, {
-    
-    
-    if(input$ylab == colnames(minibase())[1]) {
-      
-      if(input$ylab != valores_usuario()$ylab) {
-        
-        delay(1000, aplicador_logico(!aplicador_logico()))
-        
-        #  reseteo_logico(!reseteo_logico())
-      }
-    }
-    
-    # reseteo_logico(!reseteo_logico())
-    
-  })
-  
+  # observeEvent(input$ylab, {
+  #   
+  #   
+  #   if(input$ylab == colnames(minibase())[1]) {
+  #     
+  #     if(input$ylab != valores_usuario()$ylab) {
+  #       
+  #       delay(1000, aplicador_logico(!aplicador_logico()))
+  #       
+  #       #  reseteo_logico(!reseteo_logico())
+  #     }
+  #   }
+  #   
+  #   # reseteo_logico(!reseteo_logico())
+  #   
+  # })
+  # 
   
   
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
     
-    updateRadioButtons(session,
-                       inputId = "ayuda",
-                       label = "Ayuda en el gráfico...",
-                       choices = c("Sin detalle" = F,
-                                   "Agregar especificaciones" = T
-                       ),
-                       selected = F
-    )
+    # freezeReactiveValue(input, "ayuda")
+    # updateRadioButtons(session,
+    #                    inputId = "ayuda",
+    #                    label = "Ayuda en el gráfico...",
+    #                    choices = c("Sin detalle" = F,
+    #                                "Agregar especificaciones" = T
+    #                    ),
+    #                    selected = F
+    # )
     
-    
+    freezeReactiveValue(input, "y_max")
     updateNumericInput(session,
                        inputId = "y_max",
                        label = "Máximo eje Y", 
@@ -166,7 +188,7 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
                        max = NA
     )
     
-    
+    freezeReactiveValue(input, "y_min")
     updateNumericInput(session,
                        inputId = "y_min",
                        label = "Mínimo eje Y", 
@@ -176,13 +198,15 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
     )
     
     
-    
+    freezeReactiveValue(input, "ylab")
     updateTextInput(session,
                     inputId = "ylab",
                     label = "Rótulo eje Y",
                     value = valores_iniciales()$ylab
     )
     
+    
+    freezeReactiveValue(input, "xlab")
     updateTextInput(session,
                     inputId = "xlab",
                     label = "Rótulo eje X",
@@ -203,6 +227,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
       
       nombre_input <- paste("col", i, sep="_")
       
+      
+      freezeReactiveValue(input, nombre_input)
       colourpicker::updateColourInput(session,
                                       inputId = nombre_input,
                                       label = label_armado[i],
@@ -222,6 +248,9 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   # Salida de colores
   output$MODcolor <- renderUI({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     label_armado <- "Color..."
     colores_internos <- valores_iniciales()$color
@@ -244,6 +273,10 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   output$texto_ayudaMax_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- "El límite superior del eje Y debe ser igual o mayor al máximo
     valor de la variable."
     
@@ -253,6 +286,10 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   output$texto_ayudaMin_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- "El límite inferior del eje Y debe ser igual o menor al mínimo 
     valor de la variable."
     
@@ -262,6 +299,9 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   
   output$menu_general01 <- renderUI({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     div(
       fluidRow(
@@ -338,6 +378,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   valores_iniciales <-  reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     
     
@@ -361,6 +403,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     if(is.null(valores_iniciales())) return(NULL)
     
@@ -403,8 +447,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    # if(is.null(casoRMedic())) return(NULL)
-    # if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     # if(is.null(valores_usuario())) return(NULL)
     # 
     # 
@@ -477,8 +521,13 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 2) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    
+    # if(is.null(valores_usuario())) return(NULL)
+    
+    
     div(
       h2("Gráfico de Boxplot"),
       fluidRow(
@@ -490,7 +539,8 @@ Graficos1C_04_Boxplot_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = FALSE,
+                     #   value = FALSE,
+                     value = TRUE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),

@@ -17,18 +17,27 @@ Graficos2C_04_MediaErrorEstandard_UI <- function(id) {
 
 ## Segmento del server
 Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session, 
-                                                      minibase, 
-                                                      batalla_naval,
-                                                      decimales,
-                                                      casoRMedic) {
+                                                     minibase, 
+                                                     decimales,
+                                                     control_ejecucion) {
   
   
   
   # NameSpaceasing for the session
   ns <- session$ns
   
+  # Control interno 01
+  control_interno01 <- reactive({
+    
+    if(is.null(control_ejecucion())) return(FALSE)
+    else return(control_ejecucion())
+  })
+  
   
   tabla_2c <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     salida <-  RMedic_2c_tablas(input_base =  minibase(),
                                 input_decimales = decimales(),
@@ -65,6 +74,8 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   limites <- reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     # Medias
     media <- as.numeric(as.character(tabla_2c()[[1]][,2]))
@@ -90,16 +101,12 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   })
   
   
-  # xxchange <- reactive({
-  #   paste(ylab_interno())
-  # })
-  
  
   
-  
-  
-  
   colores_usuario <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     
     cantidad <- 2
@@ -122,7 +129,7 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
     }
     
     
-
+    
     return(mis_colores)
   })
   
@@ -131,12 +138,20 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   aplicador_logico <- reactiveVal(F)
   
   
-  observeEvent(input$controlador01, {
+  observeEvent(minibase(), {
     
-    shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+    reseteo_logico(!reseteo_logico())
+    delay(400,     aplicador_logico(!aplicador_logico()))
+    # aplicador_logico(!aplicador_logico())
     
   })
   
+  # observeEvent(input$controlador01, {
+  #   
+  #   shinyjs::toggle(ns("James01"), asis = T, anim = TRUE, animType = "fade")
+  #   
+  # })
+  # 
   
   observeEvent(input$controlador03, {
     
@@ -154,45 +169,30 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   
   
-  
-  
-  
-  
-  
-  
-  
-  observeEvent(input$ylab, {
-    
-    
-  
-    if(input$ylab == colnames(minibase())[1]) {
-      
-      if(input$ylab != valores_usuario()$ylab) {
-        
-        delay(1000, aplicador_logico(!aplicador_logico()))
-        
-        #  reseteo_logico(!reseteo_logico())
-      }
-    }
-    
-    # reseteo_logico(!reseteo_logico())
-    
-  })
-  
-  
-  
   # Variable criterio de inclusion
   observeEvent(reseteo_logico(),{
     
-    updateRadioButtons(session,
-                       inputId = "ayuda",
-                       label = "Ayuda en el gráfico...",
-                       choices = c("Sin detalle" = F,
-                                   "Agregar especificaciones" = T
-                       ),
-                       selected = F
+    # updateRadioButtons(session,
+    #                    inputId = "ayuda",
+    #                    label = "Ayuda en el gráfico...",
+    #                    choices = c("Sin detalle" = F,
+    #                                "Agregar especificaciones" = T
+    #                    ),
+    #                    selected = F
+    # )
+    
+    
+    updateTextInput(session,
+                    inputId = "labvar1",
+                    label = "Rótulo variable 1: ",
+                    value = valores_iniciales()$labvar1
     )
     
+    updateTextInput(session,
+                    inputId = "labvar2",
+                    label = "Rótulo variable 2: ",
+                    value = valores_iniciales()$labvar2
+    )
     
     updateNumericInput(session,
                        inputId = "y_max",
@@ -260,7 +260,9 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   # Salida de colores
   output$MODcolor <- renderUI({
     
-
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     colores_internos <- valores_iniciales()$color
     cantidad <- length(colores_internos)
     label_armado <- paste0("Color variable", c(1:cantidad), ": ")
@@ -283,6 +285,9 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   output$texto_ayudaMin_y <- renderText({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     texto <- paste0("El límite inferior del eje Y debe ser igual o menor al 
     mínimo valor de 'Media - Error Estánrdard' de ambas variables. En este caso debe ser igual o menor a ",
                     limites()[1], ".")
@@ -293,6 +298,9 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   
   output$texto_ayudaMax_y <- renderText({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     
     texto <- paste0("El límite supeior del eje Y debe ser igual o mayor al 
     máximo valor de 'Media + Error Estánrdard' de ambas variables. En este caso debe ser igual o mayor a ",
@@ -305,14 +313,20 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   output$menu_general01 <- renderUI({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     div(
       fluidRow(
         column(6,
-               radioButtons(inputId = ns("ayuda"),
-                            label = "Ayuda en el gráfico...",
-                            choices = c("Sin detalle" = F,
-                                        "Agregar especificaciones" = T
-                            )
+               textInput(inputId = ns("labvar1"),
+                         label = "Rótulo variable 1: ",
+                         value = valores_iniciales()$labvar1
+               ),
+               br(), 
+               textInput(inputId = ns("labvar2"),
+                         label = "Rótulo variable 2: ",
+                         value = valores_iniciales()$labvar2
                )
         ),
         column(6,
@@ -380,6 +394,8 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   valores_iniciales <-  reactive({
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     
     
@@ -390,7 +406,9 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
                     xlab = "Variables",
                     ylab = "Rango de valores de ambas variables",
                     ayuda = F,
-                    color = c("#FF0000", "#0000FF")
+                    color = c("#FF0000", "#0000FF"),
+                    labvar1 = colnames(minibase())[1],
+                    labvar2 = colnames(minibase())[2]
     )
     
     
@@ -403,6 +421,8 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   valores_usuario <-   eventReactive(aplicador_logico(), ignoreNULL = FALSE, {
     
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     if(is.null(valores_iniciales())) return(NULL)
     
@@ -415,8 +435,10 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
     if(!is.null(input$xlab))  valores[[5]] <- input$xlab  else valores[[5]] <- valores_iniciales()$xlab
     if(!is.null(input$ylab))  valores[[6]] <- input$ylab  else valores[[6]] <- valores_iniciales()$ylab
     if(!is.null(input$ayuda)) valores[[7]] <- input$ayuda else valores[[7]] <- valores_iniciales()$ayuda
-   # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
+    # if(!is.null(input$col_1)) valores[[8]] <- input$col_1 else valores[[8]] <- valores_iniciales()$color
     if(!is.null(colores_usuario())) valores$color <- colores_usuario() else valores$color <- valores_iniciales()$color
+    if(!is.null(input$labvar1)) valores[[9]] <- input$labvar1 else valores[[9]] <- valores_iniciales()$labvar1
+    if(!is.null(input$labvar2)) valores[[10]] <- input$labvar2 else valores[[10]] <- valores_iniciales()$labvar2
     
     
     # Nombre de la lista, mismo nombre que por defecto
@@ -436,18 +458,21 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   output$grafico01 <- renderPlot({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 4) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     if(is.null(valores_usuario())) return(NULL)
     
     graficos_2c(minibase = minibase(), 
-                tipo_grafico = "mee", 
+                tipo_grafico = "mee", # Media y Desvio Estandard
                 cols = valores_usuario()$color,
                 xlab = valores_usuario()$xlab,
                 ylab = valores_usuario()$ylab,
-                ylim = c(valores_usuario()$y_min, valores_usuario()$y_max)
-                )
-            #  cols = c("red", "blue"))
+                ylim = c(valores_usuario()$y_min, valores_usuario()$y_max),
+                labvar1 = valores_usuario()$labvar1,
+                labvar2 = valores_usuario()$labvar2
+    )
+    #  cols = c("red", "blue"))
     
     
   })
@@ -460,8 +485,9 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   
   output$armado_grafico <- renderUI({
     
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 4) return(NULL)
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
     div(
       h2("Gráfico de Media y Error Estándard"),
       fluidRow(
@@ -473,12 +499,13 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
                         label = "Mostrar/Ocultar opciones gráficas",
                         icon = icon("bars"), 
                         type = "toggle", 
-                        value = FALSE,
+                      #  value = FALSE,
+                        value = TRUE,
                         style = "primary", 
                         size = "large"
                ), br(),br(), br(),
                conditionalPanel(condition = "input.controlador01", ns = ns,
-               div(id = ns("James01"), uiOutput(ns("menu_general01")))
+                                div(id = ns("James01"), uiOutput(ns("menu_general01")))
                )
                
         )
@@ -488,3 +515,4 @@ Graficos2C_04_MediaErrorEstandard_SERVER <- function(input, output, session,
   })
   
 }
+
