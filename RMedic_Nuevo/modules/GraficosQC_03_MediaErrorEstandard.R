@@ -35,6 +35,8 @@ GraficosQC_03_MediaErrorEstandard_SERVER <- function(input, output, session,
   })
   
   
+  
+  
   cantidad_categorias <- reactive({
     
     # Control interno 01
@@ -47,7 +49,17 @@ GraficosQC_03_MediaErrorEstandard_SERVER <- function(input, output, session,
     cantidad_categorias
   })
   
-  
+  categorias <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    # Control interno 01
+    if(is.null(tablas_qc())) return(NULL)
+    
+    categorias <- tablas_qc()[[1]][c(1:cantidad_categorias()),1]
+    categorias
+  })
   
   
   limites <- reactive({
@@ -245,7 +257,7 @@ GraficosQC_03_MediaErrorEstandard_SERVER <- function(input, output, session,
     
     colores_internos <- valores_iniciales()$color
     cantidad <- length(colores_internos)
-    label_armado <- paste0("Color categoria", c(1:cantidad), ": ")
+    label_armado <- paste0("Color categoria '", categorias(), "': ")
     
     
     lapply(1:cantidad, function(i) {
@@ -282,7 +294,7 @@ GraficosQC_03_MediaErrorEstandard_SERVER <- function(input, output, session,
     
     colores_internos <- valores_iniciales()$color
     cantidad <- length(colores_internos)
-    label_armado <- paste0("Color variable", c(1:cantidad), ": ")
+    label_armado <- paste0("Color categoria '", categorias(), "': ")
     
     lapply(1:cantidad, function(i) {
       
@@ -432,7 +444,7 @@ GraficosQC_03_MediaErrorEstandard_SERVER <- function(input, output, session,
     
     
     graficos_qc(minibase = minibase(),
-                tipo_grafico = "boxplot", # boxplot
+                tipo_grafico = "mee", # mee
                 cols = valores_usuario()$color,
                 xlab = valores_usuario()$xlab,
                 ylab = valores_usuario()$ylab,

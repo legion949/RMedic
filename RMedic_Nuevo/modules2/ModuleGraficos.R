@@ -52,22 +52,22 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
 
     
     
-  # # Caso 1: 1Q
-  # callModule(module = Graficos1Q_SERVER, id =  "graficos03",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 1,
-  #            decimales = decimales)
-  # 
-  # 
-  # 
-  # # Caso 2 : 1C
-  # callModule(module = Graficos1C_SERVER, id =  "graficos04",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 2,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
+  # Caso 1: 1Q
+  callModule(module = Graficos1Q_SERVER, id =  "graficos03",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 1,
+             decimales = decimales)
+
+
+
+  # Caso 2 : 1C
+  callModule(module = Graficos1C_SERVER, id =  "graficos04",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 2,
+             decimales = decimales,
+             batalla_naval = batalla_naval)
 
   # callModule(module = Graficos2Q_SERVER, id =  "graficos05",
   #            minibase = MiniBase,
@@ -77,13 +77,13 @@ ModuleGraficosSERVER <-  function(input, output, session, base,
   # 
   # 
   
-  # # Caso 4: 2C
-  # callModule(module = Graficos2C_SERVER, id =  "graficos06",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 4,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
+  # Caso 4: 2C
+  callModule(module = Graficos2C_SERVER, id =  "graficos06",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 4,
+             decimales = decimales,
+             batalla_naval = batalla_naval)
 
   
   # Caso 5: QC
