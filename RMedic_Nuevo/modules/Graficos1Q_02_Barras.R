@@ -259,13 +259,13 @@ Graficos1Q_02_Barras_SERVER <- function(input, output, session,
     reset("graf_1q_barras_xlab_FA", asis = F)
     
 
-    # FA
+    # FR
     reset("graf_1q_barras_max_FR", asis = F)
     reset("graf_1q_barras_ylab_FR", asis = F)
     reset("graf_1q_barras_xlab_FR", asis = F)
 
     
-    # FA
+    # Porcentaje
     reset("graf_1q_barras_max_PORCENTAJE", asis = F)
     reset("graf_1q_barras_ylab_PORCENTAJE", asis = F)
     reset("graf_1q_barras_xlab_PORCENTAJE", asis = F)

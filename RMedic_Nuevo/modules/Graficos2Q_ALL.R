@@ -4,6 +4,7 @@ Graficos2Q_UI <- function(id) {
   
   uiOutput(ns("SeccionGraficos2Q"))
   
+  
 }
 
 
@@ -11,10 +12,11 @@ Graficos2Q_UI <- function(id) {
 
 ## Segmento del server
 Graficos2Q_SERVER <- function(input, output, session, 
-                              minibase, 
-                              batalla_naval,
+                              minibase,
                               casoRMedic,
-                              decimales) {
+                              caso,
+                              decimales,
+                              batalla_naval) {
   
   
   
@@ -22,59 +24,69 @@ Graficos2Q_SERVER <- function(input, output, session,
   # NameSpaceasing for the session
   ns <- session$ns
   
-  # Caso 3: 2Q
-  casoRMedic <- reactive({
+  
+  # Control ejecucion 01
+  control_ejecucion <- reactive({
     
-    if(is.null(batalla_naval())) return(NULL)
-    if(is.null(batalla_naval()[[4]])) return(NULL)
-    if(length(batalla_naval()[[4]]) == 0) return(NULL)
-    if(batalla_naval()[[4]] == '') return(NULL)
-    casoRMedic <- batalla_naval()[[4]]
-    #casoRMedic <- as.numeric(as.character(as.vector(batalla_naval()[[4]])))
-    casoRMedic
+    
+    if(is.null(casoRMedic())) return(FALSE)
+    if(is.null(caso)) return(FALSE)
+    
+    if(casoRMedic() == caso) return(TRUE) else return(FALSE)
     
   })
   
   
   
-  # DF_interna <-  reactive({RMedic_1q_tablas(minibase(), decimales())[[1]] })
+  tablas_2q <-  reactive({
+    # Control interno 01
+    if(!control_ejecucion()) return(NULL)
+    
+    RMedic_2q_tablas(minibase(), decimales())
+    })
   
+  callModule(module = Graficos2Q_01_RMedicHelp_SERVER,
+             id =  "graficos05A",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             tablas_2q = tablas_2q)
+
   
-  # callModule(module = Graficos1C_02_Barras_SERVER, id =  "graficos03B",
-  #            minibase = minibase,
-  #            batalla_naval = batalla_naval,
-  #            decimales = decimales,
-  #            casoRMedic = casoRMedic,
-  #            DF_interna = DF_interna)
-  # 
-  # 
-  # callModule(module = Graficos1Q_03_Tortas_SERVER, id =  "graficos03C",
-  #            minibase = minibase,
-  #            batalla_naval = batalla_naval,
-  #            decimales = decimales,
-  #            casoRMedic = casoRMedic,
-  #            DF_interna = DF_interna)
+  callModule(module = Graficos2Q_02_Barras_SERVER,
+             id =  "graficos05B",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             tablas_2q = tablas_2q)
+
   
+
+
   
-  
+ 
   output$SeccionGraficos2Q <- renderUI({
     
     # Especificaciones de cumplimiento
-    if(is.null(casoRMedic())) return(NULL)
-    if(casoRMedic() != 3) return(NULL)
+    if(is.null(control_ejecucion())) return(NULL)
+    if(!control_ejecucion()) return(NULL)
     
     
     
-    # Si es el caso 3, seguimos!
-    
+    # Si es el caso 4, seguimos!
     div(
-      h2("RMedic - Gráficos para w Variables Cualitativas"),
+      h2("RMedic - Gráficos para 2 Variables Categóricas"),
       tabsetPanel(id = ns("Graficos_2q"),
-                  tabPanel(title = "RMedic Help!", value = 1),
-                  tabPanel(title = "Gráfico de Barras", value = 2),
-                  tabPanel(title = "Gráfico 3D", value = 3)
+                  tabPanel(title = "RMedic Help!", value = 1,
+                           Graficos2Q_01_RMedicHelp_UI(ns("graficos05A"))
+                          ) ,
+                   tabPanel(title = "Barras", value = 2,
+                            Graficos2Q_02_Barras_UI(ns("graficos05B"))
+                            )
       )
     )
+    
+    
     
   })
   

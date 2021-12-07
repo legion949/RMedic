@@ -43,8 +43,11 @@ source("modules/Graficos1C_06_Histograma.R")
 source("modules/Graficos1C_07_Dispersion.R")
 source("modules/Graficos1C_08_Puntos.R")
 
-
+# Graficos 2Q
 source("modules/Graficos2Q_ALL.R")
+source("modules/Graficos2Q_01_RMedicHelp.R")
+source("modules/Graficos2Q_02_Barras.R")
+
 
 # Graficos 2C
 source("modules/Graficos2C_ALL.R")
