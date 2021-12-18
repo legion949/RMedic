@@ -1,9 +1,9 @@
 ## Segmento del UI
-BatallaNavalUI <- function(id) {
+BatallaNavalUI2 <- function(id) {
   ns <- NS(id)
   
-
- uiOutput(ns("ARMADO_BATALLON"))
+  
+  uiOutput(ns("ARMADO_BATALLON"))
   
 }
 
@@ -11,13 +11,13 @@ BatallaNavalUI <- function(id) {
 
 
 ## Segmento del server
-BatallaNavalSERVER <- function(input, output, session, 
+BatallaNavalSERVER2 <- function(input, output, session, 
                                base, zocalo_CIE, 
                                verbatim) {
-
+  
   ns <- session$ns
   
- 
+  
   
   if(is.null(base)) return(NULL)
   
@@ -34,8 +34,8 @@ BatallaNavalSERVER <- function(input, output, session,
   ##################################
   
   OpcionesColumnas <- reactive({
-  if(is.null(base())) return(NULL)
-  if(is.null(input$orden)) return(NULL)  
+    if(is.null(base())) return(NULL)
+    if(is.null(input$orden)) return(NULL)  
     
     
     nombres2_original <- colnames(base())
@@ -46,25 +46,25 @@ BatallaNavalSERVER <- function(input, output, session,
       nuevo_orden <- c(1:length(nombres2_original))
       opciones_carga2 <- opciones_carga2[nuevo_orden]
     } else
-    # Orden Creciente...  
-    if(input$orden == 2) {
+      # Orden Creciente...  
+      if(input$orden == 2) {
         nuevo_orden <- order(nombres2_original, decreasing = F)
         opciones_carga2 <- opciones_carga2[nuevo_orden]
       } else
-      # Orden Decreciente...  
+        # Orden Decreciente...  
         if(input$orden == 3) {
           nuevo_orden <- order(nombres2_original, decreasing = T)
           opciones_carga2 <- opciones_carga2[nuevo_orden]
         } 
-        
-          opciones_carga2
-   
-   
+    
+    opciones_carga2
+    
+    
   })
-
+  
   observe({
     
-     freezeReactiveValue(input, "var1")
+    freezeReactiveValue(input, "var1")
     updateSelectInput(session, 
                       inputId = "var1",
                       label = "Variable 1: ",
@@ -72,20 +72,20 @@ BatallaNavalSERVER <- function(input, output, session,
     )
   })
   
-
+  
   observeEvent(input$qtty_var,{
     
     if(input$qtty_var != '') {
       
       if(input$qtty_var >= 1) {
-    freezeReactiveValue(input, "var1")
-    updateSelectInput(session, 
-                      inputId = "var1",
-                      label = "Variable 1: ",
-                      choices = c("Seleccione una... " = "", OpcionesColumnas())
-    )
+        freezeReactiveValue(input, "var1")
+        updateSelectInput(session, 
+                          inputId = "var1",
+                          label = "Variable 1: ",
+                          choices = c("Seleccione una... " = "", OpcionesColumnas())
+        )
       }
-    
+      
       
       if(input$qtty_var >= 2) {
         freezeReactiveValue(input, "var2")
@@ -110,7 +110,7 @@ BatallaNavalSERVER <- function(input, output, session,
           
           mis_opciones <- c("Categórica" = 1, "Numérica" = 10)
           
-           freezeReactiveValue(input, "tipo_var1")
+          freezeReactiveValue(input, "tipo_var1")
           updateRadioButtons(session, 
                              inputId = "tipo_var1",
                              label = "Tipo Variable 1: ",
@@ -128,7 +128,7 @@ BatallaNavalSERVER <- function(input, output, session,
   
   observe({
     
-     freezeReactiveValue(input, "tipo_var2")
+    freezeReactiveValue(input, "tipo_var2")
     updateSelectInput(session, 
                       inputId = "var2",
                       label = "Variable 2: ",
@@ -165,43 +165,43 @@ BatallaNavalSERVER <- function(input, output, session,
   observe({
     if(!is.null(base())) {
       if(!is.null(input$qtty_var)) {
-      if(input$qtty_var == 2) {
-           if(!is.null(input$tipo_var1)){
-           if(!is.null(input$tipo_var2)){
-                if(input$tipo_var1 != "") {
+        if(input$qtty_var == 2) {
+          if(!is.null(input$tipo_var1)){
+            if(!is.null(input$tipo_var2)){
+              if(input$tipo_var1 != "") {
                 if(input$tipo_var2 != "") {
-              
-                 
-            if(input$tipo_var1 == input$tipo_var2){
-            
-              
-             armado <- c(F, T)
-             names(armado) <- c(input$var1, input$var2)
-   
-             if(input$tipo_var1 == 1) rotulo <- "En filas: " else
-               if(input$tipo_var1 == 10) rotulo <- "En el eje X: " else
-               
-             freezeReactiveValue(input, "flip")
-            updateSelectInput(session,
-                               inputId = "flip",
-                               label = rotulo,
-                               choices = armado,
-                               selected = armado[1])
-            
-            
-             }
-            
-          
+                  
+                  
+                  if(input$tipo_var1 == input$tipo_var2){
+                    
+                    
+                    armado <- c(F, T)
+                    names(armado) <- c(input$var1, input$var2)
+                    
+                    if(input$tipo_var1 == 1) rotulo <- "En filas: " else
+                      if(input$tipo_var1 == 10) rotulo <- "En el eje X: " else
+                        
+                        freezeReactiveValue(input, "flip")
+                    updateSelectInput(session,
+                                      inputId = "flip",
+                                      label = rotulo,
+                                      choices = armado,
+                                      selected = armado[1])
+                    
+                    
+                  }
+                  
+                  
+                }
+              }
             }
           }
-                }
-                }
-              }
-              }
-          }
-          
-      
-      
+        }
+      }
+    }
+    
+    
+    
     
     
   })
@@ -312,7 +312,7 @@ BatallaNavalSERVER <- function(input, output, session,
       if(!dt_numerica1_interna) if(dt_numerica1_externa) verificacion_interna[1] <- FALSE
       if(!dt_numerica2_interna) if(dt_numerica2_externa) verificacion_interna[2] <- FALSE
       
-    
+      
     } # Fin para 2 variables
     
     
@@ -376,34 +376,34 @@ BatallaNavalSERVER <- function(input, output, session,
     verificacion_interna <- user_selection()$verificacion_interna
     verificacion_general <- user_selection()$verificacion_general
     lenguaje_tipo <- user_selection()$lenguaje_tipo
-
-      # Rotacion!      # Numerica, #categorica
-      # Cuando hay una variable de cada tipo, se ordenada todo
-      # para que la primera variable sea la categorica y la 2da la numerica
-      # Es una forma de trabajo estandard.
     
-      # Si esta modo el modelo de cambio... Rotamos!
-      #                 Numerica  y    categorica
-      modelo_cambio <- c(10,             1)
-
-      if (identical(numero_tipo, modelo_cambio)){
-        variables <- variables[c(2,1)]
-        numero_tipo <- numero_tipo[c(2,1)]
-        tipo_variables <- tipo_variables[c(2,1)]
-        verificacion_interna <- verificacion_interna[c(2,1)]
-        lenguaje_tipo <- lenguaje_tipo[c(2,1)]
-      }
-
-
+    # Rotacion!      # Numerica, #categorica
+    # Cuando hay una variable de cada tipo, se ordenada todo
+    # para que la primera variable sea la categorica y la 2da la numerica
+    # Es una forma de trabajo estandard.
+    
+    # Si esta modo el modelo de cambio... Rotamos!
+    #                 Numerica  y    categorica
+    modelo_cambio <- c(10,             1)
+    
+    if (identical(numero_tipo, modelo_cambio)){
+      variables <- variables[c(2,1)]
+      numero_tipo <- numero_tipo[c(2,1)]
+      tipo_variables <- tipo_variables[c(2,1)]
+      verificacion_interna <- verificacion_interna[c(2,1)]
+      lenguaje_tipo <- lenguaje_tipo[c(2,1)]
+    }
+    
+    
+    
+    # Flip!
+    # Esto es para cuando las dos variables son cuantitativas
+    # o las dos son cualitativas
+    
+    if(tipo_variables[1] == tipo_variables[2]) {
+      if(is.null(input$flip)) return(NULL)
+      if(input$flip == '') return(NULL)
       
-      # Flip!
-      # Esto es para cuando las dos variables son cuantitativas
-      # o las dos son cualitativas
-      
-      if(tipo_variables[1] == tipo_variables[2]) {
-        if(is.null(input$flip)) return(NULL)
-        if(input$flip == '') return(NULL)
-        
       if(input$flip) {
         variables <- variables[c(2,1)]
         numero_tipo <- numero_tipo[c(2,1)]
@@ -411,26 +411,26 @@ BatallaNavalSERVER <- function(input, output, session,
         verificacion_interna <- verificacion_interna[c(2,1)]
         lenguaje_tipo <- lenguaje_tipo[c(2,1)]
       }
-      }
-      
+    }
     
-   
-
-      # Return Exitoso
-      my_exit <- list(variables = variables, 
-                      numero_tipo = numero_tipo,
-                      tipo_variables = tipo_variables,
-                      caso_tipo_variables = caso_tipo_variables,
-                      verificacion_interna = verificacion_interna,
-                      verificacion_general = verificacion_general,
-                      lenguaje_tipo = lenguaje_tipo)
-      
-      return(my_exit)
     
-   
+    
+    
+    # Return Exitoso
+    my_exit <- list(variables = variables, 
+                    numero_tipo = numero_tipo,
+                    tipo_variables = tipo_variables,
+                    caso_tipo_variables = caso_tipo_variables,
+                    verificacion_interna = verificacion_interna,
+                    verificacion_general = verificacion_general,
+                    lenguaje_tipo = lenguaje_tipo)
+    
+    return(my_exit)
+    
+    
   })
-
- 
+  
+  
   
   
   
@@ -438,7 +438,7 @@ BatallaNavalSERVER <- function(input, output, session,
   zocalo <- reactive({
     
     if(is.null(user_selection())) return(NULL)
-
+    
     # Armado vacio
     # La 1ra opcion para html
     # La 2da opcion es para el download
@@ -447,17 +447,17 @@ BatallaNavalSERVER <- function(input, output, session,
     names(armado)[2] <- "Batalla Naval"
     
     
-
+    
     # Todo para variable 1
     if(input$qtty_var >= 1) {
-    
-    if(sum(colnames(base()) == input$var1) == 0) return(NULL)
+      
+      if(sum(colnames(base()) == input$var1) == 0) return(NULL)
       
       armado[[1]] <- paste0("<b>Variable 1: </b>", user_selection()[[1]][1], 
-                  " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][1]),
-                  " - ",  user_selection()$lenguaje_tipo[1])
+                            " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][1]),
+                            " - ",  user_selection()$lenguaje_tipo[1])
       
-
+      
     }
     
     # Todo para la variable 2    
@@ -467,23 +467,23 @@ BatallaNavalSERVER <- function(input, output, session,
       
       armado[[1]] <- paste0(armado[[1]], "<br/>",
                             "<b>Variable 2: </b>", user_selection()[[1]][2], 
-                " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][2]),
-                " - ",  user_selection()$lenguaje_tipo[2])
+                            " - Columna ", MyLetter(Base = base(), the_col = user_selection()[[1]][2]),
+                            " - ",  user_selection()$lenguaje_tipo[2])
       
       
     }
     
     
- 
+    
     if(!is.null(zocalo_CIE()[[1]])){
-
+      
       armado[[1]] <- paste0(armado[[1]], "<br/>",  zocalo_CIE()[[1]])
       armado[[2]] <-  c(armado[[2]], zocalo_CIE()[[2]])
     }
     
     
     armado[[1]] <- HTML(armado[[1]])
-   
+    
     names(armado)[1] <- "Batalla Naval"
     names(armado)[2] <- "Batalla Naval"
     return(armado)
@@ -506,6 +506,12 @@ BatallaNavalSERVER <- function(input, output, session,
   })
   
   
+  alfa <- reactive({
+    if(is.null(input$alfa)) return(NULL)
+    return(input$alfa)
+    
+    
+  })
   output$message01 <- renderText({
     
     if(is.null(batalla_naval())) return(NULL)
@@ -519,15 +525,15 @@ BatallaNavalSERVER <- function(input, output, session,
                        "<br/><br/><br/><br/>")
       
       armado
-      } else return(NULL)
+    } else return(NULL)
   })
-
+  
   output$message02 <- renderText({ 
     if(is.null(batalla_naval())) return(NULL)
     if(is.null(batalla_naval()[[5]])) return(NULL)
     if(is.null(batalla_naval()[[5]][2])) return(NULL)
     if(is.na(batalla_naval()[[5]][2])) return(NULL)
-                            
+    
     if(!batalla_naval()[[5]][2]) {
       armado <- paste0("<b><u>Advertencia:</u> ", 
                        "La variable 2 '", input$var2, "' no puede
@@ -539,7 +545,7 @@ BatallaNavalSERVER <- function(input, output, session,
       
       armado
     } else return(NULL)
-    })
+  })
   
   output$message03 <- renderText({
     if(is.null(batalla_naval())) return(NULL)
@@ -547,17 +553,17 @@ BatallaNavalSERVER <- function(input, output, session,
     if(is.null(batalla_naval()[[1]][1])) return(NULL)
     if(is.na(batalla_naval()[[1]][1])) return(NULL)
     
- 
-      if (batalla_naval()[[1]][1] == batalla_naval()[[1]][2]){
+    
+    if (batalla_naval()[[1]][1] == batalla_naval()[[1]][2]){
       
-        armado <- paste0("<b><u>Advertencia:</u> Has seleccionado dos
+      armado <- paste0("<b><u>Advertencia:</u> Has seleccionado dos
                          veces la variable '", input$var1, "'.</b>", 
-                         "<br/><br/><br/><br/>")
-        
-        armado
-        
-      } else return(NULL)
-   
+                       "<br/><br/><br/><br/>")
+      
+      armado
+      
+    } else return(NULL)
+    
   })
   
   
@@ -565,17 +571,17 @@ BatallaNavalSERVER <- function(input, output, session,
     
     # Usamos solo la salida HTML
     paste0(
-    div(
-      h3(names(zocalo())[1]),
-      zocalo()[[1]]
+      div(
+        h3(names(zocalo())[1]),
+        zocalo()[[1]]
+      )
     )
-    )
-
+    
   }) 
   
   output$MiTexto_BatallaNaval <- renderText({
     
-  
+    
     
     if(is.null(verbatim)) return(NULL)
     if(!verbatim) return(NULL)
@@ -589,7 +595,7 @@ BatallaNavalSERVER <- function(input, output, session,
     if(is.null(base())) return(NULL)
     div(
       fluidRow(
-        column(4, 
+        column(3, 
                selectInput(inputId = ns("orden"), 
                            label = "Orden: ",
                            choices = c("Orden Original" = 1, 
@@ -597,19 +603,27 @@ BatallaNavalSERVER <- function(input, output, session,
                                        "Albatético Decreciente" = 3)
                )
         ),
-        column(4,
+        column(3,
                selectInput(inputId = ns("qtty_var"),
                            label = "Cantidad de variables",
                            choices = c("Seleccione... " = "", 1, 2)
                )
         ),
-        column(4,
+        column(3,
                numericInput(inputId = ns("decimales"),
                             label = "Decimales",
                             value = 2,
                             min = 0,
                             max = 10,
                             step = 1)
+        ),
+        column(3,
+               numericInput(inputId = ns("alfa"),
+                            label = "Alfa",
+                            value = 0.05,
+                            min = 0,
+                            max = 1,
+                            step = 0.01)
         )
       ),
       conditionalPanel(condition = "input.qtty_var != ''", ns = ns,
@@ -651,20 +665,20 @@ BatallaNavalSERVER <- function(input, output, session,
                        fluidRow(
                          conditionalPanel(condition = "input.qtty_var>= 2", ns = ns,
                                           conditionalPanel(condition = "input.var1 != ''", ns = ns,
-                                          conditionalPanel(condition = "input.var2 != ''", ns = ns,                 
-                                          conditionalPanel(condition = "input.tipo_var1 != ''", ns = ns,
-                                                           conditionalPanel(condition = "input.tipo_var1 == input.tipo_var2", ns = ns,
-                                                                  fluidRow(
-                                                                    column(4,
-                                                                           selectInput(inputId = ns("flip"),
-                                                                                        label = "my Flip",
-                                                                                        choices = "",
-                                                                                        selected = "")
-                                                                    )
-                                                                  )
+                                                           conditionalPanel(condition = "input.var2 != ''", ns = ns,                 
+                                                                            conditionalPanel(condition = "input.tipo_var1 != ''", ns = ns,
+                                                                                             conditionalPanel(condition = "input.tipo_var1 == input.tipo_var2", ns = ns,
+                                                                                                              fluidRow(
+                                                                                                                column(4,
+                                                                                                                       selectInput(inputId = ns("flip"),
+                                                                                                                                   label = "my Flip",
+                                                                                                                                   choices = "",
+                                                                                                                                   selected = "")
+                                                                                                                )
+                                                                                                              )
+                                                                                             )
+                                                                            )
                                                            )
-                                          )
-                                          )
                                           )
                          )
                        ),
@@ -681,10 +695,11 @@ BatallaNavalSERVER <- function(input, output, session,
     list(
       batalla_naval = batalla_naval,
       decimales = decimales,
-      qtty_var = qtty_var
-      )
+      qtty_var = qtty_var,
+      alfa = alfa
+    )
   )
-    
+  
   # return(
   #   list(
   #     batalla_naval =  batalla_naval

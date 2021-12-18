@@ -17,9 +17,11 @@ library(vioplot)
 source("uiCode.R")
 
 source("lib.R")
+source("functionsHo.R")
 
 source("modules/SideBarBase.R")
 source("modules/BatallaNaval.R")
+source("modules/BatallaNaval2.R")
 source("modules/MiniBase.R")
 
 source("modules/Tablas1Q.R")
@@ -71,7 +73,14 @@ source("modules/GraficosQC_04_Boxplot.R")
 source("modules/GraficosQC_05_Violinplot.R")
 source("modules/GraficosQC_06_Dispersion.R")
 
+#####################################################
 
+source("modules/Ho1Q_ALL.R")
+source("modules/Ho1Q_01_RMedicHelp.R")
+source("modules/Ho1Q_02_TestDeProporciones.R")
+source("modules/Ho1Q_03_Tortas.R")
+
+#####################################################
 
 source("modules2/ModuleBase.R")
 source("modules2/ModuleControl.R")
