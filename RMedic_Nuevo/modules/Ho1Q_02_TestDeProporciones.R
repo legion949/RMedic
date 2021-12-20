@@ -67,18 +67,21 @@ Ho1Q_02_TestDeProporciones_SERVER <- function(input, output, session,
     
     div(
       # Seleccion de una categoria
-      h3("Elecciones del usuario"),
+      fluidRow(
+        column(4,
       selectInput(inputId = ns("categoria_exito"), 
                   label = titulo_armado, 
-                  choices = opciones_categorias),
-      br(),
+                  choices = opciones_categorias)
+      ),
+  
 
-
+      column(4,
       # Seleccion del valor bajo H0
       numericInput(inputId = ns("valor_bajo_ho"),
                    label = "Valor bajo Hipótesis de proporción: ",
-                   min=0,  max=1, step=0.01, value=0.50),
-      br(),
+                   min=0,  max=1, step=0.01, value=0.50)
+      ),
+   column(4,
 
       # Seleccion del tipo de prueba
       radioButtons(ns("tipo_prueba_ho"), "Tipo de Prueba de Hipótesis:",
@@ -86,8 +89,10 @@ Ho1Q_02_TestDeProporciones_SERVER <- function(input, output, session,
                                "Unilateral izquierda" = "less",
                                "Unilateral derecha" = "greater")
                    )
+   )
       
       
+    )
     )
     
     
@@ -126,28 +131,45 @@ Ho1Q_02_TestDeProporciones_SERVER <- function(input, output, session,
   # Salida de tabla resumen del test de Proporciones 1Q
   observe( output$tabla_resumen <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
 
-    The_Test()$RESUMEN
+    The_Test()$resumen
 
   }))
 
   # Frase 1: Explicacion
   observe(output$frase01 <- renderUI({
-    HTML(The_Test()$FRASE)
+    HTML(The_Test()$frase_estadistica)
   }))
 
  
-
+  # Frase 2: Advertencia por redondeo
+  observe(output$frase02 <- renderUI({
+    HTML(The_Test()$frase_redondeo)
+  }))
+  
+  
+  # Frase 3: Juego de Hipotesis
+  observe(output$frase03 <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis)
+  }))
   
   # Armado/Salida del test de Proporciones 1Q
   output$armado_ho <- renderUI({
     
     div(
+      h3("Elecciones del usuario"),
       uiOutput(ns("opciones_ho")),
       br(),
-      h3("Test de Proporciones"), br(),
-      #h3(span(uiOutput(ns("frase01_ho_1q_01")), style="color:red")),
+      # Mensaje de advertencia por redondeo
+      span(htmlOutput(ns("frase02")), style="color:red"),
+      br(),
+      h3("Juego de Hipótesis"),
+      htmlOutput(ns("frase03")),
+      br(),
+      h3("Test de Proporciones"),
       tableOutput(ns("tabla_resumen")),
-      uiOutput(ns("frase01")),
+      br(),
+      h3("Frases y conclusiones"),
+      htmlOutput(ns("frase01")),
       br(), br()
     )
     

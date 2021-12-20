@@ -57,11 +57,22 @@ Test_1Q_Proporciones <- function(input_base = NULL,
 
 
  #  # Valor p
-  if (z_obs_interno < 0) valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = T)
-  if (z_obs_interno >= 0) valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = F)
-
-  # Si la prueba es bilateral, falta multiplicar por dos.
-  if(input_tipo_prueba == "two.sided") valor_p_interno <- valor_p_interno*2
+      if(input_tipo_prueba == "two.sided") { 
+        if (z_obs_interno < 0) valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = T)
+        if (z_obs_interno >= 0) valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = F)
+      
+        valor_p_interno <- valor_p_interno*2
+        
+        } else
+        if(input_tipo_prueba == "less") { 
+          valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = T)
+        
+          } else
+          if(input_tipo_prueba == "greater") {
+            valor_p_interno <- pnorm(z_obs_interno, 0, 1, lower.tail = F)
+          }
+      
+ 
  
  #  # Valor p externo
  valor_p_externo <- round2(valor_p_interno, input_decimales)
@@ -76,35 +87,145 @@ Test_1Q_Proporciones <- function(input_base = NULL,
   if (valor_p_interno < input_alfa) respuesta <- "Si" else if (valor_p_interno >= input_alfa) respuesta <- "No"
 
 
-      # frase2_html: segun valor p
+      # Frases segun valor p
       {
-
-        frase2_v1 <- "No pudo obtenerse un valor p."
-
-        frase2_v2 <- paste0("El valor p=",valor_p_externo, " es mayor que el valor de alfa=", input_alfa, ".","<br/>",
-                       "No se rechaza la Ho.", "<br/>",
-                       "La proporción observada para la categoría '",input_categoria_exito,"' (", prop_observada_externa, ") es estadísticamente
-                       igual al valor bajo hipótesis (", prop_esperada_externa, ").", "<br/>")
-
-
-        frase2_v3 <- paste0("El valor p=",valor_p_externo, " es igual que el valor de alfa=", input_alfa, ".","<br/>",
-                       "No se rechaza la Ho.", "<br/>",
-                       "La proporción observada para la categoría '",input_categoria_exito,"' (", prop_observada_externa, ") es estadísticamente
-                       igual al valor bajo hipótesis (", prop_esperada_externa, ").", "<br/>")
-
-        frase2_v4 <- paste0("El valor p=",valor_p_externo, " es menor que el valor de alfa=", input_alfa, ".","<br/>",
-                       "Se rechaza la Ho.", "<br/>",
-                       "La proporción observada para la categoría '",input_categoria_exito,"' (", prop_observada_externa, ") es estadísticamente
-                       distinta del valor bajo hipótesis (", prop_esperada_externa, ").", "<br/>")
-
-        if(is.na(valor_p_interno) | is.null(valor_p_interno)) frase_estadistica <- frase2_v1 else
-          if (valor_p_interno > input_alfa) frase_estadistica <- frase2_v2 else
-            if (valor_p_interno == input_alfa) frase_estadistica <- frase2_v3 else
-              if (valor_p_interno < input_alfa) frase_estadistica <- frase2_v4
+        # Algun inconveniente
+        frase0_v1 <- "No pudo obtenerse un valor p."
+        
+        # Bilateral
+        {
+        frase1_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto no se rechaza la Ho de la prueba bilateral.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente igual al valor bajo hipótesis (_mi_prop_esp)."
 
 
+        frase1_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                      por lo tanto no se rechaza la Ho de la prueba bilateral.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente igual al valor bajo hipótesis (_mi_prop_esp)."
+        
+     
+        frase1_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                      por lo tanto no se rechaza la Ho de la prueba bilateral.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente diferente al valor bajo hipótesis (_mi_prop_esp)."
+        }
+
+        # Unilateral Izquierda
+        {
+          frase2_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto no se rechaza la Ho de la prueba unilateral izquierda.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente mayor o igual al valor bajo hipótesis (_mi_prop_esp)."
+          
+          
+          frase2_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto no se rechaza la Ho de la prueba unilateral izquierda.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente mayor o igual al valor bajo hipótesis (_mi_prop_esp)."
+          
+          
+          frase2_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto se rechaza la Ho de la prueba unilateral izquierda.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente menor al valor bajo hipótesis (_mi_prop_esp)."
+        }
+        
+        # Unilateral Derecha
+        {
+          frase3_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                          por lo tanto no se rechaza la Ho de la prueba unilateral derecha.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente menor o igual al valor bajo hipótesis (_mi_prop_esp)."
+          
+          
+          frase3_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto no se rechaza la Ho de la prueba unilateral derecha.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente menor o igual al valor bajo hipótesis (_mi_prop_esp)."
+          
+          
+          frase3_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                        por lo tanto no se rechaza la Ho de la prueba unilateral derecha.<br/>
+                       La proporción observada para la categoría '_mi_categoria_' (_mi_prop_obs_) es 
+                       estadísticamente mayor al valor bajo hipótesis (_mi_prop_esp)."
+        }
       
-       } # Fin Frase2_html
+        # Seleccion de Frase Estadistica
+        if(is.na(valor_p_interno) | is.null(valor_p_interno)) frase_estadistica <- frase0_v1 else
+          if(input_tipo_prueba == "two.sided") {
+            if (valor_p_interno > input_alfa) frase_estadistica <- frase1_v1 else
+              if (valor_p_interno == input_alfa) frase_estadistica <- frase1_v2 else
+                if (valor_p_interno < input_alfa) frase_estadistica <- frase1_v3
+          } else
+            if(input_tipo_prueba == "less") {
+              if (valor_p_interno > input_alfa) frase_estadistica <- frase2_v1 else
+                if (valor_p_interno == input_alfa) frase_estadistica <- frase2_v2 else
+                  if (valor_p_interno < input_alfa) frase_estadistica <- frase2_v3
+            } else
+              if(input_tipo_prueba == "greater") {
+                if (valor_p_interno > input_alfa) frase_estadistica <- frase3_v1 else
+                  if (valor_p_interno == input_alfa) frase_estadistica <- frase3_v2 else
+                    if (valor_p_interno < input_alfa) frase_estadistica <- frase3_v3
+              }
+              
+         
+
+      frase_estadistica <- gsub("_mi_categoria_", input_categoria_exito, frase_estadistica)
+      frase_estadistica <- gsub("_mi_valor_p_", valor_p_externo, frase_estadistica)
+      frase_estadistica <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica)
+      frase_estadistica <- gsub("_mi_prop_obs_", prop_observada_externa, frase_estadistica)
+      frase_estadistica <- gsub("_mi_prop_esp", prop_esperada_externa, frase_estadistica)
+      
+       } # Fin Frases segun valor p
+ 
+ 
+ # Frases Juego de Hipotesis
+ {
+
+   # Bilateral
+   frase_juego_bilateral <-  "<b>Hipótesis Nula (Ho):</b> la proporción de la categoría '_mi_categoria_' es igual a _mi_prop_esp_.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la proporción de la categoría '_mi_categoria_' es diferente de _mi_prop_esp_."
+     
+   # Unilateral Izquierda
+   frase_juego_izquierda <-  "<b>Hipótesis Nula (Ho):</b> la proporción de la categoría '_mi_categoria_' es mayor o igual a _mi_prop_esp_.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la proporción de la categoría '_mi_categoria_' es menor a _mi_prop_esp_."
+   
+   # Unilateral Derecha
+   frase_juego_derecha <-  "<b>Hipótesis Nula (Ho):</b> la proporción de la categoría '_mi_categoria_' es menor o igual a _mi_prop_esp_.<br/>
+                            <b>Hipótesis Alternativa (Hi):</b> la proporción de la categoría '_mi_categoria_' es mayor a _mi_prop_esp_."
+   
+   
+   
+    if(input_tipo_prueba == "two.sided") frase_juego_hipotesis <- frase_juego_bilateral else
+      if(input_tipo_prueba == "less") frase_juego_hipotesis <- frase_juego_izquierda else
+        if(input_tipo_prueba == "greater") frase_juego_hipotesis <- frase_juego_derecha
+   
+   frase_juego_hipotesis <- gsub("_mi_categoria_", input_categoria_exito, frase_juego_hipotesis)
+   frase_juego_hipotesis <- gsub("_mi_prop_esp_", prop_esperada_externa, frase_juego_hipotesis)
+   
+   
+   
+   
+ 
+ } # Fin Frases Juego de Hipotesis
+ 
+ 
+      # Frase por incontenientes de redondeo
+      dt1 <- valor_p_interno < input_alfa
+      dt2 <- round2(valor_p_interno, input_decimales) < input_alfa
+      if (sum(dt1, dt2) == 2) frase_redondeo <- "" else
+        if (sum(dt1, dt2) == 0) frase_redondeo <- "" else
+          if (sum(dt1, dt2) == 1){
+            frase_redondeo <- "<b><u>Advertencia:</u> En este set de datos 
+            le recomendamos que aumente la cantidad de decimales ya que en este 
+            caso el redondeo excesivo distorciona la interpretación correcta del test
+            de proporciones. Aumente la cantidad de decimales hasta que esta advertencia 
+            desaparezca.
+            </b>"
+            
+          } 
       # #######################################
       # 
       
@@ -140,11 +261,15 @@ Test_1Q_Proporciones <- function(input_base = NULL,
     
     SALIDA_ARMADA <- list()
     
-    SALIDA_ARMADA$RESUMEN <- RESUMEN
+    SALIDA_ARMADA$resumen <- RESUMEN
     
-    SALIDA_ARMADA$FRASE <- frase_estadistica
+    SALIDA_ARMADA$frase_estadistica <- frase_estadistica
     
+    SALIDA_ARMADA$frase_redondeo <- frase_redondeo
   
+    SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+      
+      
   # Returno Exitoso
   return(SALIDA_ARMADA)
   
