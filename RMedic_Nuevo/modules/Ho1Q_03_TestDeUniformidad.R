@@ -1,7 +1,7 @@
 
 
 
-Ho1Q_02_TestDeProporciones_UI <- function(id) {
+Ho1Q_03_TestDeUniformidad_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,7 +16,7 @@ Ho1Q_02_TestDeProporciones_UI <- function(id) {
 
 
 ## Segmento del server
-Ho1Q_02_TestDeProporciones_SERVER <- function(input, output, session, 
+Ho1Q_03_TestDeUniformidad_SERVER <- function(input, output, session, 
                                             minibase,
                                             decimales,
                                             control_ejecucion,

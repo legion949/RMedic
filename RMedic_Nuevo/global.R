@@ -77,9 +77,17 @@ source("modules/GraficosQC_06_Dispersion.R")
 
 source("modules/Ho1Q_ALL.R")
 source("modules/Ho1Q_01_RMedicHelp.R")
-source("modules/Ho1Q_02_TestDeProporciones.R")
-source("modules/Ho1Q_03_Tortas.R")
+source("modules/Ho1Q_02_TestDeUnaProporcion.R")
+source("modules/Ho1Q_03_TestDeUniformidad.R")
 
+
+source("modules/Ho1C_ALL.R")
+source("modules/Ho1C_01_RMedicHelp.R")
+source("modules/Ho1C_02_TestTUnaMuestra.R")
+source("modules/Ho1C_03_TestWilcoxonUnaMuestra.R")
+source("modules/Ho1C_04_TestNormalidadShapiroWilk.R")
+source("modules/Ho1C_05_TestChiCuadradoUnaMuestra.R")
+# source("modules/Ho1Q_03_TestDeUniformidad.R")
 #####################################################
 
 source("modules2/ModuleBase.R")

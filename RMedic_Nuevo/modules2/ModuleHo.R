@@ -54,7 +54,8 @@ ModuleHoSERVER <-  function(input, output, session, base,
   
   
   # Caso 1: 1Q
-  callModule(module = Ho1Q_SERVER, id =  "ho03",
+  callModule(module = Ho1Q_SERVER, 
+             id =  "ho03",
              minibase = MiniBase,
              casoRMedic = casoRMedic,
              caso = 1,
@@ -63,14 +64,17 @@ ModuleHoSERVER <-  function(input, output, session, base,
   
   
   
-  # # Caso 2 : 1C
-  # callModule(module = Graficos1C_SERVER, id =  "graficos04",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 2,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
-  # 
+  
+  #Caso 2 : 1C
+  callModule(module = Ho1C_SERVER,
+             id =  "ho04",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 2,
+             decimales = decimales,
+             alfa = alfa,
+             batalla_naval = batalla_naval)
+  # # 
   # 
   # # Caso 3: 2Q
   # callModule(module = Graficos2Q_SERVER, id =  "graficos05",
@@ -159,6 +163,7 @@ ModuleHoSERVER <-  function(input, output, session, base,
                BatallaNavalUI2(ns("ho01")),
                MiniBaseUI(ns("ho02")),
                Ho1Q_UI(ns("ho03")),
+               Ho1C_UI(ns("ho04")),
                # Graficos1C_UI(ns("graficos04")),
                # Graficos2Q_UI(ns("graficos05")),
                # Graficos2C_UI(ns("graficos06")),
