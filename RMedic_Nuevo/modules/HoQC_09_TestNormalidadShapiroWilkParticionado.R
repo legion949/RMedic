@@ -1,7 +1,7 @@
 
 
 
-Ho1C_04_TestNormalidadShapiroWilk_UI <- function(id) {
+HoQC_09_TestNormalidadShapiroWilkParticionado_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Ho1C_04_TestNormalidadShapiroWilk_UI <- function(id) {
 
 
 ## Segmento del server
-Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session, 
-                                                      minibase,
-                                                      decimales,
-                                                      control_ejecucion,
-                                                      tablas_1c,
-                                                      alfa) {
+HoQC_09_TestNormalidadShapiroWilkParticionado_SERVER <- function(input, output, session, 
+                                                     minibase,
+                                                     decimales,
+                                                     control_ejecucion,
+                                                     alfa) {
   
   
   
@@ -50,7 +49,7 @@ Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session,
   
   
   
- 
+  
   # Test de Proporciones
   The_Test <- reactive({
     
@@ -61,7 +60,7 @@ Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session,
     
     
     
-    Test_1C_TestNormalidad_ShapiroWilk( input_base = minibase(),
+    Test_QC_TestNormalidad_ShapiroWilk_Particionado( input_base = minibase(),
                                         input_decimales = decimales(),
                                         input_alfa = alfa())
     
@@ -75,10 +74,10 @@ Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session,
   # Salida de tabla resumen del test de Proporciones 1Q
   observe( output$tabla_resumen <- renderTable(rownames = FALSE, 
                                                digits=decimales(), align = "c",{
-    
-    The_Test()$tabla_resumen
-    
-  }))
+                                                 
+                                                 The_Test()$tabla_resumen
+                                                 
+                                               }))
   
   # Frase 1: Explicacion
   observe(output$frase01 <- renderUI({
@@ -86,10 +85,7 @@ Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session,
   }))
   
   
-  # Frase 2: Advertencia por redondeo
-  observe(output$frase02 <- renderUI({
-    HTML(The_Test()$frase_redondeo)
-  }))
+
   
   
   # Frase 3: Juego de Hipotesis
@@ -101,22 +97,27 @@ Ho1C_04_TestNormalidadShapiroWilk_SERVER <- function(input, output, session,
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test de Normalidad (Shapiro-Wilk)"),
+      h2("Test de Normalidad (Shapiro-Wilk Particionado)"),
       "Nota: para la utilización de Normalidad (Shapiro-Wilk) la variable debe ser numérica y no debe ser 
       ordinal (cualitativa representada con números).", 
       # Mensaje de advertencia por redondeo
+      # br(),
+      # span(htmlOutput(ns("frase02")), style="color:red"),
       br(),
-      span(htmlOutput(ns("frase02")), style="color:red"),
       br(),
       h3("Juego de Hipótesis"),
+      "Se lleva a cabo un test de normalidad sobre cada una de las categorías de la variable cualitativa.", br(),
+      "Para cada categoría se generará un test de Normalidad de Shapiro-Wilk, obteniendo de cada uno un valor p y 
+      una decisión.", br(),
+      br(),
       htmlOutput(ns("frase03")),
       br(),
       br(),
       h3("Tabla Resumen del Test de Normalidad (Shapiro-Wilk)"),
       tableOutput(ns("tabla_resumen")),
       br(),
-      h3("Frases y conclusiones"),
-      htmlOutput(ns("frase01")),
+      # h3("Frases y conclusiones"),
+      # htmlOutput(ns("frase01")),
       br(), br()
     )
     

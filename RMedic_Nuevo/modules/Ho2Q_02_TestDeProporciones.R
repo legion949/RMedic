@@ -1,7 +1,7 @@
 
 
 
-Ho1C_05_TestChiCuadradoUnaMuestra_UI <- function(id) {
+Ho2Q_02_TestDeProporciones_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,12 @@ Ho1C_05_TestChiCuadradoUnaMuestra_UI <- function(id) {
 
 
 ## Segmento del server
-Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session, 
-                                                      minibase,
-                                                      decimales,
-                                                      control_ejecucion,
-                                                      tablas_1c,
-                                                      alfa) {
+Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session, 
+                                        minibase,
+                                        decimales,
+                                        control_ejecucion,
+                                        tablas_2q,
+                                        alfa) {
   
   
   
@@ -36,7 +36,16 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   })
   
   
- 
+  # Cantidad de categorias
+  cantidad_categorias <- reactive({
+    
+    # Control interno 01
+    if(!control_interno01()) return(NULL)
+    
+    return(nrow(tablas_1q()))
+    
+  })
+  
   
   ##################################################
   
@@ -44,7 +53,7 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   
   
   # # # # #
-  # 1C - 02 - Test Wilcoxon (una muestra)
+  # 1Q - 01 - Test de Proporciones
   
   
   
@@ -53,14 +62,24 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   output$opciones_ho <- renderUI({
     
     
+    titulo_armado <- paste("Categoría de 'Éxito' de la variable '", colnames(minibase())[1], "'", sep="")
+    opciones_categorias <- levels(as.factor(minibase()[,1]))
+    
     div(
       # Seleccion de una categoria
       fluidRow(
         column(4,
+               selectInput(inputId = ns("categoria_exito"), 
+                           label = titulo_armado, 
+                           choices = opciones_categorias)
+        ),
+        
+        
+        column(4,
                # Seleccion del valor bajo H0
                numericInput(inputId = ns("valor_bajo_ho"),
-                            label = "Varianza poblacional (Valor esperado bajo hipótesis): ",
-                            min = NA,  max = NA, step = 0.01, value = 1)
+                            label = "Valor bajo Hipótesis de proporción: ",
+                            min=0,  max=1, step=0.01, value=0.50)
         ),
         column(4,
                
@@ -85,18 +104,20 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
     
     if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
+    if(is.null(input$categoria_exito)) return(NULL)
     if(is.null(input$tipo_prueba_ho)) return(NULL)
     if(is.null(input$valor_bajo_ho)) return(NULL)
     if(is.null(decimales())) return(NULL)
     if(is.null(alfa())) return(NULL)
     
     
-
-      Test_1C_TestChiCuadrado_UnaMuestra( input_base = minibase(),
-                                          input_tipo_prueba = input$tipo_prueba_ho, 
-                                          input_varianza_ho = input$valor_bajo_ho,
-                                          input_decimales = decimales(),
-                                          input_alfa = alfa())
+    
+    Test_1Q_TestDeUnaProporcion( input_base = minibase(),
+                                 input_categoria_exito = input$categoria_exito,
+                                 input_tipo_prueba = input$tipo_prueba_ho, 
+                                 input_prop_ho = input$valor_bajo_ho,
+                                 input_decimales = decimales(),
+                                 input_alfa = alfa())#input$alfa_ho)
     
     
     
@@ -106,33 +127,27 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   })
   # #######################################################
   # 
-
-  # Tabla Requisitos
+  # Salida de tabla resumen del test de Proporciones 1Q
   observe( output$tabla_resumen <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
     
-    The_Test()$tabla_resumen
+    The_Test()$resumen
     
   }))
   
-    
- 
-  
- 
-  
-  # Frase 2: Explicacion Estadistica
-  observe(output$frase_estadistica <- renderUI({
+  # Frase 1: Explicacion
+  observe(output$frase01 <- renderUI({
     HTML(The_Test()$frase_estadistica)
   }))
   
   
-  # Frase 3: Advertencia por redondeo
-  observe(output$frase_redondeo <- renderUI({
+  # Frase 2: Advertencia por redondeo
+  observe(output$frase02 <- renderUI({
     HTML(The_Test()$frase_redondeo)
   }))
   
   
-  # Frase 4: Juego de Hipotesis
-  observe(output$frase_juego_hipotesis <- renderUI({
+  # Frase 3: Juego de Hipotesis
+  observe(output$frase03 <- renderUI({
     HTML(The_Test()$frase_juego_hipotesis)
   }))
   
@@ -140,27 +155,26 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test Chi Cuadrado (una muestra)"),
-      "Nota: para la utilización del test Chi Cuadrado (una muestra) la variable debe ser numérica y no debe ser 
-      ordinal (cualitativa representada con números).", 
-      br(),
+      h2("Test de una proporción"),
       br(),
       h3("Elecciones del usuario"),
       uiOutput(ns("opciones_ho")),
       br(),
       # Mensaje de advertencia por redondeo
-      span(htmlOutput(ns("frase_redondeo")), style="color:red"),
+      span(htmlOutput(ns("frase02")), style="color:red"),
       br(),
       h3("Juego de Hipótesis"),
-      htmlOutput(ns("frase_juego_hipotesis")),
+      htmlOutput(ns("frase03")),
       br(),
-      h3("Tabla Resumen del Chi Cuadrado (una muestra)"),
+      br(),
+      h3("Tabla Resumen del Test de una proporción"),
       tableOutput(ns("tabla_resumen")),
       br(),
+      br(),
       h3("Frases y conclusiones"),
-      htmlOutput(ns("frase_estadistica")),
+      htmlOutput(ns("frase01")),
       br(), br()
-      )
+    )
     
   })
   

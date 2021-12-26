@@ -1,7 +1,7 @@
 
 
 
-Ho1C_05_TestChiCuadradoUnaMuestra_UI <- function(id) {
+HoQC_03_TestWilcoxonDosMuestrasIndependientes_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,12 +16,11 @@ Ho1C_05_TestChiCuadradoUnaMuestra_UI <- function(id) {
 
 
 ## Segmento del server
-Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session, 
-                                                      minibase,
-                                                      decimales,
-                                                      control_ejecucion,
-                                                      tablas_1c,
-                                                      alfa) {
+HoQC_03_TestWilcoxonDosMuestrasIndependientes_SERVER <- function(input, output, session, 
+                                         minibase, 
+                                         decimales,
+                                         control_ejecucion,
+                                         alfa) {
   
   
   
@@ -36,7 +35,7 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   })
   
   
- 
+  
   
   ##################################################
   
@@ -44,12 +43,13 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   
   
   # # # # #
-  # 1C - 02 - Test Wilcoxon (una muestra)
+  # 1C - 01 - Test de Proporciones
   
   
   
   
   # Menu del opciones para el test de proporciones
+  # # # # ESTO LO DEJE EN EL SCRIPT PERO ESTA INACTIVO!!!!!!
   output$opciones_ho <- renderUI({
     
     
@@ -59,8 +59,8 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
         column(4,
                # Seleccion del valor bajo H0
                numericInput(inputId = ns("valor_bajo_ho"),
-                            label = "Varianza poblacional (Valor esperado bajo hipótesis): ",
-                            min = NA,  max = NA, step = 0.01, value = 1)
+                            label = "Media poblacional (Valor esperado bajo hipótesis): ",
+                            min = NA,  max = NA, step = 0.01, value = 0)
         ),
         column(4,
                
@@ -85,18 +85,18 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
     
     if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
-    if(is.null(input$tipo_prueba_ho)) return(NULL)
-    if(is.null(input$valor_bajo_ho)) return(NULL)
+    # if(is.null(input$tipo_prueba_ho)) return(NULL)
+    # if(is.null(input$valor_bajo_ho)) return(NULL)
     if(is.null(decimales())) return(NULL)
     if(is.null(alfa())) return(NULL)
     
     
-
-      Test_1C_TestChiCuadrado_UnaMuestra( input_base = minibase(),
-                                          input_tipo_prueba = input$tipo_prueba_ho, 
-                                          input_varianza_ho = input$valor_bajo_ho,
-                                          input_decimales = decimales(),
-                                          input_alfa = alfa())
+    
+    Test_QC_TestWilcoxon_DosMuestras_Independientes( input_base = minibase(),
+                                        input_tipo_prueba = "two.sided", 
+                                        input_mediana_ho = 0,
+                                        input_decimales = decimales(),
+                                        input_alfa = alfa())
     
     
     
@@ -106,18 +106,15 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   })
   # #######################################################
   # 
-
-  # Tabla Requisitos
+  
+  # Tabla Resumen
   observe( output$tabla_resumen <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
     
     The_Test()$tabla_resumen
     
   }))
   
-    
- 
   
- 
   
   # Frase 2: Explicacion Estadistica
   observe(output$frase_estadistica <- renderUI({
@@ -131,36 +128,50 @@ Ho1C_05_TestChiCuadradoUnaMuestra_SERVER <- function(input, output, session,
   }))
   
   
-  # Frase 4: Juego de Hipotesis
-  observe(output$frase_juego_hipotesis <- renderUI({
-    HTML(The_Test()$frase_juego_hipotesis)
+  # Frase 4: Juego de Hipotesis1
+  observe(output$frase_juego_hipotesis1 <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis1)
+  }))
+  
+  # Frase 5: Juego de Hipotesis2
+  observe(output$frase_juego_hipotesis2 <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis2)
   }))
   
   # Armado/Salida del test de Proporciones 1Q
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test Chi Cuadrado (una muestra)"),
-      "Nota: para la utilización del test Chi Cuadrado (una muestra) la variable debe ser numérica y no debe ser 
-      ordinal (cualitativa representada con números).", 
+      h2("Test Wilcoxon (Dos muestras independientes)"),
+      "Nota: para la utilización del test Wilcoxon (Dos muestras independientes) ambas 
+      variables deben ser numéricas y no debe ser ordinales (cualitativa representada con números).", 
       br(),
       br(),
-      h3("Elecciones del usuario"),
-      uiOutput(ns("opciones_ho")),
-      br(),
+      # h3("Elecciones del usuario"),
+      # uiOutput(ns("opciones_ho")),
+      # br(),
+      # br(),
       # Mensaje de advertencia por redondeo
       span(htmlOutput(ns("frase_redondeo")), style="color:red"),
       br(),
-      h3("Juego de Hipótesis"),
-      htmlOutput(ns("frase_juego_hipotesis")),
       br(),
-      h3("Tabla Resumen del Chi Cuadrado (una muestra)"),
+      h3("Juego de Hipótesis"),
+      "Existen dos formas equivalentes de manifestar el juego de hipótesis del test t 
+      para dos muestras independientes: ", br(), br(),
+      "Forma 1 de 2:",
+      htmlOutput(ns("frase_juego_hipotesis1")),
+      br(),
+      "Forma 2 de 2:",
+      htmlOutput(ns("frase_juego_hipotesis2")),
+      br(),
+      br(),
+      h3("Tabla Resumen del test de Wilcoxon (Dos muestras independientes)"),
       tableOutput(ns("tabla_resumen")),
       br(),
       h3("Frases y conclusiones"),
       htmlOutput(ns("frase_estadistica")),
       br(), br()
-      )
+    )
     
   })
   

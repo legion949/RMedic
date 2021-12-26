@@ -77,34 +77,38 @@ ModuleHoSERVER <-  function(input, output, session, base,
   # # 
   # 
   # # Caso 3: 2Q
-  # callModule(module = Graficos2Q_SERVER, id =  "graficos05",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 3,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
+  callModule(module = Ho2Q_SERVER, id =  "ho05",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 3,
+             decimales = decimales,
+             alfa = alfa,
+             batalla_naval = batalla_naval)
   # 
   # 
   # 
   # 
-  # # Caso 4: 2C
-  # callModule(module = Graficos2C_SERVER, id =  "graficos06",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 4,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
+  # Caso 4: 2C
+  callModule(module = Ho2C_SERVER, id =  "ho06",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 4,
+             decimales = decimales,
+             alfa = alfa,
+             batalla_naval = batalla_naval)
   # 
   # 
   # 
   # 
-  # # Caso 5: QC
-  # callModule(module = GraficosQC_SERVER, id =  "graficos07",
-  #            minibase = MiniBase,
-  #            casoRMedic = casoRMedic,
-  #            caso = 5,
-  #            decimales = decimales,
-  #            batalla_naval = batalla_naval)
+  # Caso 5: 2Q
+  callModule(module = HoQC_SERVER, 
+             id =  "ho07",
+             minibase = MiniBase,
+             casoRMedic = casoRMedic,
+             caso = 5,
+             decimales = decimales,
+             alfa = alfa,
+             batalla_naval = batalla_naval)
   # 
   
   
@@ -164,6 +168,9 @@ ModuleHoSERVER <-  function(input, output, session, base,
                MiniBaseUI(ns("ho02")),
                Ho1Q_UI(ns("ho03")),
                Ho1C_UI(ns("ho04")),
+               Ho2Q_UI(ns("ho05")),
+               Ho2C_UI(ns("ho06")),
+               HoQC_UI(ns("ho07")),
                # Graficos1C_UI(ns("graficos04")),
                # Graficos2Q_UI(ns("graficos05")),
                # Graficos2C_UI(ns("graficos06")),

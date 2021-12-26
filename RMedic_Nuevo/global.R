@@ -13,6 +13,7 @@ library(htmltools)
 library(openxlsx)
 library(stringr)
 library(vioplot)
+library(coin)
 
 source("uiCode.R")
 
@@ -88,7 +89,32 @@ source("modules/Ho1C_03_TestWilcoxonUnaMuestra.R")
 source("modules/Ho1C_04_TestNormalidadShapiroWilk.R")
 source("modules/Ho1C_05_TestChiCuadradoUnaMuestra.R")
 # source("modules/Ho1Q_03_TestDeUniformidad.R")
+
+
+source("modules/Ho2Q_ALL.R")
+source("modules/Ho2Q_01_RMedicHelp.R")
+source("modules/Ho2Q_02_TestDeProporciones.R")
+
+# Ho 2C
+source("modules/Ho2C_ALL.R")
+source("modules/Ho2C_01_RMedicHelp.R")
+source("modules/Ho2C_05_TestTApareado.R")
+source("modules/Ho2C_06_TestWilcoxonApareado.R")
+source("modules/Ho2C_07_TestHomogenedadDeVarianzasFisher.R")
+source("modules/Ho2C_08_TestHomogenedadDeVarianzasBartlett.R")
 #####################################################
+
+# Ho QC
+source("modules/HoQC_ALL.R")
+source("modules/HoQC_01_RMedicHelp.R")
+source("modules/HoQC_02_TestTDosMuestrasIndependientes.R")
+source("modules/HoQC_03_TestWilcoxonDosMuestrasIndependientes.R")
+source("modules/HoQC_07_TestHomogeneidadDeVarianzasFisher.R")
+source("modules/HoQC_08_TestHomogeneidadDeVarianzasBartlett.R")
+source("modules/HoQC_09_TestNormalidadShapiroWilkParticionado.R")
+
+
+
 
 source("modules2/ModuleBase.R")
 source("modules2/ModuleControl.R")
