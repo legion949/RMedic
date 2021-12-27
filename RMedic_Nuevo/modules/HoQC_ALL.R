@@ -109,8 +109,17 @@ HoQC_SERVER <- function(input, output, session,
              control_ejecucion = control_ejecucion,
              alfa = alfa)
   
-  callModule(module = HoQC_09_TestNormalidadShapiroWilkParticionado_SERVER,
+  
+  callModule(module = HoQC_09_TestHomogeneidadDeVarianzasLevene_SERVER,
              id =  "ho07I",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
+  
+  callModule(module = HoQC_10_TestNormalidadShapiroWilkParticionado_SERVER,
+             id =  "ho07J",
              minibase = minibase,
              decimales = decimales,
              control_ejecucion = control_ejecucion,
@@ -185,7 +194,7 @@ HoQC_SERVER <- function(input, output, session,
                     tabPanel(title = "Test t (Dos muestras independientes)", value = 2,
                              HoQC_02_TestTDosMuestrasIndependientes_UI(ns("ho07B"))),
                     
-                    tabPanel(title = "Test Wilcoxon (Dos muestras independientes)", value = 3,
+                    tabPanel(title = "Test Mann-Whitney-Wilcoxon (Dos muestras independientes)", value = 3,
                              HoQC_03_TestWilcoxonDosMuestrasIndependientes_UI(ns("ho07C"))),
                     
                     tabPanel(title = "Test de Homogeneidad de Varianzas de Fisher", value = 7,
@@ -194,8 +203,11 @@ HoQC_SERVER <- function(input, output, session,
                     tabPanel(title = "Test de Homogeneidad de Varianzas de Bartlett", value = 8,
                              HoQC_08_TestHomogeneidadDeVarianzasBartlett_UI(ns("ho07H"))),
                     
+                    tabPanel(title = "Test de Homogeneidad de Varianzas de Levene", value = 8,
+                             HoQC_09_TestHomogeneidadDeVarianzasLevene_UI(ns("ho07I"))),
+                    
                     tabPanel(title = "Test de Normalidad Shapiro-Wilk (Particionado)", value = 9,
-                             HoQC_09_TestNormalidadShapiroWilkParticionado_UI(ns("ho07I"))),
+                             HoQC_10_TestNormalidadShapiroWilkParticionado_UI(ns("ho07J"))),
 
                     
                     # 

@@ -1,7 +1,7 @@
 
 
 
-Ho2C_06_TestWilcoxonApareado_UI <- function(id) {
+Ho2C_09_TestHomogenedadDeVarianzasLevene_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,7 +16,7 @@ Ho2C_06_TestWilcoxonApareado_UI <- function(id) {
 
 
 ## Segmento del server
-Ho2C_06_TestWilcoxonApareado_SERVER <- function(input, output, session, 
+Ho2C_09_TestHomogenedadDeVarianzasLevene_SERVER <- function(input, output, session, 
                                     minibase, 
                                     decimales,
                                     control_ejecucion,
@@ -43,13 +43,12 @@ Ho2C_06_TestWilcoxonApareado_SERVER <- function(input, output, session,
   
   
   # # # # #
-  # 1C - 01 - Test de Proporciones
+  # 2C - 07 - Test de Homogeneidad de Varianzas de Levene
   
   
   
   
   # Menu del opciones para el test de proporciones
-  # # # # ESTO LO DEJE EN EL SCRIPT PERO ESTA INACTIVO!!!!!!
   output$opciones_ho <- renderUI({
     
     
@@ -85,18 +84,16 @@ Ho2C_06_TestWilcoxonApareado_SERVER <- function(input, output, session,
     
     if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
-   # if(is.null(input$tipo_prueba_ho)) return(NULL)
-   # if(is.null(input$valor_bajo_ho)) return(NULL)
+ #   if(is.null(input$tipo_prueba_ho)) return(NULL)
+  #  if(is.null(input$valor_bajo_ho)) return(NULL)
     if(is.null(decimales())) return(NULL)
     if(is.null(alfa())) return(NULL)
     
     
     
-    Test_2C_TestWilcoxon_DosMuestras_Apareado( input_base = minibase(),
-                              input_tipo_prueba = "two.sided", 
-                              input_mediana_ho = 0,
-                              input_decimales = decimales(),
-                              input_alfa = alfa())
+    Test_2C_TestHomogeneidadDeVarianzas_Levene(input_base = minibase(),
+                                                input_decimales = decimales(),
+                                                input_alfa = alfa())
     
     
     
@@ -114,7 +111,7 @@ Ho2C_06_TestWilcoxonApareado_SERVER <- function(input, output, session,
     
   }))
   
-
+  
   
   # Frase 2: Explicacion Estadistica
   observe(output$frase_estadistica <- renderUI({
@@ -137,18 +134,20 @@ Ho2C_06_TestWilcoxonApareado_SERVER <- function(input, output, session,
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test Wilcoxon (Dos muestras apareadas)"),
-      br(),
-      br(),
-     # h3("Elecciones del usuario"),
-     # uiOutput(ns("opciones_ho")),
-      br(),
+      h2("Test de Homogeneidad de Varianzas de Levene"),
+      "Nota: para la utilización del test de Homogeneidad de Varianzas de Levene
+             ambas variables deben ser numéricas y no ser ordinales (cualitativas representadas con números).", 
+    #  h3("Elecciones del usuario"),
+    #  uiOutput(ns("opciones_ho")),
       # Mensaje de advertencia por redondeo
       span(htmlOutput(ns("frase_redondeo")), style="color:red"),
+      br(),
+      br(),
       h3("Juego de Hipótesis"),
       htmlOutput(ns("frase_juego_hipotesis")),
       br(),
-      h3("Tabla Resumen del test de Wilcoxon (Dos muestras apareadas)"),
+      br(),
+      h3("Tabla Resumen del test de homogeneidad de varianzas de Levene"),
       tableOutput(ns("tabla_resumen")),
       br(),
       h3("Frases y conclusiones"),

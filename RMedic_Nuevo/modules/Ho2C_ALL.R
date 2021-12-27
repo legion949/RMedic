@@ -87,6 +87,15 @@ Ho2C_SERVER <- function(input, output, session,
              control_ejecucion = control_ejecucion,
              alfa = alfa)
   
+  
+  # Ho 9 : Test de Homogeneidad de Varianzas de Levene
+  callModule(module = Ho2C_09_TestHomogenedadDeVarianzasLevene_SERVER,
+             id =  "ho06J",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
   # callModule(module = Graficos2C_03_MediaDesvioEstandard_SERVER,
   #            id =  "graficos06C",
   #            minibase = minibase,
@@ -162,7 +171,11 @@ Ho2C_SERVER <- function(input, output, session,
                     
                     tabPanel(title = "Test de Homogeneidad de Varianzas de Bartlett",
                              value = 8,
-                             Ho2C_08_TestHomogenedadDeVarianzasBartlett_UI(ns("ho06I")))
+                             Ho2C_08_TestHomogenedadDeVarianzasBartlett_UI(ns("ho06I"))),
+                    
+                    tabPanel(title = "Test de Homogeneidad de Varianzas de Levene",
+                             value = 9,
+                             Ho2C_09_TestHomogenedadDeVarianzasLevene_UI(ns("ho06J")))
                     # 
                     # tabPanel(title = "Media y Error Estándard", value = 4,
                     #          Graficos2C_04_MediaErrorEstandard_UI(ns("graficos06D"))),

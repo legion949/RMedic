@@ -149,7 +149,7 @@ Ho2C_07_TestHomogenedadDeVarianzasFisher_SERVER <- function(input, output, sessi
     div(
       h2("Test de Homogeneidad de Varianzas de Fisher"),
       "Nota: para la utilización del test de homogeneidad de varianzas de fisher 
-             la variable debe ser numérica y no debe ser ordinal (cualitativa representada con números).", 
+             las variables debe ser numéricas y no deben ser ordinales (cualitativas representadas con números).", 
       br(),
       br(),
     #  h3("Elecciones del usuario"),

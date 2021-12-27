@@ -14,6 +14,7 @@ library(openxlsx)
 library(stringr)
 library(vioplot)
 library(coin)
+library(car)
 
 source("uiCode.R")
 
@@ -102,6 +103,7 @@ source("modules/Ho2C_05_TestTApareado.R")
 source("modules/Ho2C_06_TestWilcoxonApareado.R")
 source("modules/Ho2C_07_TestHomogenedadDeVarianzasFisher.R")
 source("modules/Ho2C_08_TestHomogenedadDeVarianzasBartlett.R")
+source("modules/Ho2C_09_TestHomogenedadDeVarianzasLevene.R")
 #####################################################
 
 # Ho QC
@@ -111,7 +113,8 @@ source("modules/HoQC_02_TestTDosMuestrasIndependientes.R")
 source("modules/HoQC_03_TestWilcoxonDosMuestrasIndependientes.R")
 source("modules/HoQC_07_TestHomogeneidadDeVarianzasFisher.R")
 source("modules/HoQC_08_TestHomogeneidadDeVarianzasBartlett.R")
-source("modules/HoQC_09_TestNormalidadShapiroWilkParticionado.R")
+source("modules/HoQC_09_TestHomogeneidadDeVarianzasLevene.R")
+source("modules/HoQC_10_TestNormalidadShapiroWilkParticionado.R")
 
 
 

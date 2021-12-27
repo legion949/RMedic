@@ -147,7 +147,7 @@ Ho2C_08_TestHomogenedadDeVarianzasBartlett_SERVER <- function(input, output, ses
     div(
       h2("Test de Homogeneidad de Varianzas de Bartlett"),
       "Nota: para la utilización del test de homogeneidad de varianzas de bartlett 
-             ambas variables deben ser numéricas y no ser ordinales (cualitativa representada con números).", 
+             ambas variables deben ser numéricas y no ser ordinales (cualitativas representadas con números).", 
       br(),
       br(),
     #  h3("Elecciones del usuario"),

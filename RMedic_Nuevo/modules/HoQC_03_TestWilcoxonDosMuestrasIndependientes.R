@@ -129,23 +129,20 @@ HoQC_03_TestWilcoxonDosMuestrasIndependientes_SERVER <- function(input, output, 
   
   
   # Frase 4: Juego de Hipotesis1
-  observe(output$frase_juego_hipotesis1 <- renderUI({
-    HTML(The_Test()$frase_juego_hipotesis1)
+  observe(output$frase_juego_hipotesis <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis)
   }))
   
-  # Frase 5: Juego de Hipotesis2
-  observe(output$frase_juego_hipotesis2 <- renderUI({
-    HTML(The_Test()$frase_juego_hipotesis2)
-  }))
+  # # Frase 5: Juego de Hipotesis2
+  # observe(output$frase_juego_hipotesis2 <- renderUI({
+  #   HTML(The_Test()$frase_juego_hipotesis2)
+  # }))
   
   # Armado/Salida del test de Proporciones 1Q
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test Wilcoxon (Dos muestras independientes)"),
-      "Nota: para la utilización del test Wilcoxon (Dos muestras independientes) ambas 
-      variables deben ser numéricas y no debe ser ordinales (cualitativa representada con números).", 
-      br(),
+      h2("Test Mann-Whitney-Wilcoxon (Dos muestras independientes)"),
       br(),
       # h3("Elecciones del usuario"),
       # uiOutput(ns("opciones_ho")),
@@ -154,18 +151,15 @@ HoQC_03_TestWilcoxonDosMuestrasIndependientes_SERVER <- function(input, output, 
       # Mensaje de advertencia por redondeo
       span(htmlOutput(ns("frase_redondeo")), style="color:red"),
       br(),
-      br(),
       h3("Juego de Hipótesis"),
-      "Existen dos formas equivalentes de manifestar el juego de hipótesis del test t 
-      para dos muestras independientes: ", br(), br(),
-      "Forma 1 de 2:",
-      htmlOutput(ns("frase_juego_hipotesis1")),
+  #    "Forma 1 de 2:",
+  #    htmlOutput(ns("frase_juego_hipotesis1")),
       br(),
-      "Forma 2 de 2:",
-      htmlOutput(ns("frase_juego_hipotesis2")),
+  #    "Forma 2 de 2:",
+      htmlOutput(ns("frase_juego_hipotesis")),
       br(),
       br(),
-      h3("Tabla Resumen del test de Wilcoxon (Dos muestras independientes)"),
+      h3("Tabla Resumen del test de Mann-Whitney-Wilcoxon (Dos muestras independientes)"),
       tableOutput(ns("tabla_resumen")),
       br(),
       h3("Frases y conclusiones"),

@@ -1,7 +1,7 @@
 
 
 
-HoQC_09_TestNormalidadShapiroWilkParticionado_UI <- function(id) {
+HoQC_10_TestNormalidadShapiroWilkParticionado_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,7 +16,7 @@ HoQC_09_TestNormalidadShapiroWilkParticionado_UI <- function(id) {
 
 
 ## Segmento del server
-HoQC_09_TestNormalidadShapiroWilkParticionado_SERVER <- function(input, output, session, 
+HoQC_10_TestNormalidadShapiroWilkParticionado_SERVER <- function(input, output, session, 
                                                      minibase,
                                                      decimales,
                                                      control_ejecucion,

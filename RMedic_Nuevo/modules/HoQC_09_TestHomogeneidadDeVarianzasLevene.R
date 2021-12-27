@@ -1,7 +1,7 @@
 
 
 
-HoQC_07_TestHomogeneidadDeVarianzasFisher_UI <- function(id) {
+HoQC_09_TestHomogeneidadDeVarianzasLevene_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,7 +16,7 @@ HoQC_07_TestHomogeneidadDeVarianzasFisher_UI <- function(id) {
 
 
 ## Segmento del server
-HoQC_07_TestHomogeneidadDeVarianzasFisher_SERVER <- function(input, output, session, 
+HoQC_09_TestHomogeneidadDeVarianzasLevene_SERVER <- function(input, output, session, 
                                                      minibase,
                                                      decimales,
                                                      control_ejecucion,
@@ -60,11 +60,9 @@ HoQC_07_TestHomogeneidadDeVarianzasFisher_SERVER <- function(input, output, sess
     
     
     
-    Test_QC_TestHomogeneidadDeVarianzas_Fisher(input_base = minibase(), 
-                                               input_tipo_prueba = "two.sided", 
-                                               input_cociente_ho = 1, 
-                                               input_decimales = decimales(), 
-                                               input_alfa = alfa())
+    Test_QC_TestHomogeneidadDeVarianzas_Levene(input_base = minibase(), 
+                                                 input_decimales = decimales(), 
+                                                 input_alfa = alfa())
     
     
     
@@ -82,18 +80,7 @@ HoQC_07_TestHomogeneidadDeVarianzasFisher_SERVER <- function(input, output, sess
   }))
   
   
-  # Tabla Requisitos
-  observe( output$tabla_requisitos <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
-    
-    The_Test()$tabla_requisitos
-    
-  }))
-  
-  # Frase 1: Sobre los requisitos
-  observe(output$frase_requisitos <- renderUI({
-    HTML(The_Test()$frase_requisitos)
-  }))
-  
+ 
   # Frase 2: Explicacion Estadistica
   observe(output$frase_estadistica <- renderUI({
     HTML(The_Test()$frase_estadistica)
@@ -115,25 +102,17 @@ HoQC_07_TestHomogeneidadDeVarianzasFisher_SERVER <- function(input, output, sess
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test de Homogeneidad de Varianzas de Fisher"),
-      "Nota: para la utilización de Homogeneidad de Varianzas de Fisher la variable numérica no debe ser 
+      h2("Test de Homogeneidad de Varianzas de Levene"),
+      "Nota: para la utilización de Homogeneidad de Varianzas de Levene la variable numérica no debe ser 
       ordinal (cualitativa representada con números).", 
       br(),
       br(),
       #  h3("Elecciones del usuario"),
       #  uiOutput(ns("opciones_ho")),
-      br(),
-      # Mensaje de advertencia por redondeo
-      span(htmlOutput(ns("frase_redondeo")), style="color:red"),
-      br(),
-      h3("Tabla de Requisitos del test de Homogeneidad de Varianzas de Fisher"),
-      tableOutput(ns("tabla_requisitos")),
-      htmlOutput(ns("frase_requisitos")),
-      br(),
       h3("Juego de Hipótesis"),
       htmlOutput(ns("frase_juego_hipotesis")),
       br(),
-      h3("Tabla Resumen del test de Homogeneidad de Varianzas de Fisher"),
+      h3("Tabla Resumen del test de Homogeneidad de Varianzas de Levene"),
       tableOutput(ns("tabla_resumen")),
       br(),
       h3("Frases y conclusiones"),
