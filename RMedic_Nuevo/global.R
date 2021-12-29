@@ -15,6 +15,8 @@ library(stringr)
 library(vioplot)
 library(coin)
 library(car)
+library(agricolae)
+library(gplots)
 
 source("uiCode.R")
 
@@ -94,7 +96,7 @@ source("modules/Ho1C_05_TestChiCuadradoUnaMuestra.R")
 
 source("modules/Ho2Q_ALL.R")
 source("modules/Ho2Q_01_RMedicHelp.R")
-source("modules/Ho2Q_02_TestDeProporciones.R")
+source("modules/Ho2Q_02_TestDeDosProporciones.R")
 
 # Ho 2C
 source("modules/Ho2C_ALL.R")
@@ -111,6 +113,7 @@ source("modules/HoQC_ALL.R")
 source("modules/HoQC_01_RMedicHelp.R")
 source("modules/HoQC_02_TestTDosMuestrasIndependientes.R")
 source("modules/HoQC_03_TestWilcoxonDosMuestrasIndependientes.R")
+source("modules/HoQC_04_TestAnova1Factor.R")
 source("modules/HoQC_07_TestHomogeneidadDeVarianzasFisher.R")
 source("modules/HoQC_08_TestHomogeneidadDeVarianzasBartlett.R")
 source("modules/HoQC_09_TestHomogeneidadDeVarianzasLevene.R")

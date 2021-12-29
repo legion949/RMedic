@@ -94,6 +94,14 @@ HoQC_SERVER <- function(input, output, session,
              alfa = alfa)
   
   
+  callModule(module = HoQC_04_TestAnova1Factor_SERVER,
+             id =  "ho07D",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
+  
   callModule(module = HoQC_07_TestHomogeneidadDeVarianzasFisher_SERVER,
              id =  "ho07G",
              minibase = minibase,
@@ -196,6 +204,10 @@ HoQC_SERVER <- function(input, output, session,
                     
                     tabPanel(title = "Test Mann-Whitney-Wilcoxon (Dos muestras independientes)", value = 3,
                              HoQC_03_TestWilcoxonDosMuestrasIndependientes_UI(ns("ho07C"))),
+                    
+                    
+                    tabPanel(title = "Test Anova a 1 Factor", value = 4,
+                             HoQC_04_TestAnova1Factor_UI(ns("ho07D"))),
                     
                     tabPanel(title = "Test de Homogeneidad de Varianzas de Fisher", value = 7,
                              HoQC_07_TestHomogeneidadDeVarianzasFisher_UI(ns("ho07G"))),

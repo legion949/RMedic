@@ -1,7 +1,7 @@
 
 
 
-Ho2Q_02_TestDeProporciones_UI <- function(id) {
+Ho2Q_02_TestDeDosProporciones_UI <- function(id) {
   
   ns <- NS(id)
   
@@ -16,7 +16,7 @@ Ho2Q_02_TestDeProporciones_UI <- function(id) {
 
 
 ## Segmento del server
-Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session, 
+Ho2Q_02_TestDeDosProporciones_SERVER <- function(input, output, session, 
                                         minibase,
                                         decimales,
                                         control_ejecucion,
@@ -55,67 +55,97 @@ Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session,
   # # # # #
   # 1Q - 01 - Test de Proporciones
   
+  cambio_orden_columnas <- reactive({
+    
+    dt_col <- colnames(minibase())[1] == input$divisor_grupos
+    
+    if(dt_col) el_orden <- c(1,2) else el_orden <- c(2,1)
+    
+    return(el_orden)
+    
+  })
   
   
+  # Variable criterio de inclusion
+  observeEvent(input$divisor_grupos,{
+    
+    the_var <- colnames(minibase()) == input$divisor_grupos
+    
+    la_otra <- colnames(minibase())[!the_var]
+    
+    titulo2 <- paste("Éxito - Variable 2 - '", la_otra, "'", sep="")
+    opciones_categorias2 <- levels(as.factor(minibase()[,la_otra]))
+    
+    
+    freezeReactiveValue(input, "categoria_exito")
+    updateSelectInput(session,
+                       inputId = "categoria_exito", 
+                       label = titulo2, 
+                       choices = opciones_categorias2)
+    })
   
+
   # Menu del opciones para el test de proporciones
   output$opciones_ho <- renderUI({
     
+    titulo1 <- paste("Divisor de Grupos", sep="")
+    opciones_categorias1 <- colnames(minibase()) 
+   
+
+    titulo2 <- paste("Éxito - Variable 2 - '", colnames(minibase())[2], "'", sep="")
+    opciones_categorias2 <- levels(as.factor(minibase()[,2]))
     
-    titulo_armado <- paste("Categoría de 'Éxito' de la variable '", colnames(minibase())[1], "'", sep="")
-    opciones_categorias <- levels(as.factor(minibase()[,1]))
+    
     
     div(
       # Seleccion de una categoria
       fluidRow(
         column(4,
-               selectInput(inputId = ns("categoria_exito"), 
-                           label = titulo_armado, 
-                           choices = opciones_categorias)
+               selectInput(inputId = ns("divisor_grupos"), 
+                           label = titulo1, 
+                           choices = opciones_categorias1
+               )
         ),
         
         
         column(4,
                # Seleccion del valor bajo H0
-               numericInput(inputId = ns("valor_bajo_ho"),
-                            label = "Valor bajo Hipótesis de proporción: ",
-                            min=0,  max=1, step=0.01, value=0.50)
+               selectInput(inputId = ns("categoria_exito"), 
+                           label = titulo2, 
+                           choices = opciones_categorias2)
         ),
         column(4,
                
-               # Seleccion del tipo de prueba
-               radioButtons(ns("tipo_prueba_ho"), "Tipo de Prueba de Hipótesis:",
-                            choices = c("Bilateral" = "two.sided",
-                                        "Unilateral izquierda" = "less",
-                                        "Unilateral derecha" = "greater")
+               # # Seleccion del tipo de prueba
+               # radioButtons(ns("tipo_prueba_ho"), "Tipo de Prueba de Hipótesis:",
+               #              choices = c("Bilateral" = "two.sided",
+               #                          "Unilateral izquierda" = "less",
+               #                          "Unilateral derecha" = "greater")
                )
         )
         
         
-      )
+      
     )
     
     
     
   })
   
+
   # Test de Proporciones
   The_Test <- reactive({
     
     if(!control_interno01()) return(NULL)
     if(is.null(minibase())) return(NULL)
     if(is.null(input$categoria_exito)) return(NULL)
-    if(is.null(input$tipo_prueba_ho)) return(NULL)
-    if(is.null(input$valor_bajo_ho)) return(NULL)
     if(is.null(decimales())) return(NULL)
     if(is.null(alfa())) return(NULL)
+    if(is.null(cambio_orden_columnas())) return(NULL)
     
     
-    
-    Test_1Q_TestDeUnaProporcion( input_base = minibase(),
+    Test_2Q_TestDeDosProporciones_Fisher(input_base = minibase()[cambio_orden_columnas()],
                                  input_categoria_exito = input$categoria_exito,
-                                 input_tipo_prueba = input$tipo_prueba_ho, 
-                                 input_prop_ho = input$valor_bajo_ho,
                                  input_decimales = decimales(),
                                  input_alfa = alfa())#input$alfa_ho)
     
@@ -130,7 +160,7 @@ Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session,
   # Salida de tabla resumen del test de Proporciones 1Q
   observe( output$tabla_resumen <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
     
-    The_Test()$resumen
+    The_Test()$tabla_resumen
     
   }))
   
@@ -151,11 +181,14 @@ Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session,
     HTML(The_Test()$frase_juego_hipotesis)
   }))
   
+ 
+  
+  
   # Armado/Salida del test de Proporciones 1Q
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test de una proporción"),
+      h2("Test de Dos proporciones de Fisher"),
       br(),
       h3("Elecciones del usuario"),
       uiOutput(ns("opciones_ho")),
@@ -167,7 +200,7 @@ Ho2Q_02_TestDeProporciones_SERVER <- function(input, output, session,
       htmlOutput(ns("frase03")),
       br(),
       br(),
-      h3("Tabla Resumen del Test de una proporción"),
+      h3("Tabla Resumen del Test de dos proporciones de Fisher"),
       tableOutput(ns("tabla_resumen")),
       br(),
       br(),

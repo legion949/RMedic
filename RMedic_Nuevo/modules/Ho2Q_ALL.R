@@ -55,7 +55,7 @@ Ho2Q_SERVER <- function(input, output, session,
              alfa = alfa)
 
   
-  callModule(module = Ho2Q_02_TestDeProporciones_SERVER,
+  callModule(module = Ho2Q_02_TestDeDosProporciones_SERVER,
              id =  "ho05B",
              minibase = minibase,
              decimales = decimales,
@@ -84,7 +84,7 @@ Ho2Q_SERVER <- function(input, output, session,
                            Ho2Q_01_RMedicHelp_UI(ns("ho05A"))
                           ) ,
                    tabPanel(title = "Test de Proporciones", value = 2,
-                            Ho2Q_02_TestDeProporciones_UI(ns("ho05B"))
+                            Ho2Q_02_TestDeDosProporciones_UI(ns("ho05B"))
                             )
       )
     )
