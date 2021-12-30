@@ -3492,6 +3492,10 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   # Tabla de regresion
   tabla_regresion <- info_extra[[4]]
   
+  # Residuos y Predichos
+  residuos <- regresion_completa$residuals
+  predichos <- regresion_completa$fitted.values
+  
   # Bases internas
   armado1 <- data.frame(residuos)
 
@@ -3512,14 +3516,18 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   
   
   # Cumplimiento de Homogeneidad
-  cumplimiento_homogeneidad <- "El operador debe visualizar el gráfico de 'Residuos vs 
+  cumplimiento_homogeneidad <- "Usted debe visualizar el gráfico de 'Residuos vs 
                                 Predichos' y tomar una decisión."
   
   
   # Cumplimiento General
-  cumplimiento_general <-  "El operador debe visualizar el gráfico de 'Residuos vs 
-                                Predichos' y tomar una decisión."
-  if(cumplimiento_normalidad == "No") cumplimiento_general <- "No"
+  cumplimiento_general1 <-  "El requisito de normalidad de residuos se cumple y la homogeneidad de varianzas 
+                            depende de su decisión."
+  
+  cumplimiento_general2 <- "Depende de usted: el requisito de normalidad de residuos se cumple y la homogeneidad de varianzas 
+                            depende de su decisión."
+  
+  if(cumplimiento_normalidad == "No") cumplimiento_general1 <- "No"
   
   
   # Pendiente
@@ -3533,7 +3541,7 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   # R2 ajustado
   r2ajus_obs_interno <- info_extra$adj.r.squared
   r2ajus_obs_externo <- round2(r2ajus_obs_interno, input_decimales)
-  
+  r2ajustado_porcentual <- paste0(r2ajus_obs_externo*100, "%")
   
   # Estadistico
   estadistico_obs_ordenada_interno <- tabla_regresion[1,3]
@@ -3544,16 +3552,16 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   estadistico_obs_pendiente_externo <- round2(estadistico_obs_pendiente_interno, input_decimales)
   estadistico_obs_r2ajus_externo <- round2(estadistico_obs_r2ajus_interno, input_decimales)
   
-  
+
   
   # Grados de Libertad
-  gl_ordenada_interno <- "No sé"   #info_extra$df
-  gl_pendiente_interno <- "No sé"
-  gl_r2ajus_interno <- "No sé"
+  gl_ordenada_interno <- (n_muestra - 2)   #info_extra$df
+  gl_pendiente_interno <- (n_muestra - 2)
+  gl_r2ajus_interno <- paste0(info_extra$fstatistic[2], " y ", info_extra$fstatistic[3])
   
-  gl_ordenada_externo <- "No sé"
-  gl_pendiente_externo <- "No sé"
-  gl_r2ajus_externo <- "No sé"
+  gl_ordenada_externo <- gl_ordenada_interno
+  gl_pendiente_externo <- gl_pendiente_interno
+  gl_r2ajus_externo <- gl_r2ajus_interno
 
     
   # Valor p internos
@@ -3563,6 +3571,7 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   valor_f <- info_extra$fstatistic[1]
   gl1 <- info_extra$fstatistic[2]
   gl2 <- info_extra$fstatistic[3]
+  gl_fusion_r2ajus <- paste0(gl1, " y ", gl2)
   
   valor_p_r2ajus_interno <- pf(valor_f, gl1, gl2, lower.tail = F)
   
@@ -3619,8 +3628,9 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
                     "
     
     frase1_v3_ordenada <- "El valor p=_mi_valor_p_ de la ordenada es menor que el valor de alfa=_mi_valor_alfa_ 
-                    por lo tanto <b><u>se rechaza la Ho</b></u>.<br/>
-                    La ordenada de la recta es estadísticamente distinta de cero.
+                    por lo tanto <b><u>se rechaza la Ho de la ordenada</b></u>.<br/>
+                    La ordenada de la recta es estadísticamente distinta de cero.<br/>
+                    El valor estimado de la ordenada es _mi_ordenada_.
                     "
     
     
@@ -3633,7 +3643,7 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
           if (valor_p_ordenada_interno < input_alfa)  frase_estadistica_ordenada <- frase1_v3_ordenada
 
     
-    
+    frase_estadistica_ordenada <- gsub("_mi_ordenada_", ordenada_obs_externa, frase_estadistica_ordenada)
     frase_estadistica_ordenada <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_ordenada)
     frase_estadistica_ordenada <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_ordenada)
     frase_estadistica_ordenada <- gsub("_mi_valor_p_", valor_p_ordenada_externo, frase_estadistica_ordenada)
@@ -3674,8 +3684,8 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
     
     
     frase_negativa_pendiente <- "La pendiente es estadísticamente significativa, de signo negativo y tiene un valor 
-                                  de '_mi_pendiente', por lo tanto un aumento en la variable X en una unidad ('_mi_variable1_') trae aparejado 
-                                  un disminución de la variable Y ('_mi_variable2_') de '_mi_pendiente_' unidades."
+                                  de _mi_pendiente_, por lo tanto un aumento en la variable X en una unidad ('_mi_variable1_') trae aparejado 
+                                  un disminución de la variable Y ('_mi_variable2_') de _mi_pendienteAbsoluta_ unidades."
     
     
     # Seleccion de Frase Estadistica
@@ -3689,8 +3699,8 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
               if(pendiente_obs_interna < 0) frase_estadistica_pendiente <- paste0(frase_estadistica_pendiente, "<br/>", frase_negativa_pendiente)
           }
     
-    
-    
+    frase_estadistica_pendiente <- gsub("_mi_pendienteAbsoluta_", abs(pendiente_obs_externa), frase_estadistica_pendiente)
+    frase_estadistica_pendiente <- gsub("_mi_pendiente_", pendiente_obs_externa, frase_estadistica_pendiente)
     frase_estadistica_pendiente <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_pendiente)
     frase_estadistica_pendiente <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_pendiente)
     frase_estadistica_pendiente <- gsub("_mi_valor_p_", valor_p_pendiente_externo, frase_estadistica_pendiente)
@@ -3723,7 +3733,8 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
     frase1_v3_r2ajus <- "El valor p=_mi_valor_p_ del R2 ajustado es menor que el valor de alfa=_mi_valor_alfa_ 
                     por lo tanto <b><u>se rechaza la Ho del R2 ajustado</b></u>.<br/>
                     El valor de R2 ajustado es estadísticamente distinto de cero.<br/>
-                    El modelo logra explicar al menos en parte a la variable Y.
+                    La variable X ('_mi_variable2_') por intermedio del modelo de regresión lineal simple logra 
+                    explicar un _mi_r2ajusPorcentual_ de la variabilidad de Y.
                     "
     
     
@@ -3736,7 +3747,7 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
           if (valor_p_r2ajus_interno < input_alfa)  frase_estadistica_r2ajus <- frase1_v3_r2ajus
     
     
-    
+    frase_estadistica_r2ajus <- gsub("_mi_r2ajusPorcentual_", r2ajustado_porcentual, frase_estadistica_r2ajus)
     frase_estadistica_r2ajus <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_r2ajus)
     frase_estadistica_r2ajus <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_r2ajus)
     frase_estadistica_r2ajus <- gsub("_mi_valor_p_", valor_p_r2ajus_externo, frase_estadistica_r2ajus)
@@ -3749,30 +3760,19 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   # Frases Juego de Hipotesis
   {
     
-    # Bilateral
-    frase_juego_bilateral <-  "<b>Hipótesis Nula (Ho):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
-                                es igual a cero.<br/>
-                               <b>Hipótesis Alternativa (Hi):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
-                                es distinta de cero."
+      # Ordenada
+      frase_juego_hipotesis_ordenada <-  "<b>Hipótesis Nula (Ho):</b> la ordenada poblacional es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la ordenada poblacional es distinta de cero."
     
-    # Unilateral Izquierda
-    frase_juego_izquierda <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es mayor o igual a _mi_mu_esp_.<br/>
-                               <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es menor a _mi_mu_esp_."
+      frase_juego_hipotesis_pendiente <-  "<b>Hipótesis Nula (Ho):</b> la pendiente poblacional es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la pendiente poblacional es distinta de cero."
     
-    # Unilateral Derecha
-    frase_juego_derecha <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es menor o igual a _mi_mu_esp_.<br/>
-                            <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es mayor a _mi_mu_esp_."
-    
-    frase_juego_hipotesis <- frase_juego_bilateral
-    
-    # if(input_tipo_prueba == "two.sided") frase_juego_hipotesis <- frase_juego_bilateral else
-    #   if(input_tipo_prueba == "less") frase_juego_hipotesis <- frase_juego_izquierda else
-    #     if(input_tipo_prueba == "greater") frase_juego_hipotesis <- frase_juego_derecha
-    
-    
-    frase_juego_hipotesis <- gsub("_mi_variable1_", colnames(input_base)[1], frase_juego_hipotesis)
-    frase_juego_hipotesis <- gsub("_mi_variable2_", colnames(input_base)[2], frase_juego_hipotesis)
-    
+
+    frase_juego_hipotesis_r2ajus <-  "<b>Hipótesis Nula (Ho):</b> el coeficiente de determinación poblacional es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> el coeficiente de determianción poblacional es distinta de cero."
+
+        
+   
     
     
     
@@ -3802,8 +3802,8 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
                   "n",  # 3
                   "Test de Normalidad",  # 4
                   "¿Los residuos presentan distribución normal?", # 5
-                  "Test Visual de Homogeneidad de Varianzas", #6
-                  "¿Las varianzas son homogéneas?", #7
+                  "Homogeneidad de Varianzas", #6
+                  "¿Las varianzas de los residuos son homogéneas?", #7
                   "¿Se cumplen los requisitos del 'Test de Regresión Lineal Simple'?", #8
                   "¿Es válido sacar conclusiones del 'Test de Regresión Lineal Simple'?" #9
     )
@@ -3820,12 +3820,12 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
     tabla_requisitos[1,4] <- "Shapiro-Wilk"
     tabla_requisitos[1,5] <- cumplimiento_normalidad
     
-    tabla_requisitos[1,6] <- "Test Visual de Homogeneidad de Varianzas"
+    tabla_requisitos[1,6] <- "Comprobación Visual de Homogeneidad de Varianzas"
     
     tabla_requisitos[1,7] <- cumplimiento_homogeneidad
     
-    tabla_requisitos[1,8] <- cumplimiento_general
-    tabla_requisitos[1,9] <- cumplimiento_general
+    tabla_requisitos[1,8] <- cumplimiento_general1
+    tabla_requisitos[1,9] <- cumplimiento_general2
     
   }
   
@@ -3834,10 +3834,10 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   {
     frase_inicial_requisitos <- "El test de Regresión Lineal Simple tiene como requisitos que los residuos presenten 
                                   distribución normal y homogeneidad de varianzas. <br/>
-                      Paralelamente a la generación del test de Correlación de Pearson, RMedic 
+                      Paralelamente a la generación del test de Regresión Lineal Simple, RMedic 
                       realiza a su vez la comprobación estadística de la normalidad de los residuos.<br/>
                       La detemrinación de la homogeneidad de varianzas se lleva a cabo de manera visual en el test de Regresión 
-                      Lineal Simple. Para determinar la homogeneidad de varianzas el operador deberá observar el gráfico de 'Residuos vs. Predichos' 
+                      Lineal Simple. Para determinar la homogeneidad de varianzas usted deberá observar el gráfico de 'Residuos vs. Predichos' 
                       y decidir si se cumple o no la homogeneidad."
     
     frase_no_requisitos <- "Para el pool de datos de la muestra no se cumple que simultáneamente 
@@ -3845,8 +3845,8 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
                             por lo tanto <b><u>no es válido sacar conclusiones del test 
                             de Regresión Lineal Simple</b></u> indistintamente de los resultados obtenidos."
     
-    frase_si_requisitos <-  "Para el pool de datos de la muestra se cumple la normalidad de los residuos. <b><u>Si se 
-                             determina visualmente la homogeneidad de varianzas entonces será válido sacar conclusiones del test 
+    frase_si_requisitos <-  "Para el pool de datos de la muestra se cumple la normalidad de los residuos. <b><u>Si usted 
+                             determina visualmente que se cumple la homogeneidad de varianzas de los residuos entonces será válido sacar conclusiones del test 
                             de Regresión Lineal Simple.</b></u>."
     
     
@@ -3863,16 +3863,16 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
     
     nombres2 <- c("Parámetro", # 1
                   "Estimador", # 2
-                  "n", # 3
-                  "Test",  # 4
-                  "Tipo de prueba", # 5
-                  "Estadístico",  # 6
-                  "Grados de Libertad", # 7
-                  "Valor p", # 8
-                  "Alfa", # 9
-                  "Decisión", #10
-                  "¿El estimador es diferente de cero?", # 11
-                  "Tipo de relación" #12
+                  "Error Estándard", # 3
+                  "n", # 4
+                  "Test",  # 5
+                  "Tipo de prueba", # 6
+                  "Estadístico",  # 7
+                  "Grados de Libertad", # 8
+                  "Valor p", # 9
+                  "Alfa", # 10
+                  "Decisión", #11
+                  "¿El estimador es diferente de cero?" # 12
     )
     
     tabla_resumen <- matrix("--------", 3, length(nombres2))
@@ -3880,54 +3880,56 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
     
     tabla_resumen[1, 1] <- "Ordenada"
     tabla_resumen[2, 1] <- "Pendiente"
-    tabla_resumen[3, 1] <- "R2 ajustado"
+    tabla_resumen[3, 1] <- "Coeficiente de Determinación (R2 ajustado)"
     
     tabla_resumen[1, 2] <- ordenada_obs_externa
     tabla_resumen[2, 2] <- pendiente_obs_externa
     tabla_resumen[3, 2] <- r2ajus_obs_externo
     
-    tabla_resumen[1, 3] <- n_muestra
-    tabla_resumen[2, 3] <- n_muestra
-    tabla_resumen[3, 3] <- n_muestra
+    tabla_resumen[1, 3] <- round2(tabla_regresion[1,2], input_decimales)
+    tabla_resumen[2, 3] <- round2(tabla_regresion[2,2], input_decimales)
+  #  tabla_resumen[3, 3] <- n_muestra # ESTO QUEDA VACIO
     
-    tabla_resumen[1, 4] <- "Test t"
-    tabla_resumen[2, 4] <- "Test t"
-    tabla_resumen[3, 4] <- "Test F de cociente de varianzas"
+    tabla_resumen[1, 4] <- n_muestra
+    tabla_resumen[2, 4] <- n_muestra
+    tabla_resumen[3, 4] <- n_muestra
+    
+    tabla_resumen[1, 5] <- "Test t"
+    tabla_resumen[2, 5] <- "Test t"
+    tabla_resumen[3, 5] <- "Test F de cociente de varianzas"
     
     
-    tabla_resumen[1, 5] <- "Bilateral"
-    tabla_resumen[2, 5] <- "Bilateral"
-    tabla_resumen[3, 5] <- "Unilateral Izquierda"
+    tabla_resumen[1, 6] <- "Bilateral"
+    tabla_resumen[2, 6] <- "Bilateral"
+    tabla_resumen[3, 6] <- "Unilateral Derecha"
     
 
     
-    tabla_resumen[1, 6] <- paste0("t = ",estadistico_obs_ordenada_externo)
-    tabla_resumen[2, 6] <- paste0("t = ", estadistico_obs_ordenada_externo)
-    tabla_resumen[3, 6] <- paste0("F = ", estadistico_obs_r2ajus_externo)
+    tabla_resumen[1, 7] <- paste0("t = ",estadistico_obs_ordenada_externo)
+    tabla_resumen[2, 7] <- paste0("t = ", estadistico_obs_ordenada_externo)
+    tabla_resumen[3, 7] <- paste0("F = ", estadistico_obs_r2ajus_externo)
     
-    tabla_resumen[1, 7] <- gl_ordenada_externo
-    tabla_resumen[2, 7] <- gl_pendiente_externo
-    tabla_resumen[3, 7] <- gl_r2ajus_externo
+    tabla_resumen[1, 8] <- gl_ordenada_externo
+    tabla_resumen[2, 8] <- gl_pendiente_externo
+    tabla_resumen[3, 8] <- gl_r2ajus_externo
     
-    tabla_resumen[1, 8] <- valor_p_ordenada_externo
-    tabla_resumen[2, 8] <- valor_p_pendiente_externo
-    tabla_resumen[3, 8] <- valor_p_r2ajus_externo
+    tabla_resumen[1, 9] <- valor_p_ordenada_externo
+    tabla_resumen[2, 9] <- valor_p_pendiente_externo
+    tabla_resumen[3, 9] <- valor_p_r2ajus_externo
     
-    tabla_resumen[1, 9] <- input_alfa
-    tabla_resumen[2, 9] <- input_alfa
-    tabla_resumen[3, 9] <- input_alfa
+    tabla_resumen[1, 10] <- input_alfa
+    tabla_resumen[2, 10] <- input_alfa
+    tabla_resumen[3, 10] <- input_alfa
     
-    tabla_resumen[1, 10] <- decision_ordenada
-    tabla_resumen[2, 10] <- decision_pendiente
-    tabla_resumen[3, 10] <- decision_r2ajus
+    tabla_resumen[1, 11] <- decision_ordenada
+    tabla_resumen[2, 11] <- decision_pendiente
+    tabla_resumen[3, 11] <- decision_r2ajus
     
-    tabla_resumen[1, 11] <- respuesta_ordenada
-    tabla_resumen[2, 11] <- respuesta_pendiente
-    tabla_resumen[3, 11] <- respuesta_r2ajus
+    tabla_resumen[1, 12] <- respuesta_ordenada
+    tabla_resumen[2, 12] <- respuesta_pendiente
+    tabla_resumen[3, 12] <- respuesta_r2ajus
     
-    tabla_resumen[1, 12] <- tipo_relacion
-  #  tabla_resumen[2, 12] <- respuesta_pendiente
-  #  tabla_resumen[3, 12] <- respuesta_r2ajus
+ 
     
   }
   
@@ -3939,12 +3941,23 @@ Test_2C_TestRegresionLinealSimple <- function(input_base = NULL,
   
   SALIDA_ARMADA$tabla_resumen <- tabla_resumen
   
+  SALIDA_ARMADA$frase_estadistica_ordenada <- frase_estadistica_ordenada
   SALIDA_ARMADA$frase_estadistica_pendiente <- frase_estadistica_pendiente
+  SALIDA_ARMADA$frase_estadistica_r2ajus <- frase_estadistica_r2ajus
   
   SALIDA_ARMADA$frase_redondeo <- frase_redondeo
   
-  SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+  SALIDA_ARMADA$frase_juego_hipotesis_ordenada <- frase_juego_hipotesis_ordenada
   
+  SALIDA_ARMADA$frase_juego_hipotesis_pendiente <- frase_juego_hipotesis_pendiente
+  
+  SALIDA_ARMADA$frase_juego_hipotesis_r2ajus <- frase_juego_hipotesis_r2ajus
+  
+  SALIDA_ARMADA$tabla_regresion <- tabla_regresion
+  
+  SALIDA_ARMADA$residuos <- residuos
+  
+  SALIDA_ARMADA$predichos <- predichos
   
   # Returno Exitoso
   return(SALIDA_ARMADA)

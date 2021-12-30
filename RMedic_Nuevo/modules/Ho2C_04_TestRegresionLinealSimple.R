@@ -124,9 +124,28 @@ Ho2C_04_TestRegresionLinealSimple_SERVER <- function(input, output, session,
     HTML(The_Test()$frase_requisitos)
   }))
   
+  # Tabla Requisitos
+  observe( output$tabla_regresion <- renderTable(rownames = FALSE, digits=decimales(), align = "c",{
+    
+    The_Test()$tabla_regresion
+    
+  }))
+  
+  # Frase 2: Explicacion Estadistica
+  observe(output$frase_estadistica_ordenada <- renderUI({
+    HTML(The_Test()$frase_estadistica_ordenada)
+  }))
+  
+  
+  
   # Frase 2: Explicacion Estadistica
   observe(output$frase_estadistica_pendiente <- renderUI({
     HTML(The_Test()$frase_estadistica_pendiente)
+  }))
+  
+  # Frase 2: Explicacion Estadistica
+  observe(output$frase_estadistica_r2ajus <- renderUI({
+    HTML(The_Test()$frase_estadistica_r2ajus)
   }))
   
   
@@ -136,9 +155,73 @@ Ho2C_04_TestRegresionLinealSimple_SERVER <- function(input, output, session,
   }))
   
   
-  # Frase 4: Juego de Hipotesis
-  observe(output$frase_juego_hipotesis <- renderUI({
-    HTML(The_Test()$frase_juego_hipotesis)
+  # Frase 4: Juego de Hipotesis - ORdenada
+  observe(output$frase_juego_hipotesis_ordenada <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis_ordenada)
+  }))
+  
+  # Frase 4: Juego de Hipotesis - Pendiente
+  observe(output$frase_juego_hipotesis_pendiente <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis_pendiente)
+  }))
+  
+  # Frase 4: Juego de Hipotesis - ORdenada
+  observe(output$frase_juego_hipotesis_r2ajus <- renderUI({
+    HTML(The_Test()$frase_juego_hipotesis_r2ajus)
+  }))
+  
+  
+  
+  # Frase 3: Advertencia por redondeo
+  observe(output$grafico_especial <- renderPlot({
+    
+    residuos <- The_Test()$residuos
+    predichos <- The_Test()$predichos
+    
+    
+    ordenada <-  as.numeric(as.character(The_Test()$tabla_resumen[1,2]))
+    pendiente <- as.numeric(as.character(The_Test()$tabla_resumen[2,2]))
+    
+    variable_x <- The_Test()$tabla_requisitos[1,1]
+    variable_y <- The_Test()$tabla_requisitos[1,2]
+      
+    plot(predichos, residuos, col = "red", cex = 2, lwd = 2,
+         xlab = "Predichos", 
+         ylab = "Residuos")
+    
+    
+    abline(h=0)
+    
+    
+    
+  
+    
+    
+  }))
+  
+  
+  # Frase 3: Advertencia por redondeo
+  observe(output$grafico_regresion <- renderPlot({
+    
+  
+    
+    
+    ordenada <-  as.numeric(as.character(The_Test()$tabla_resumen[1,2]))
+    pendiente <- as.numeric(as.character(The_Test()$tabla_resumen[2,2]))
+    
+   
+    plot(minibase()[,1], minibase()[,2], col = "red", cex = 2, lwd = 2,
+         xlab = colnames(minibase())[1], 
+         ylab = colnames(minibase())[2])
+    
+    
+    abline(ordenada, pendiente)
+    
+    
+    
+    
+    
+    
   }))
   
   # Armado/Salida del test de Proporciones 1Q
@@ -160,15 +243,53 @@ Ho2C_04_TestRegresionLinealSimple_SERVER <- function(input, output, session,
       tableOutput(ns("tabla_requisitos")),
       htmlOutput(ns("frase_requisitos")),
       br(),
-      h3("Juego de Hipótesis"),
-      htmlOutput(ns("frase_juego_hipotesis")),
+      h3("Juego de Hipótesis de la Ordenada"),
+      htmlOutput(ns("frase_juego_hipotesis_ordenada")),
       br(),
-      h3("Tabla Resumen del test de Regresión Lineal Simple"),
-      tableOutput(ns("tabla_resumen")),
-      br(),
-      h3("Frases y conclusiones"),
-      htmlOutput(ns("frase_estadistica_pendiente")),
-      br(), br()
+    h3("Juego de Hipótesis de la Pendiente"),
+    htmlOutput(ns("frase_juego_hipotesis_pendiente")),
+    br(),
+    h3("Juego de Hipótesis del Coeficiente de Determinación (R2 Ajustado)"),
+    htmlOutput(ns("frase_juego_hipotesis_r2ajus")),
+    br(),
+    tabsetPanel(
+      tabPanel("Gráfico Residuos vs. Predicho",
+               h3("Gráfico de Residuos vs. Predichos"),
+               plotOutput(ns("grafico_especial")),
+               "Nota: este gráfico es para que usted compruebe visualmente la homogeneidad de varianzas 
+               de los residuos."
+               ),
+      tabPanel("Test de Regresión Lineal Simple",
+               h3("Tabla Resumen del test de Regresión Lineal Simple"),
+               tableOutput(ns("tabla_resumen")),
+               br(),
+               br(),
+               h3("Gráfico de Regresión Lineal Simple"),
+               plotOutput(ns("grafico_regresion")),
+               br(),
+               h3("Frases y conclusiones (Pendiente)"),
+               htmlOutput(ns("frase_estadistica_pendiente")),
+               br(), br(),
+               h3("Frases y conclusiones (R2 Ajustado)"),
+               htmlOutput(ns("frase_estadistica_r2ajus")),
+               br(), br(),
+               h3("Frases y conclusiones (Ordenada)"),
+               htmlOutput(ns("frase_estadistica_ordenada"))
+               ),
+      tabPanel("Modelo de Predicción",
+               "Aquí van:", br(),
+               "1) Poder calcular un valor de Y a partir de un valor de X.", br(),
+               "2) Poder calcular un valor de X a partir de un valor de Y.", br(),
+               "3) Le decimos que el modelo solo es válido en el rango de mínimo y 
+               máximo del eje X.", br(), 
+               "4) Si quiere calcular un valor que está por fuera del rango del eje X 
+               le sale un cartel gigante que le dice que la predicción no es válida de realizar."
+    )
+    )
+   
+    
+      
+      
     )
     
   })
