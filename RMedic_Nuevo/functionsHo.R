@@ -76,7 +76,7 @@ Test_1Q_TestDeUnaProporcion <- function(input_base = NULL,
  
  #  # Valor p externo
  valor_p_externo <- round2(valor_p_interno, input_decimales)
- if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01" else valor_p_externo <- round2(valor_p_interno, input_decimales)
+ if (valor_p_interno < 0.01) valor_p_externo <- "<0.01" else valor_p_externo <- round2(valor_p_interno, input_decimales)
 
  
  
@@ -308,11 +308,11 @@ Test_1C_TestNormalidad_ShapiroWilk <- function(input_base = NULL,
   
    #  # Valor p externo
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01" 
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01" 
   
   # Valor estadistico externo
   estadistico_obs_externo <- round2(estadistico_obs_interno, input_decimales)
-  if (estadistico_obs_interno < 0.01) estadistico_obs_externo <- "<<0.01" 
+  if (estadistico_obs_interno < 0.01) estadistico_obs_externo <- "<0.01" 
   
   
   # Frase
@@ -498,7 +498,7 @@ Test_1C_TestT_UnaMuestra <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- test_t$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -808,7 +808,7 @@ Test_1C_TestWilcoxon_UnaMuestra <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- test_w$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -1102,7 +1102,7 @@ Test_1C_TestChiCuadrado_UnaMuestra <- function(input_base = NULL,
   
   #  # Valor p externo
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01" else valor_p_externo <- round2(valor_p_interno, input_decimales)
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01" else valor_p_externo <- round2(valor_p_interno, input_decimales)
   
   
   
@@ -1461,7 +1461,7 @@ Test_2C_TestHomogeneidadDeVarianzas_Fisher <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- test_f$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -1776,7 +1776,7 @@ Test_2C_TestT_DosMuestras_Apareado <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -2104,7 +2104,7 @@ Test_2C_TestWilcoxon_DosMuestras_Apareado <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -2404,7 +2404,7 @@ Test_2C_TestHomogeneidadDeVarianzas_Bartlett <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -2686,7 +2686,7 @@ Test_2C_TestHomogeneidadDeVarianzas_Levene <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$`Pr(>F)`[1]
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -2843,6 +2843,1116 @@ Test_2C_TestHomogeneidadDeVarianzas_Levene <- function(input_base = NULL,
   
   
 } # Fin function
+
+
+
+Test_2C_TestCorrelacion_Pearson <- function(input_base = NULL, 
+                                            input_decimales = 2, 
+                                            input_alfa = 0.05){
+  
+  
+  
+  # Aplicamos na.omit()
+  input_base <- na.omit(input_base)
+  
+  # Separamos en X1 y X2
+  X1 <- na.omit(input_base[,1])
+  X2 <- na.omit(input_base[,2])
+  
+  
+  # Algunos objetos necesarios
+  confianza <- 1 - input_alfa
+  n_muestra <- length(X1)
+  
+  # El test de correlacion de Pearson
+  the_test <- cor.test(x = X1, 
+                       y = X2,
+                       alternativa = "two.sidede",
+                       method = "pearson",
+                       exact = FALSE,
+                       conf.level = confianza, 
+                       continuity = FALSE
+                       )
+  
+  
+  # Test de Normalidad 01
+  test_normalidad_01 <- Test_1C_TestNormalidad_ShapiroWilk(input_base = input_base[1],
+                                                           input_decimales = input_decimales,
+                                                           input_alfa = input_alfa)
+  
+  
+  # Test de Normalidad 02
+  test_normalidad_02 <- Test_1C_TestNormalidad_ShapiroWilk(input_base = input_base[2],
+                                                           input_decimales = input_decimales,
+                                                           input_alfa = input_alfa)
+  
+  
+  # Test F de homogeneidad de varianzas
+  test_homogeneidad <- Test_2C_TestHomogeneidadDeVarianzas_Fisher(input_base = input_base, 
+                                                                  input_tipo_prueba = "two.sided", 
+                                                                  input_cociente_ho = 1, 
+                                                                  input_decimales = 2, 
+                                                                  input_alfa = 0.05)
+  
+  
+  # Cumplimiento de normalidad
+  cumplimiento_normalidad_01 <- test_normalidad_01$tabla_resumen[1,8]
+  cumplimiento_normalidad_02 <- test_normalidad_02$tabla_resumen[1,8]
+  cumplimiento_homogeneidad <- test_homogeneidad$tabla_resumen[1,14]
+  
+  rejunte <- c(cumplimiento_normalidad_01, 
+               cumplimiento_normalidad_02,
+               cumplimiento_homogeneidad)
+  
+  rejunte[rejunte == "Si"] <- 1
+  rejunte[rejunte == "No"] <- 0
+  rejunte <- as.numeric(rejunte)
+  
+  if(sum(rejunte) == length(rejunte)) cumplimiento_general <- "Si" else cumplimiento_general <- "No"
+  
+
+  # Estimador
+  estimador_obs_interno <- the_test$estimate
+  estimador_obs_externo <- round2(estimador_obs_interno, input_decimales)
+  
+  
+  
+  # Estadistico observado
+  estadistico_obs_interno <- the_test$statistic 
+  estadistico_obs_externo <- round2(estadistico_obs_interno, input_decimales)
+  
+  
+  
+  
+  # Grados de Libertad
+  gl_interno <- the_test$parameter
+  gl_externo <- gl_interno # A proposito va asi, sin redondear
+
+  # Valor p 
+  valor_p_interno <- the_test$p.value
+  valor_p_externo <- round2(valor_p_interno, input_decimales)
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
+  
+  
+  
+  # Frase
+  if (valor_p_interno < input_alfa) decision <- "Rechazo Ho" else if (valor_p_interno >= input_alfa) decision <- "No rechazo Ho"
+  
+  # Respuesta
+  if (valor_p_interno < input_alfa) respuesta <- "Si" else if (valor_p_interno >= input_alfa) respuesta <- "No"
+  
+  # Tipo de correlacion
+  tipo_correlacion <- "Correlación Nula"
+  if (valor_p_interno < input_alfa) {
+    if(estimador_obs_externo > 0) tipo_correlacion <- "Positiva" else
+      if(estimador_obs_externo < 0) tipo_correlacion <- "Negativa"
+  }
+  
+  # Frases segun valor p
+  {
+    
+    
+    # Nota de David: Se opto por el momento solo realizar la prueba de homogeneidad
+    #                de varianzas de manera bilatereal para un valor de cociente (ratio) igual a 1.
+    #                Si se amplia hacia formas unilaterales y a otros valores de ratio, habrá que 
+    #                cambiar las frases de salida.
+    
+    # Algun inconveniente
+    frase0_v1 <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                     por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                     La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente igual a cero.<br/>
+                     La correlación no es estadísticamente significativa.
+                    "
+    
+    
+    frase1_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                    La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente igual a cero.<br/>
+                     La correlación no es estadísticamente significativa.
+                    "
+    
+    frase1_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>se rechaza la Ho</b></u>.<br/>
+                    La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente distinta a cero.<br/>
+                     Existe una correlación estadísticamente significativa entre las variables.
+                    "
+    
+    
+    frase_positiva <- "La correlación es estadísticamente significativa y de signo positivo, por lo tanto 
+    un aumento de la variable '_mi_variable1_' se relaciona con un aumento de la variable '_mi_variable2_'."
+    
+    frase_negativa <- "La correlación es estadísticamente significativa y de signo negativo, por lo tanto 
+    un aumento de la variable '_mi_variable1_' se relaciona con una disminución de la variable '_mi_variable2_' o 
+    un aumento de la variable '_mi_variable2_' se relaciona con una disminución de la variable '_mi_variable1_'."
+    
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_interno) | is.null(valor_p_interno)) frase_estadistica <- frase0_v1 else
+        if (valor_p_interno > input_alfa) frase_estadistica <- frase1_v1 else
+          if (valor_p_interno == input_alfa) frase_estadistica <- frase1_v2 else
+            if (valor_p_interno < input_alfa){
+              
+              frase_estadistica <- frase1_v3
+              if(estimador_obs_interno > 0) frase_estadistica <- paste0(frase_estadistica, "<br/>", frase_positiva) else
+                if(estimador_obs_interno < 0) frase_estadistica <- paste0(frase_estadistica, "<br/>", frase_negativa)
+            }
+    
+    
+    
+    frase_estadistica <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica)
+    frase_estadistica <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_p_", valor_p_externo, frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica)
+    
+    
+  } # Fin Frases segun valor p
+  
+  
+  # Frases Juego de Hipotesis
+  {
+    
+    # Bilateral
+    frase_juego_bilateral <-  "<b>Hipótesis Nula (Ho):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es distinta de cero."
+    
+    # Unilateral Izquierda
+    frase_juego_izquierda <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es mayor o igual a _mi_mu_esp_.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es menor a _mi_mu_esp_."
+    
+    # Unilateral Derecha
+    frase_juego_derecha <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es menor o igual a _mi_mu_esp_.<br/>
+                            <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es mayor a _mi_mu_esp_."
+    
+    frase_juego_hipotesis <- frase_juego_bilateral
+    
+    # if(input_tipo_prueba == "two.sided") frase_juego_hipotesis <- frase_juego_bilateral else
+    #   if(input_tipo_prueba == "less") frase_juego_hipotesis <- frase_juego_izquierda else
+    #     if(input_tipo_prueba == "greater") frase_juego_hipotesis <- frase_juego_derecha
+    
+    
+    frase_juego_hipotesis <- gsub("_mi_variable1_", colnames(input_base)[1], frase_juego_hipotesis)
+    frase_juego_hipotesis <- gsub("_mi_variable2_", colnames(input_base)[2], frase_juego_hipotesis)
+    
+    
+    
+    
+  } # Fin Frases Juego de Hipotesis
+  
+  
+  # Frase por incontenientes de redondeo
+  dt1 <- valor_p_interno < input_alfa
+  dt2 <- round2(valor_p_interno, input_decimales) < input_alfa
+  if (sum(dt1, dt2) == 2) frase_redondeo <- "" else
+    if (sum(dt1, dt2) == 0) frase_redondeo <- "" else
+      if (sum(dt1, dt2) == 1){
+        frase_redondeo <- "<b><u>Advertencia:</u> En este set de datos 
+            le recomendamos que aumente la cantidad de decimales ya que en este 
+            caso el redondeo excesivo distorciona la interpretación correcta del test. 
+            Aumente la cantidad de decimales hasta que esta advertencia 
+            desaparezca.</b>"
+        
+      } 
+  # #######################################
+  # 
+  
+  # Tabla Requisitos
+  {
+    nombres1 <- c("Variables", # 1
+                  "n",  # 2
+                  "Test de Normalidad",  # 3
+                  "¿Es normal la variable?", # 4
+                  "Test de Homogeneidad de Varianzas", #5
+                  "¿Las varianzas son homogéneas?", #6
+                  "¿Se cumplen los requisitos del 'Test de Correlación de Pearson'?", #7
+                  "¿Es válido sacar conclusiones del 'Test de Correlación de Pearson'?" #8
+                  )
+    tabla_requisitos <- matrix("--------", 2, length(nombres1))
+    colnames(tabla_requisitos) <- nombres1
+    
+    
+    
+    tabla_requisitos[1,1] <- colnames(input_base)[1]
+    tabla_requisitos[2,1] <- colnames(input_base)[2]
+    
+    tabla_requisitos[1,2] <- n_muestra
+    tabla_requisitos[2,2] <- n_muestra
+    
+    tabla_requisitos[1,3] <- "Shapiro-Wilk"
+    tabla_requisitos[2,3] <- "Shapiro-Wilk"
+    
+    tabla_requisitos[1,4] <- cumplimiento_normalidad_01
+    tabla_requisitos[2,4] <- cumplimiento_normalidad_02
+    
+    tabla_requisitos[1,5] <- "Test de Homogeneidad de Varianzas de Fisher"
+    
+    tabla_requisitos[1,6] <- cumplimiento_homogeneidad
+    
+    tabla_requisitos[1,7] <- cumplimiento_general
+    tabla_requisitos[1,8] <- cumplimiento_general
+    
+  }
+  
+  
+  # Frase Requisitos
+  {
+    frase_inicial_requisitos <- "El test de Correlación de Pearson tiene como requisitos que ambas variables 
+                                  en estudio posean distribución normal y entre ocurra homogeneidad de varianzas. <br/>
+                      Paralelamente a la generación del test de Correlación de Pearson, RMedic 
+                      realiza a su vez la comprobación estadística de la normalidad de ambas variables con el 
+                      test de normalidad de Shapiro-Wilk y la homogeneidad de varianzas con el test de homogeneidad 
+                      de varianzas de Fisher."
+    
+    frase_no_requisitos <- "Para el pool de datos de la muestra no se cumple que simultáneamente ambas variables 
+                            ('_mi_variable1_' y '_mi_variable2_') presenten distribución normal y homogeneidad de varianzas, 
+                            por lo tanto <b><u>no es válido sacar conclusiones del test 
+                            de Correlación de Pearson</b></u> indistintamente de los resultados obtenidos.<br/>
+                            Para poder poner a prueba la correlación entre las varaibles es factible realizar el test de 
+                            correlación de Spearman."
+    
+    frase_si_requisitos <-  "Para el pool de datos de la muestra se cumple que simultáneamente ambas variables 
+                            ('_mi_variable1_' y '_mi_variable2_') presenten distribución normal y homogeneidad de varianzas, por lo 
+                            tanto <b><u>es válido sacar conclusiones del test 
+                            de Correlación de Pearson</b></u>."
+    
+    
+    if(cumplimiento_general == "No") frase_requisitos <- paste0(frase_inicial_requisitos, "<br/>", frase_no_requisitos) else
+      if(cumplimiento_general == "Si") frase_requisitos <- paste0(frase_inicial_requisitos, "<br/>", frase_si_requisitos)
+    
+    frase_requisitos <- gsub("_mi_variable1_", colnames(input_base)[1], frase_requisitos)
+    frase_requisitos <- gsub("_mi_variable2_", colnames(input_base)[2], frase_requisitos)
+  }
+  
+  
+  # Tabla resumen  
+  {
+    
+    nombres2 <- c("Variable 1 (X1)", # 1
+                  "Variable 2 (X2)", # 2
+                  "n",  #  3
+                  "Correlación observada", # 4
+                  "Test",  # 5
+                  "Tipo de prueba", # 6
+                  "Estadístico (t)",  # 7
+                  "Grados de Libertad", # 8
+                  "Valor p", # 9
+                  "Alfa", # 10
+                  "Decisión", #11
+                  "¿Las variables están correlacionadas?", # 12
+                  "Tipo de correlación" #13
+    )
+    
+    tabla_resumen <- matrix("--------", 1, length(nombres2))
+    colnames(tabla_resumen) <- nombres2
+    
+    tabla_resumen[1, 1] <- colnames(input_base)[1]
+    tabla_resumen[1, 2] <- colnames(input_base)[2]
+    tabla_resumen[1, 3] <- n_muestra
+    tabla_resumen[1, 4] <- estimador_obs_externo
+    tabla_resumen[1, 5] <- "Test de Correlación de Pearson"
+
+    
+
+    tabla_resumen[1, 6] <- "Bilateral"
+    tabla_resumen[1, 7] <- estadistico_obs_externo
+    tabla_resumen[1, 8] <- gl_externo
+    
+
+    tabla_resumen[1, 9] <- valor_p_externo
+    tabla_resumen[1,10] <- input_alfa
+    tabla_resumen[1,11] <- decision
+    tabla_resumen[1,12] <- respuesta
+    tabla_resumen[1,13] <- tipo_correlacion
+    # 
+    
+  }
+  
+  SALIDA_ARMADA <- list()
+  
+  SALIDA_ARMADA$tabla_requisitos <- tabla_requisitos
+  
+  SALIDA_ARMADA$frase_requisitos <- frase_requisitos
+  
+  SALIDA_ARMADA$tabla_resumen <- tabla_resumen
+  
+  SALIDA_ARMADA$frase_estadistica <- frase_estadistica
+  
+  SALIDA_ARMADA$frase_redondeo <- frase_redondeo
+  
+  SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+  
+  
+  # Returno Exitoso
+  return(SALIDA_ARMADA)
+  
+  
+  
+} # Fin function 
+
+
+
+Test_2C_TestCorrelacion_Spearman <- function(input_base = NULL, 
+                                            input_decimales = 2, 
+                                            input_alfa = 0.05){
+  
+  
+  
+  # Aplicamos na.omit()
+  input_base <- na.omit(input_base)
+  
+  # Separamos en X1 y X2
+  X1 <- na.omit(input_base[,1])
+  X2 <- na.omit(input_base[,2])
+  
+  
+  # Algunos objetos necesarios
+  confianza <- 1 - input_alfa
+  n_muestra <- length(X1)
+  
+  # El test de correlacion de Pearson
+  the_test <- cor.test(x = X1, 
+                       y = X2,
+                       alternativa = "two.sidede",
+                       method = "spearman",
+                       exact = FALSE,
+                       conf.level = confianza, 
+                       continuity = FALSE
+  )
+  
+  
+
+ 
+ 
+  
+  # Estimador
+  estimador_obs_interno <- the_test$estimate
+  estimador_obs_externo <- round2(estimador_obs_interno, input_decimales)
+  
+  
+  
+  # Estadistico observado
+  estadistico_obs_interno <- the_test$statistic 
+  estadistico_obs_externo <- round2(estadistico_obs_interno, input_decimales)
+  
+  
+  
+  
+  # Grados de Libertad
+  gl_interno <- "No Corresponde"  # the_test$parameter
+  gl_externo <- gl_interno # A proposito va asi, sin redondear
+  
+  # Valor p 
+  valor_p_interno <- the_test$p.value
+  valor_p_externo <- round2(valor_p_interno, input_decimales)
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
+  
+  
+  
+  # Frase
+  if (valor_p_interno < input_alfa) decision <- "Rechazo Ho" else if (valor_p_interno >= input_alfa) decision <- "No rechazo Ho"
+  
+  # Respuesta
+  if (valor_p_interno < input_alfa) respuesta <- "Si" else if (valor_p_interno >= input_alfa) respuesta <- "No"
+  
+  # Tipo de correlacion
+  tipo_correlacion <- "Correlación Nula"
+  if (valor_p_interno < input_alfa) {
+    if(estimador_obs_externo > 0) tipo_correlacion <- "Positiva" else
+      if(estimador_obs_externo < 0) tipo_correlacion <- "Negativa"
+  }
+  
+  # Frases segun valor p
+  {
+    
+    
+    # Nota de David: Se opto por el momento solo realizar la prueba de homogeneidad
+    #                de varianzas de manera bilatereal para un valor de cociente (ratio) igual a 1.
+    #                Si se amplia hacia formas unilaterales y a otros valores de ratio, habrá que 
+    #                cambiar las frases de salida.
+    
+    # Algun inconveniente
+    frase0_v1 <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                     por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                     La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente igual a cero.<br/>
+                     La correlación no es estadísticamente significativa.
+                    "
+    
+    
+    frase1_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                    La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente igual a cero.<br/>
+                     La correlación no es estadísticamente significativa.
+                    "
+    
+    frase1_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>se rechaza la Ho</b></u>.<br/>
+                    La correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                     es estadísticamente distinta a cero.<br/>
+                     Existe una correlación estadísticamente significativa entre las variables.
+                    "
+    
+    
+    frase_positiva <- "La correlación es estadísticamente significativa y de signo positivo, por lo tanto 
+    un aumento de la variable '_mi_variable1_' se relaciona con un aumento de la variable '_mi_variable2_'."
+    
+    frase_negativa <- "La correlación es estadísticamente significativa y de signo negativo, por lo tanto 
+    un aumento de la variable '_mi_variable1_' se relaciona con una disminución de la variable '_mi_variable2_' o 
+    un aumento de la variable '_mi_variable2_' se relaciona con una disminución de la variable '_mi_variable1_'."
+    
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_interno) | is.null(valor_p_interno)) frase_estadistica <- frase0_v1 else
+      if (valor_p_interno > input_alfa) frase_estadistica <- frase1_v1 else
+        if (valor_p_interno == input_alfa) frase_estadistica <- frase1_v2 else
+          if (valor_p_interno < input_alfa){
+            
+            frase_estadistica <- frase1_v3
+            if(estimador_obs_interno > 0) frase_estadistica <- paste0(frase_estadistica, "<br/>", frase_positiva) else
+              if(estimador_obs_interno < 0) frase_estadistica <- paste0(frase_estadistica, "<br/>", frase_negativa)
+          }
+    
+    
+    
+    frase_estadistica <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica)
+    frase_estadistica <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_p_", valor_p_externo, frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica)
+    
+    
+  } # Fin Frases segun valor p
+  
+  
+  # Frases Juego de Hipotesis
+  {
+    
+    # Bilateral
+    frase_juego_bilateral <-  "<b>Hipótesis Nula (Ho):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es distinta de cero."
+    
+    # Unilateral Izquierda
+    frase_juego_izquierda <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es mayor o igual a _mi_mu_esp_.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es menor a _mi_mu_esp_."
+    
+    # Unilateral Derecha
+    frase_juego_derecha <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es menor o igual a _mi_mu_esp_.<br/>
+                            <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es mayor a _mi_mu_esp_."
+    
+    frase_juego_hipotesis <- frase_juego_bilateral
+    
+    # if(input_tipo_prueba == "two.sided") frase_juego_hipotesis <- frase_juego_bilateral else
+    #   if(input_tipo_prueba == "less") frase_juego_hipotesis <- frase_juego_izquierda else
+    #     if(input_tipo_prueba == "greater") frase_juego_hipotesis <- frase_juego_derecha
+    
+    
+    frase_juego_hipotesis <- gsub("_mi_variable1_", colnames(input_base)[1], frase_juego_hipotesis)
+    frase_juego_hipotesis <- gsub("_mi_variable2_", colnames(input_base)[2], frase_juego_hipotesis)
+    
+    
+    
+    
+  } # Fin Frases Juego de Hipotesis
+  
+  
+  # Frase por incontenientes de redondeo
+  dt1 <- valor_p_interno < input_alfa
+  dt2 <- round2(valor_p_interno, input_decimales) < input_alfa
+  if (sum(dt1, dt2) == 2) frase_redondeo <- "" else
+    if (sum(dt1, dt2) == 0) frase_redondeo <- "" else
+      if (sum(dt1, dt2) == 1){
+        frase_redondeo <- "<b><u>Advertencia:</u> En este set de datos 
+            le recomendamos que aumente la cantidad de decimales ya que en este 
+            caso el redondeo excesivo distorciona la interpretación correcta del test. 
+            Aumente la cantidad de decimales hasta que esta advertencia 
+            desaparezca.</b>"
+        
+      } 
+  # #######################################
+  # 
+  
+  # Tabla Requisitos
+  {
+   
+    tabla_requisitos <- NULL
+   
+  }
+  
+  
+  # Frase Requisitos
+  {
+    
+    frase_requisitos <- NULL
+    
+  }
+  
+  # Tabla resumen  
+  {
+    
+    nombres2 <- c("Variable 1 (X1)", # 1
+                  "Variable 2 (X2)", # 2
+                  "n",  #  3
+                  "Correlación observada", # 4
+                  "Test",  # 5
+                  "Tipo de prueba", # 6
+                  "Estadístico (S)",  # 7
+                  "Grados de Libertad", # 8
+                  "Valor p", # 9
+                  "Alfa", # 10
+                  "Decisión", #11
+                  "¿Las variables están correlacionadas?", # 12
+                  "Tipo de correlación" #13
+    )
+    
+    tabla_resumen <- matrix("--------", 1, length(nombres2))
+    colnames(tabla_resumen) <- nombres2
+    
+    tabla_resumen[1, 1] <- colnames(input_base)[1]
+    tabla_resumen[1, 2] <- colnames(input_base)[2]
+    tabla_resumen[1, 3] <- n_muestra
+    tabla_resumen[1, 4] <- estimador_obs_externo
+    tabla_resumen[1, 5] <- "Test de Correlación de Spearman"
+    
+    
+    
+    tabla_resumen[1, 6] <- "Bilateral"
+    tabla_resumen[1, 7] <- estadistico_obs_externo
+    tabla_resumen[1, 8] <- gl_externo
+    
+    
+    tabla_resumen[1, 9] <- valor_p_externo
+    tabla_resumen[1,10] <- input_alfa
+    tabla_resumen[1,11] <- decision
+    tabla_resumen[1,12] <- respuesta
+    tabla_resumen[1,13] <- tipo_correlacion
+    # 
+    
+  }
+  
+  SALIDA_ARMADA <- list()
+  
+  SALIDA_ARMADA$tabla_requisitos <- tabla_requisitos
+  
+  SALIDA_ARMADA$frase_requisitos <- frase_requisitos
+  
+  SALIDA_ARMADA$tabla_resumen <- tabla_resumen
+  
+  SALIDA_ARMADA$frase_estadistica <- frase_estadistica
+  
+  SALIDA_ARMADA$frase_redondeo <- frase_redondeo
+  
+  SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+  
+  
+  # Returno Exitoso
+  return(SALIDA_ARMADA)
+  
+  
+  
+} # Fin function 
+
+
+
+Test_2C_TestRegresionLinealSimple <- function(input_base = NULL, 
+                                            input_decimales = 2, 
+                                            input_alfa = 0.05){
+  
+  
+  
+  # Aplicamos na.omit()
+  input_base <- na.omit(input_base)
+  
+  # Separamos en X1 y X2
+  X <- na.omit(input_base[,1])
+  Y <- na.omit(input_base[,2])
+  
+  
+  # Algunos objetos necesarios
+  confianza <- 1 - input_alfa
+  n_muestra <- length(X)
+  
+  # Regresion Completa
+  regresion_completa <- lm(Y ~ X)
+
+  # Info Extra
+  info_extra <- summary(regresion_completa)
+  
+  # Tabla de regresion
+  tabla_regresion <- info_extra[[4]]
+  
+  # Bases internas
+  armado1 <- data.frame(residuos)
+
+  
+  # Normalidad de los residuos
+  test_normalidad_residuos <- Test_1C_TestNormalidad_ShapiroWilk(input_base = armado1,
+                                                                 input_decimales = input_decimales,
+                                                                 input_alfa = input_alfa)
+  
+  
+  # Tabla Normalidad Resiuduos
+  tabla_normalidad_residuos <- test_normalidad_residuos$tabla_resumen
+  colnames(tabla_normalidad_residuos)[8] <- "¿Los residuos presentan distribución normal?"
+  
+  
+  # Cumplimiento Normalidad Residuos
+  cumplimiento_normalidad <- test_normalidad_residuos$tabla_resumen[1,8]
+  
+  
+  # Cumplimiento de Homogeneidad
+  cumplimiento_homogeneidad <- "El operador debe visualizar el gráfico de 'Residuos vs 
+                                Predichos' y tomar una decisión."
+  
+  
+  # Cumplimiento General
+  cumplimiento_general <-  "El operador debe visualizar el gráfico de 'Residuos vs 
+                                Predichos' y tomar una decisión."
+  if(cumplimiento_normalidad == "No") cumplimiento_general <- "No"
+  
+  
+  # Pendiente
+  pendiente_obs_interna <- tabla_regresion[2,1]
+  pendiente_obs_externa <- round2(pendiente_obs_interna, input_decimales)
+  
+  # Ordenada
+  ordenada_obs_interna <- tabla_regresion[1,1]
+  ordenada_obs_externa <- round2(ordenada_obs_interna, input_decimales)
+  
+  # R2 ajustado
+  r2ajus_obs_interno <- info_extra$adj.r.squared
+  r2ajus_obs_externo <- round2(r2ajus_obs_interno, input_decimales)
+  
+  
+  # Estadistico
+  estadistico_obs_ordenada_interno <- tabla_regresion[1,3]
+  estadistico_obs_pendiente_interno <- tabla_regresion[2,3]
+  estadistico_obs_r2ajus_interno <- info_extra$fstatistic[1]
+  
+  estadistico_obs_ordenada_externo <- round2(estadistico_obs_ordenada_interno, input_decimales)
+  estadistico_obs_pendiente_externo <- round2(estadistico_obs_pendiente_interno, input_decimales)
+  estadistico_obs_r2ajus_externo <- round2(estadistico_obs_r2ajus_interno, input_decimales)
+  
+  
+  
+  # Grados de Libertad
+  gl_ordenada_interno <- "No sé"   #info_extra$df
+  gl_pendiente_interno <- "No sé"
+  gl_r2ajus_interno <- "No sé"
+  
+  gl_ordenada_externo <- "No sé"
+  gl_pendiente_externo <- "No sé"
+  gl_r2ajus_externo <- "No sé"
+
+    
+  # Valor p internos
+  valor_p_ordenada_interno <- tabla_regresion[1,4]
+  valor_p_pendiente_interno <- tabla_regresion[2,4]
+  
+  valor_f <- info_extra$fstatistic[1]
+  gl1 <- info_extra$fstatistic[2]
+  gl2 <- info_extra$fstatistic[3]
+  
+  valor_p_r2ajus_interno <- pf(valor_f, gl1, gl2, lower.tail = F)
+  
+  # Valores p externos
+  valor_p_ordenada_externo <- round2(valor_p_ordenada_interno, input_decimales)
+  if (valor_p_ordenada_interno < 0.01) valor_p_ordenada_externo <- "<0.01"
+  
+  valor_p_pendiente_externo <- round2(valor_p_pendiente_interno, input_decimales)
+  if (valor_p_pendiente_interno < 0.01) valor_p_pendiente_externo <- "<0.01"
+  
+  valor_p_r2ajus_externo <- round2(valor_p_r2ajus_interno, input_decimales)
+  if (valor_p_r2ajus_interno < 0.01) valor_p_r2ajus_externo <- "<0.01"
+  
+  # Frases
+  if (valor_p_ordenada_interno < input_alfa) decision_ordenada <- "Rechazo Ho" else decision_ordenada <- "No rechazo Ho"
+  if (valor_p_pendiente_interno < input_alfa) decision_pendiente <- "Rechazo Ho" else decision_pendiente <- "No rechazo Ho"
+  if (valor_p_r2ajus_interno < input_alfa) decision_r2ajus <- "Rechazo Ho" else decision_r2ajus <- "No rechazo Ho"
+  
+  # Respuesta
+  if (valor_p_ordenada_interno < input_alfa) respuesta_ordenada <- "Si" else respuesta_ordenada <- "No"
+  if (valor_p_pendiente_interno < input_alfa) respuesta_pendiente <- "Si" else respuesta_pendiente <- "No"
+  if (valor_p_r2ajus_interno < input_alfa) respuesta_r2ajus <- "Si" else respuesta_r2ajus <- "No"
+  
+  
+  # Tipo de relacion
+  tipo_relacion <- "Relación Nula"
+  if (valor_p_pendiente_interno < input_alfa) {
+    if(pendiente_obs_externa > 0) tipo_relacion <- "Positiva" else
+      if(pendiente_obs_externa < 0) tipo_relacion <- "Negativa"
+  }
+  
+  
+  
+ 
+  
+  
+  # Frases Ordenada segun valor p
+  {
+    
+    
+    # Algun inconveniente
+    frase0_v1_ordenada <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1_ordenada <-  "El valor p=_mi_valor_p_ de la ordenada es mayor que el valor de alfa=_mi_valor_alfa_ 
+                     por lo tanto <b><u>no se rechaza la Ho de la ordenada</b></u>.<br/>
+                     La ordenada de la recta es estadísticamente igual a cero.
+                    "
+    
+    
+    frase1_v2_ordenada <- "El valor p=_mi_valor_p_ de la ordenada es igual que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>no se rechaza la Ho de la ordenada</b></u>.<br/>
+                    La ordenada de la recta es estadísticamente igual a cero.
+                    "
+    
+    frase1_v3_ordenada <- "El valor p=_mi_valor_p_ de la ordenada es menor que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>se rechaza la Ho</b></u>.<br/>
+                    La ordenada de la recta es estadísticamente distinta de cero.
+                    "
+    
+    
+
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_ordenada_interno) | is.null(valor_p_ordenada_interno)) frase_estadistica_ordenada <- frase0_v1_ordenada else
+      if (valor_p_ordenada_interno > input_alfa) frase_estadistica_ordenada <- frase1_v1_ordenada else
+        if (valor_p_ordenada_interno == input_alfa) frase_estadistica_ordenada <- frase1_v2_ordenada else
+          if (valor_p_ordenada_interno < input_alfa)  frase_estadistica_ordenada <- frase1_v3_ordenada
+
+    
+    
+    frase_estadistica_ordenada <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_ordenada)
+    frase_estadistica_ordenada <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_ordenada)
+    frase_estadistica_ordenada <- gsub("_mi_valor_p_", valor_p_ordenada_externo, frase_estadistica_ordenada)
+    frase_estadistica_ordenada <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica_ordenada)
+    
+    
+  } # Fin Frases segun valor p
+  
+  
+  # Frases Pendiente segun valor p
+  {
+    
+    
+    # Algun inconveniente
+    frase0_v1_pendiente <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1_pendiente <-  "El valor p=_mi_valor_p_ de la pendiente es mayor que el valor de alfa=_mi_valor_alfa_ 
+                     por lo tanto <b><u>no se rechaza la Ho de la pendiente</b></u>.<br/>
+                     La pendiente de la recta es estadísticamente igual a cero.
+                    "
+    
+    
+    frase1_v2_pendiente <- "El valor p=_mi_valor_p_ de la pendiente es igual que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>no se rechaza la Ho de la pendiente</b></u>.<br/>
+                    La pendiente de la recta es estadísticamente igual a cero.
+                    "
+    
+    frase1_v3_pendiente <- "El valor p=_mi_valor_p_ de la pendiente es menor que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>se rechaza la Ho de la pendiente</b></u>.<br/>
+                    La pendiente de la recta es estadísticamente distinta de cero.
+                    "
+    
+    
+    frase_positiva_pendiente <- "La pendiente es estadísticamente significativa, de signo positivo y tiene un valor 
+                                  de '_mi_pendiente', por lo tanto un aumento en la variable X en una unidad ('_mi_variable1_') trae aparejado 
+                                  un aumento de la variable Y '_mi_variable2_' de '_mi_pendiente_' unidades."
+    
+    
+    frase_negativa_pendiente <- "La pendiente es estadísticamente significativa, de signo negativo y tiene un valor 
+                                  de '_mi_pendiente', por lo tanto un aumento en la variable X en una unidad ('_mi_variable1_') trae aparejado 
+                                  un disminución de la variable Y ('_mi_variable2_') de '_mi_pendiente_' unidades."
+    
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_pendiente_interno) | is.null(valor_p_pendiente_interno)) frase_estadistica_pendiente <- frase0_v1_pendiente else
+      if (valor_p_pendiente_interno > input_alfa) frase_estadistica_pendiente <- frase1_v1_pendiente else
+        if (valor_p_pendiente_interno == input_alfa) frase_estadistica_pendiente <- frase1_v2_pendiente else
+          if (valor_p_pendiente_interno < input_alfa){
+            
+            frase_estadistica_pendiente <- frase1_v3_pendiente
+            if(pendiente_obs_interna > 0) frase_estadistica_pendiente <- paste0(frase_estadistica_pendiente, "<br/>", frase_positiva_pendiente) else
+              if(pendiente_obs_interna < 0) frase_estadistica_pendiente <- paste0(frase_estadistica_pendiente, "<br/>", frase_negativa_pendiente)
+          }
+    
+    
+    
+    frase_estadistica_pendiente <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_pendiente)
+    frase_estadistica_pendiente <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_pendiente)
+    frase_estadistica_pendiente <- gsub("_mi_valor_p_", valor_p_pendiente_externo, frase_estadistica_pendiente)
+    frase_estadistica_pendiente <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica_pendiente)
+    
+    
+  } # Fin Frases Pendientes segun valor p
+  
+  # Frases r2ajus segun valor p
+  {
+    
+    
+    # Algun inconveniente
+    frase0_v1_r2ajus <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1_r2ajus <-  "El valor p=_mi_valor_p_ del R2 ajustado es mayor que el valor de alfa=_mi_valor_alfa_ 
+                     por lo tanto <b><u>no se rechaza la Ho del R2 ajustado</b></u>.<br/>
+                     El valor de R2 ajustado es estadísticamente igual a cero.<br/>
+                     El modelo no logra explicar los datos de manera significativa.
+                    "
+    
+    
+    frase1_v2_r2ajus <- "El valor p=_mi_valor_p_ del R2 ajustado es igual que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>no se rechaza la Ho del R2 ajustado</b></u>.<br/>
+                    El valor de R2 ajustado es estadísticamente igual a cero.<br/>
+                     El modelo no logra explicar los datos de manera significativa.
+                    "
+    
+    frase1_v3_r2ajus <- "El valor p=_mi_valor_p_ del R2 ajustado es menor que el valor de alfa=_mi_valor_alfa_ 
+                    por lo tanto <b><u>se rechaza la Ho del R2 ajustado</b></u>.<br/>
+                    El valor de R2 ajustado es estadísticamente distinto de cero.<br/>
+                    El modelo logra explicar al menos en parte a la variable Y.
+                    "
+    
+    
+    
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_r2ajus_interno) | is.null(valor_p_r2ajus_interno)) frase_estadistica_r2ajus <- frase0_v1_r2ajus else
+      if (valor_p_r2ajus_interno > input_alfa) frase_estadistica_r2ajus <- frase1_v1_r2ajus else
+        if (valor_p_r2ajus_interno == input_alfa) frase_estadistica_r2ajus <- frase1_v2_r2ajus else
+          if (valor_p_r2ajus_interno < input_alfa)  frase_estadistica_r2ajus <- frase1_v3_r2ajus
+    
+    
+    
+    frase_estadistica_r2ajus <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica_r2ajus)
+    frase_estadistica_r2ajus <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica_r2ajus)
+    frase_estadistica_r2ajus <- gsub("_mi_valor_p_", valor_p_r2ajus_externo, frase_estadistica_r2ajus)
+    frase_estadistica_r2ajus <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica_r2ajus)
+    
+    
+  } # Fin r2ajus segun valor p
+  
+  
+  # Frases Juego de Hipotesis
+  {
+    
+    # Bilateral
+    frase_juego_bilateral <-  "<b>Hipótesis Nula (Ho):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es igual a cero.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la correlación entre las variables '_mi_variable1_' y '_mi_variable2_' 
+                                es distinta de cero."
+    
+    # Unilateral Izquierda
+    frase_juego_izquierda <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es mayor o igual a _mi_mu_esp_.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es menor a _mi_mu_esp_."
+    
+    # Unilateral Derecha
+    frase_juego_derecha <-  "<b>Hipótesis Nula (Ho):</b> la media poblacional de la variable '_mi_variable_' es menor o igual a _mi_mu_esp_.<br/>
+                            <b>Hipótesis Alternativa (Hi):</b> la media poblacional de la variable '_mi_variable_' es mayor a _mi_mu_esp_."
+    
+    frase_juego_hipotesis <- frase_juego_bilateral
+    
+    # if(input_tipo_prueba == "two.sided") frase_juego_hipotesis <- frase_juego_bilateral else
+    #   if(input_tipo_prueba == "less") frase_juego_hipotesis <- frase_juego_izquierda else
+    #     if(input_tipo_prueba == "greater") frase_juego_hipotesis <- frase_juego_derecha
+    
+    
+    frase_juego_hipotesis <- gsub("_mi_variable1_", colnames(input_base)[1], frase_juego_hipotesis)
+    frase_juego_hipotesis <- gsub("_mi_variable2_", colnames(input_base)[2], frase_juego_hipotesis)
+    
+    
+    
+    
+  } # Fin Frases Juego de Hipotesis
+  
+  
+  # Frase por incontenientes de redondeo
+  dt1 <- valor_p_pendiente_interno < input_alfa
+  dt2 <- round2(valor_p_pendiente_interno, input_decimales) < input_alfa
+  if (sum(dt1, dt2) == 2) frase_redondeo <- "" else
+    if (sum(dt1, dt2) == 0) frase_redondeo <- "" else
+      if (sum(dt1, dt2) == 1){
+        frase_redondeo <- "<b><u>Advertencia:</u> En este set de datos 
+            le recomendamos que aumente la cantidad de decimales ya que en este 
+            caso el redondeo excesivo distorciona la interpretación correcta del test. 
+            Aumente la cantidad de decimales hasta que esta advertencia 
+            desaparezca.</b>"
+        
+      } 
+  # #######################################
+  # 
+  
+  # Tabla Requisitos
+  {
+    nombres1 <- c("Variable 1 (X)", # 1
+                  "Variable 2 (Y)", #2
+                  "n",  # 3
+                  "Test de Normalidad",  # 4
+                  "¿Los residuos presentan distribución normal?", # 5
+                  "Test Visual de Homogeneidad de Varianzas", #6
+                  "¿Las varianzas son homogéneas?", #7
+                  "¿Se cumplen los requisitos del 'Test de Regresión Lineal Simple'?", #8
+                  "¿Es válido sacar conclusiones del 'Test de Regresión Lineal Simple'?" #9
+    )
+    tabla_requisitos <- matrix("--------", 1, length(nombres1))
+    colnames(tabla_requisitos) <- nombres1
+    
+    
+    
+    tabla_requisitos[1,1] <- colnames(input_base)[1]
+    
+    tabla_requisitos[1,2] <- colnames(input_base)[2]
+    
+    tabla_requisitos[1,3] <- n_muestra
+    tabla_requisitos[1,4] <- "Shapiro-Wilk"
+    tabla_requisitos[1,5] <- cumplimiento_normalidad
+    
+    tabla_requisitos[1,6] <- "Test Visual de Homogeneidad de Varianzas"
+    
+    tabla_requisitos[1,7] <- cumplimiento_homogeneidad
+    
+    tabla_requisitos[1,8] <- cumplimiento_general
+    tabla_requisitos[1,9] <- cumplimiento_general
+    
+  }
+  
+  
+  # Frase Requisitos
+  {
+    frase_inicial_requisitos <- "El test de Regresión Lineal Simple tiene como requisitos que los residuos presenten 
+                                  distribución normal y homogeneidad de varianzas. <br/>
+                      Paralelamente a la generación del test de Correlación de Pearson, RMedic 
+                      realiza a su vez la comprobación estadística de la normalidad de los residuos.<br/>
+                      La detemrinación de la homogeneidad de varianzas se lleva a cabo de manera visual en el test de Regresión 
+                      Lineal Simple. Para determinar la homogeneidad de varianzas el operador deberá observar el gráfico de 'Residuos vs. Predichos' 
+                      y decidir si se cumple o no la homogeneidad."
+    
+    frase_no_requisitos <- "Para el pool de datos de la muestra no se cumple que simultáneamente 
+                            los residuos presenten distribución normal y homogeneidad de varianzas, 
+                            por lo tanto <b><u>no es válido sacar conclusiones del test 
+                            de Regresión Lineal Simple</b></u> indistintamente de los resultados obtenidos."
+    
+    frase_si_requisitos <-  "Para el pool de datos de la muestra se cumple la normalidad de los residuos. <b><u>Si se 
+                             determina visualmente la homogeneidad de varianzas entonces será válido sacar conclusiones del test 
+                            de Regresión Lineal Simple.</b></u>."
+    
+    
+    if(cumplimiento_general == "No") frase_requisitos <- paste0(frase_inicial_requisitos, "<br/>", frase_no_requisitos) else
+      if(cumplimiento_general != "No") frase_requisitos <- paste0(frase_inicial_requisitos, "<br/>", frase_si_requisitos)
+    
+    frase_requisitos <- gsub("_mi_variable1_", colnames(input_base)[1], frase_requisitos)
+    frase_requisitos <- gsub("_mi_variable2_", colnames(input_base)[2], frase_requisitos)
+  }
+  
+  
+  # Tabla resumen  
+  {
+    
+    nombres2 <- c("Parámetro", # 1
+                  "Estimador", # 2
+                  "n", # 3
+                  "Test",  # 4
+                  "Tipo de prueba", # 5
+                  "Estadístico",  # 6
+                  "Grados de Libertad", # 7
+                  "Valor p", # 8
+                  "Alfa", # 9
+                  "Decisión", #10
+                  "¿El estimador es diferente de cero?", # 11
+                  "Tipo de relación" #12
+    )
+    
+    tabla_resumen <- matrix("--------", 3, length(nombres2))
+    colnames(tabla_resumen) <- nombres2
+    
+    tabla_resumen[1, 1] <- "Ordenada"
+    tabla_resumen[2, 1] <- "Pendiente"
+    tabla_resumen[3, 1] <- "R2 ajustado"
+    
+    tabla_resumen[1, 2] <- ordenada_obs_externa
+    tabla_resumen[2, 2] <- pendiente_obs_externa
+    tabla_resumen[3, 2] <- r2ajus_obs_externo
+    
+    tabla_resumen[1, 3] <- n_muestra
+    tabla_resumen[2, 3] <- n_muestra
+    tabla_resumen[3, 3] <- n_muestra
+    
+    tabla_resumen[1, 4] <- "Test t"
+    tabla_resumen[2, 4] <- "Test t"
+    tabla_resumen[3, 4] <- "Test F de cociente de varianzas"
+    
+    
+    tabla_resumen[1, 5] <- "Bilateral"
+    tabla_resumen[2, 5] <- "Bilateral"
+    tabla_resumen[3, 5] <- "Unilateral Izquierda"
+    
+
+    
+    tabla_resumen[1, 6] <- paste0("t = ",estadistico_obs_ordenada_externo)
+    tabla_resumen[2, 6] <- paste0("t = ", estadistico_obs_ordenada_externo)
+    tabla_resumen[3, 6] <- paste0("F = ", estadistico_obs_r2ajus_externo)
+    
+    tabla_resumen[1, 7] <- gl_ordenada_externo
+    tabla_resumen[2, 7] <- gl_pendiente_externo
+    tabla_resumen[3, 7] <- gl_r2ajus_externo
+    
+    tabla_resumen[1, 8] <- valor_p_ordenada_externo
+    tabla_resumen[2, 8] <- valor_p_pendiente_externo
+    tabla_resumen[3, 8] <- valor_p_r2ajus_externo
+    
+    tabla_resumen[1, 9] <- input_alfa
+    tabla_resumen[2, 9] <- input_alfa
+    tabla_resumen[3, 9] <- input_alfa
+    
+    tabla_resumen[1, 10] <- decision_ordenada
+    tabla_resumen[2, 10] <- decision_pendiente
+    tabla_resumen[3, 10] <- decision_r2ajus
+    
+    tabla_resumen[1, 11] <- respuesta_ordenada
+    tabla_resumen[2, 11] <- respuesta_pendiente
+    tabla_resumen[3, 11] <- respuesta_r2ajus
+    
+    tabla_resumen[1, 12] <- tipo_relacion
+  #  tabla_resumen[2, 12] <- respuesta_pendiente
+  #  tabla_resumen[3, 12] <- respuesta_r2ajus
+    
+  }
+  
+  SALIDA_ARMADA <- list()
+  
+  SALIDA_ARMADA$tabla_requisitos <- tabla_requisitos
+  
+  SALIDA_ARMADA$frase_requisitos <- frase_requisitos
+  
+  SALIDA_ARMADA$tabla_resumen <- tabla_resumen
+  
+  SALIDA_ARMADA$frase_estadistica_pendiente <- frase_estadistica_pendiente
+  
+  SALIDA_ARMADA$frase_redondeo <- frase_redondeo
+  
+  SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+  
+  
+  # Returno Exitoso
+  return(SALIDA_ARMADA)
+  
+  
+  
+} # Fin function 
+
 ###################################################################################
 
 
@@ -3104,7 +4214,7 @@ Test_2Q_TestDeDosProporciones_Fisher <- function(input_base = NULL,
     tabla_resumen[2, 4] <- round2(p2, input_decimales)
 
     
-    tabla_resumen[1, 5] <- "Test de Diferencia de Proporciones de Fisher"
+    tabla_resumen[1, 5] <- "Test de Diferencia de Dos Proporciones"
     tabla_resumen[1, 6] <- "Bilateral"
     tabla_resumen[1, 7] <- estadistico_obs_externo
     tabla_resumen[1, 8] <- gl_externo
@@ -3138,6 +4248,12 @@ Test_2Q_TestDeDosProporciones_Fisher <- function(input_base = NULL,
   
   
 } # Fin function 
+
+
+
+
+
+
 
 
 ###################################################################################
@@ -3339,7 +4455,7 @@ Test_QC_TestHomogeneidadDeVarianzas_Fisher <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- test_f$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -3710,7 +4826,7 @@ Test_QC_TestT_DosMuestras_Independientes <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -4123,7 +5239,7 @@ Test_QC_TestWilcoxon_DosMuestras_Independientes <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- pvalue(the_test)
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -4367,12 +5483,7 @@ Test_QC_TestHomogeneidadDeVarianzas_Bartlett <- function(input_base = NULL,
 
   
 
-  
-  ##########################################-----------------------------------------------------------------
-  # La prueba por el momento sera solo para bilatal para ratio = 1.
-  # Por eso la "correccion necesaria" que puse al inicio.
-  ##########################################-----------------------------------------------------------------
-  
+ 
   
   # Aplicamos na.omit()
   input_base <- na.omit(input_base)
@@ -4441,7 +5552,7 @@ Test_QC_TestHomogeneidadDeVarianzas_Bartlett <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$p.value
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -4717,7 +5828,7 @@ Test_QC_TestHomogeneidadDeVarianzas_Levene <- function(input_base = NULL,
   # Valor p 
   valor_p_interno <- the_test$`Pr(>F)`[1]
   valor_p_externo <- round2(valor_p_interno, input_decimales)
-  if (valor_p_interno < 0.01) valor_p_externo <- "<<0.01"
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
   
   
   
@@ -4928,6 +6039,8 @@ Test_QC_TestAnova1Factor <- function(input_base = NULL,
 
   
   #Tukey
+  {
+    
   if(sum(tabla_fa == tabla_fa[1]) == cantidad_categorias) especificacion_balance <- TRUE else especificacion_balance <- FALSE
   
   tukey_completo1 <- HSD.test(resultados_anova, "FACTOR", alpha = input_alfa, 
@@ -4952,8 +6065,85 @@ Test_QC_TestAnova1Factor <- function(input_base = NULL,
   tabla_tukey3 <- tukey_completo2$comparison
   tabla_tukey3 <- cbind(rownames(tabla_tukey3), tabla_tukey3)
   colnames(tabla_tukey3) <- c("Comparación de grupos", "Diferencia de medias",
-                              "Valor p", "Significación", "LCL", "UCL")
+                              "Valor p", "¿Son diferentes ambos grupos?", "LCL", "UCL")
 
+  tabla_tukey3 <- tabla_tukey3[,-c(5,6)]
+  tabla_tukey3[,2] <- round2(tabla_tukey3[,2], input_decimales)
+  valores_p_mod <- tabla_tukey3[,3]
+  respuesta_corta <- tabla_tukey3[,4]
+  
+  for(k in 1:length(valores_p_mod)) {
+    
+    # Cambio de respuesta
+    if(as.numeric(as.character(valores_p_mod[k])) < input_alfa) {
+      
+      respuesta_corta[k] <- "Si"
+      
+    } else respuesta_corta[k] <- "No"
+  
+    # Cambio valor p
+    if(as.numeric(as.character(valores_p_mod[k])) < 0.01) {
+      
+      valores_p_mod[k] <- "<0.01"
+      
+    } else valores_p_mod[k] <- round2(as.numeric(as.character(valores_p_mod[k])), input_decimales)
+    
+      
+  }
+  tabla_tukey3[,3] <- valores_p_mod
+  tabla_tukey3[,4] <- respuesta_corta
+  
+  }
+  
+  # Test de Comparacion LSD
+  {
+    
+    
+    lsd_completo1 <- LSD.test(resultados_anova, "FACTOR", alpha = input_alfa, 
+                                console = F, group = T)
+    lsd_completo2 <- LSD.test(resultados_anova, "FACTOR", alpha = input_alfa, 
+                                console = F, group = F)
+    
+    # Tabla 1 de LSD
+    tabla_lsd1 <- lsd_completo1$groups
+    tabla_lsd1 <- cbind(rownames(tabla_lsd1), tabla_lsd1)
+    colnames(tabla_lsd1) <- c("Categorías", "Medias", "Grupos Estadísticos")
+    
+    
+    
+    # Tabla 3 de LSD
+    tabla_lsd2 <- lsd_completo2$comparison
+    tabla_lsd2 <- cbind(rownames(tabla_lsd2), tabla_lsd2)
+    colnames(tabla_lsd2) <- c("Comparación de grupos", "Diferencia de medias",
+                                "Valor p", "¿Son diferentes ambos grupos?", "LCL", "UCL")
+    
+    tabla_lsd2 <- tabla_lsd2[,-c(5,6)]
+    tabla_lsd2[,2] <- round2(tabla_lsd2[,2], input_decimales)
+    valores_p_mod <- tabla_lsd2[,3]
+    respuesta_corta <- tabla_lsd2[,4]
+    
+    for(k in 1:length(valores_p_mod)) {
+      
+      # Cambio de respuesta
+      if(as.numeric(as.character(valores_p_mod[k])) < input_alfa) {
+        
+        respuesta_corta[k] <- "Si"
+        
+      } else respuesta_corta[k] <- "No"
+      
+      # Cambio valor p
+      if(as.numeric(as.character(valores_p_mod[k])) < 0.01) {
+        
+        valores_p_mod[k] <- "<0.01"
+        
+      } else valores_p_mod[k] <- round2(as.numeric(as.character(valores_p_mod[k])), input_decimales)
+      
+      
+    }
+    tabla_lsd2[,3] <- valores_p_mod
+    tabla_lsd2[,4] <- respuesta_corta
+  }
+  
   # Residuos
   residuos <- resultados_anova$residuals
   
@@ -5239,12 +6429,340 @@ Test_QC_TestAnova1Factor <- function(input_base = NULL,
   
   SALIDA_ARMADA$tabla_tukey3 <- tabla_tukey3  
   
+  SALIDA_ARMADA$tabla_lsd1 <- tabla_lsd1
+  
+  SALIDA_ARMADA$tabla_lsd2 <- tabla_lsd2
+  
   # Returno Exitoso
   return(SALIDA_ARMADA)
   
   
   
 } # Fin function
+
+
+
+Test_QC_TestKruskalWallis <- function(input_base = NULL, 
+                                     input_decimales = 2, 
+                                     input_alfa = 0.05){
+  
+  
+  # Librerias
+  library("agricolae")
+  library("gplots")
+  
+  
+  # Aplicamos na.omit()
+  input_base <- na.omit(input_base)
+  
+  # Hacemos conversion si hace falta para el factor
+  if(!is.factor(input_base[,1])) input_base[,1] <- as.factor(input_base[,1])
+  
+  # Objetos intermedios
+  VR <- input_base[,2]
+  FACTOR <- as.factor(input_base[,1])
+  n_muestra <- length(VR)
+  tabla_fa <- table(FACTOR)
+  cantidad_categorias <- length(levels(FACTOR))
+  categorias <- levels(FACTOR)
+  
+  # Test de Kruskal-Wallis
+  the_test <- kruskal(y = VR, 
+                      trt = FACTOR,
+                      alpha = input_alfa,
+                      p.adj = "none", # es t-student
+                      group = T)
+  
+  the_test2 <- kruskal(y = VR, 
+                       trt = FACTOR,
+                       alpha = input_alfa,
+                       p.adj = "none", # es t-student
+                       group = F)
+  
+  
+  # Media de ranking
+  media_rank_interno <- the_test$means[,2]
+  names(media_rank_interno) <- rownames(the_test$means)
+  media_rank_externo <- round2(media_rank_interno, input_decimales)
+  
+  # Medianas
+  medianas_obs_internas <- tapply(VR, FACTOR, mean)
+  medianas_obs_externas <- round2(medianas_obs_internas, input_decimales)
+  
+  
+  # Estadistico observado
+  estadistico_obs_interno <- the_test$statistics[1,1]
+  estadistico_obs_externo <- round2(estadistico_obs_interno, input_decimales)
+  
+  
+  
+  
+  # Grados de Libertad
+  gl_interno <- the_test$statistics[1,2]
+  gl_externo <- gl_interno # A proposito va asi, sin redondear
+  
+  # Valor p 
+  valor_p_interno <- the_test$statistics[1,3]
+  valor_p_externo <- round2(valor_p_interno, input_decimales)
+  if (valor_p_interno < 0.01) valor_p_externo <- "<0.01"
+  
+  
+  
+  # Frase
+  if (valor_p_interno < input_alfa) decision <- "Rechazo Ho" else if (valor_p_interno >= input_alfa) decision <- "No rechazo Ho"
+  
+  # Respuesta
+  if (valor_p_interno < input_alfa) respuesta <- "Si" else if (valor_p_interno >= input_alfa) respuesta <- "No"
+  
+  
+  # Frases segun valor p
+  {
+    
+    
+    # Algun inconveniente
+    frase0_v1 <- "No pudo obtenerse un valor p."
+    
+    
+    frase1_v1 <-  "El valor p=_mi_valor_p_ es mayor que el valor de alfa=_mi_valor_alfa_ 
+                   por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                   No existen diferencias estadísticamente significativas entre las medianas 
+                   de las categorías de la variable '_mi_variable1_'.<br/>
+                   Los niveles del factor '_mi_variable1_' son estadísticamente iguales 
+                   entre si."
+    
+    
+    frase1_v2 <- "El valor p=_mi_valor_p_ es igual que el valor de alfa=_mi_valor_alfa_ 
+                  por lo tanto <b><u>no se rechaza la Ho</b></u>.<br/>
+                  No existen diferencias estadísticamente significativas entre las medianas 
+                  de las categorías de la variable '_mi_variable1_'.<br/>
+                  Los niveles del factor '_mi_variable1_' son estadísticamente iguales 
+                  entre si."
+    
+    
+    frase1_v3 <- "El valor p=_mi_valor_p_ es menor que el valor de alfa=_mi_valor_alfa_ 
+                  por lo tanto <b><u>se rechaza la Ho</b></u>.<br/>
+                  Al menos una de las medianas de una categoría de la variable '_mi_variable1_' 
+                  es estadísticamente diferente del resto.<br/>
+                  Al menos uno de los niveles desl factor '_mi_variable1_' es estadísticamente diferente 
+                  del resto de los niveles.<br/>
+                  Al rechazarse la hipótesis nula del test de Kruskal-Wallis se garantiza que son 
+                  estadísticamente diferentes la mediana más grande y la más pequeña de todas las categorías."
+    
+    
+    # Seleccion de Frase Estadistica
+    if(is.na(valor_p_interno) | is.null(valor_p_interno)) frase_estadistica <- frase0_v1 else
+      
+      if (valor_p_interno > input_alfa) frase_estadistica <- frase1_v1 else
+        if (valor_p_interno == input_alfa) frase_estadistica <- frase1_v2 else
+          if (valor_p_interno < input_alfa) frase_estadistica <- frase1_v3
+    
+    
+    frase_estadistica <- gsub("_mi_variable1_", colnames(input_base)[1], frase_estadistica)
+    frase_estadistica <- gsub("_mi_variable2_", colnames(input_base)[2], frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_p_", valor_p_externo, frase_estadistica)
+    frase_estadistica <- gsub("_mi_valor_alfa_", input_alfa, frase_estadistica)
+    
+    
+  } # Fin Frases segun valor p
+  
+  
+  # Frases Juego de Hipotesis
+  {
+    
+    
+    frase_juego_hipotesis <-  "<b>Hipótesis Nula (Ho):</b> las medianas de todas las categorías del factor '_mi_variable1_' 
+                              son iguales.<br/>
+                               <b>Hipótesis Alternativa (Hi):</b> al menos una mediana es diferente."
+    
+    
+    
+    
+    
+    frase_juego_hipotesis <- gsub("_mi_variable1_", colnames(input_base)[1], frase_juego_hipotesis)
+    frase_juego_hipotesis <- gsub("_mi_variable2_", colnames(input_base)[2], frase_juego_hipotesis)
+    
+    
+    
+    
+  } # Fin Frases Juego de Hipotesis
+  
+  
+  # Frase por incontenientes de redondeo
+  dt1 <- valor_p_interno < input_alfa
+  dt2 <- round2(valor_p_interno, input_decimales) < input_alfa
+  if (sum(dt1, dt2) == 2) frase_redondeo <- "" else
+    if (sum(dt1, dt2) == 0) frase_redondeo <- "" else
+      if (sum(dt1, dt2) == 1){
+        frase_redondeo <- "<b><u>Advertencia:</u> En este set de datos 
+            le recomendamos que aumente la cantidad de decimales ya que en este 
+            caso el redondeo excesivo distorciona la interpretación correcta del test. 
+            Aumente la cantidad de decimales hasta que esta advertencia 
+            desaparezca.</b>"
+        
+      } 
+  # #######################################
+  # 
+  
+  # Tabla Requisitos
+  {
+    tabla_requisitos <- NULL
+  }
+  
+  
+  # Frase Requisitos
+  {
+    frase_requisitos <- NULL
+  }
+  
+  
+  
+  # Tabla resumen  
+  {
+    
+    nombres2 <- c("Variable Respuesta",  # 1
+                  paste0("Categorías de la variable '", colnames(input_base)[1], "'"), #2
+                  "n",  #  3
+                  "Medianas muestrales (valor observado)", # 4
+                  "Test",  # 5
+                  "Tipo de Prueba", # 6
+                  "Estadístico (Chi Cuadrado)",  # 7
+                  "Grados de Libertad", # 8
+                  "Valor p", # 9
+                  "Alfa", # 10
+                  "Decisión", #11
+                  "¿Al menos una de las medianas es diferente?" # 12
+    )
+    
+    tabla_resumen <- matrix("--------", cantidad_categorias, length(nombres2))
+    colnames(tabla_resumen) <- nombres2
+    
+    tabla_resumen[, 1] <- rep(colnames(input_base)[2], cantidad_categorias)
+    tabla_resumen[, 2] <- categorias
+    tabla_resumen[, 3] <- tabla_fa
+    tabla_resumen[, 4] <- medianas_obs_externas
+    
+    tabla_resumen[1, 5] <- "Test de Kruskal-Wallis"
+    tabla_resumen[1, 6] <- "Unilateral Derecha"
+    tabla_resumen[1, 7] <- estadistico_obs_externo
+    
+    
+    tabla_resumen[1, 8] <- gl_externo
+    tabla_resumen[1, 9] <- valor_p_externo
+    tabla_resumen[1,10] <- input_alfa
+    tabla_resumen[1,11] <- decision
+    tabla_resumen[1,12] <- respuesta
+    # 
+    
+  }
+  
+  # Tabla de comparacion1 -  de medianas
+  {
+    
+    tabla_comparacion1 <- the_test$groups
+    tabla_comparacion1 <- cbind(rownames(tabla_comparacion1), 
+                               medianas_obs_externas, tabla_comparacion1)
+    colnames(tabla_comparacion1) <- c("Niveles", "Medianas", "Media de Ranking", 
+                                     "Grupos Estadísticos")
+    tabla_comparacion1[,3] <- round2(tabla_comparacion1[,3], input_decimales)
+    
+    # Quitamos la columna 3 que tiene la media del ranking
+    tabla_comparacion1 <- tabla_comparacion1[-3]
+    tabla_comparacion1
+    
+  }
+  
+  # Tabla de comparacion2 -  de a pares
+  {
+    
+    tabla_comparacion2 <- the_test2$comparison
+    tabla_comparacion2 <- cbind(rownames(tabla_comparacion2), tabla_comparacion2)
+    tabla_comparacion2[,2] <- round2(tabla_comparacion2[,2], input_decimales)
+    
+    colnames(tabla_comparacion2) <- c("Comparación de a pares", "Diferencia de medianas", 
+                                      "Valor p", "¿Son diferentes ambos grupos?", "LCL", "UCL")
+    
+    tabla_comparacion2 <- tabla_comparacion2[,-c(5,6)]
+    tabla_comparacion2
+    
+    valores_p_mod <- tabla_comparacion2[,3]
+    respuesta_corta <- tabla_comparacion2[,4]
+    
+    for(k in 1:length(valores_p_mod)) {
+      
+      # Cambio de respuesta
+      if(as.numeric(as.character(valores_p_mod[k])) < input_alfa) {
+        
+        respuesta_corta[k] <- "Si"
+        
+      } else respuesta_corta[k] <- "No"
+      
+      # Cambio valor p
+      if(as.numeric(as.character(valores_p_mod[k])) < 0.01) {
+        
+        valores_p_mod[k] <- "<0.01"
+        
+      } else valores_p_mod[k] <- round2(as.numeric(as.character(valores_p_mod[k])), input_decimales)
+      
+      
+    }
+    tabla_comparacion2[,3] <- valores_p_mod
+    tabla_comparacion2[,4] <- respuesta_corta
+    
+    rejunte_medianas <- rep(NA, length(valores_p_mod))
+    contador <- 0
+    for (k1 in 1:(length(medianas_obs_externas)-1)){
+      for (k2 in (k1+1):length(medianas_obs_externas)){
+        contador <- contador + 1
+        
+        rejunte_medianas[contador] <- paste0(medianas_obs_externas[k1], " - ", medianas_obs_externas[k2])
+    }
+    }
+    tabla_comparacion2[,2] <- rejunte_medianas
+    
+   }
+  
+  
+  # Tabla de comparacion2 -  de a pares
+  {
+    
+    tabla_comparacion3 <- the_test$parameters
+    colnames(tabla_comparacion3) <- c("Test", "Método de ajuste de valor p", 
+                                      "Factor", "Cantidad de tratamientos", "Alfa")
+    
+    tabla_comparacion3[1,2] <- "Test t"
+    
+  }
+  
+  
+  SALIDA_ARMADA <- list()
+  
+  SALIDA_ARMADA$tabla_requisitos <- tabla_requisitos
+  
+  SALIDA_ARMADA$frase_requisitos <- frase_requisitos
+  
+  SALIDA_ARMADA$tabla_resumen <- tabla_resumen
+  
+  SALIDA_ARMADA$frase_estadistica <- frase_estadistica
+  
+  SALIDA_ARMADA$frase_redondeo <- frase_redondeo
+  
+  SALIDA_ARMADA$frase_juego_hipotesis <- frase_juego_hipotesis
+  
+  SALIDA_ARMADA$tabla_comparacion1 <- tabla_comparacion1
+
+  SALIDA_ARMADA$tabla_comparacion2 <- tabla_comparacion2
+  
+  SALIDA_ARMADA$tabla_comparacion3 <- tabla_comparacion3
+  
+ 
+  
+  # Returno Exitoso
+  return(SALIDA_ARMADA)
+  
+  
+  
+} # Fin function
+
 
 
 

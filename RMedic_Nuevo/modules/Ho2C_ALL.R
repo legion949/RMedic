@@ -51,6 +51,33 @@ Ho2C_SERVER <- function(input, output, session,
              control_ejecucion = control_ejecucion)
 
 
+  # Ho 1 : Test Correlacion de Pearson
+  callModule(module = Ho2C_02_TestCorrelacionPearson_SERVER,
+             id =  "ho06B",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
+  
+  # Ho 2 : Test Correlacion de Spearman
+  callModule(module = Ho2C_03_TestCorrelacionSpearman_SERVER,
+             id =  "ho06C",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
+  
+  
+  # Ho 3 : Test Regresion Lineal Simple
+  callModule(module = Ho2C_04_TestRegresionLinealSimple_SERVER,
+             id =  "ho06D",
+             minibase = minibase,
+             decimales = decimales,
+             control_ejecucion = control_ejecucion,
+             alfa = alfa)
+  
   
   # Ho 5 : Test t (dos muestras apareadas)
   callModule(module = Ho2C_05_TestTApareado_SERVER,
@@ -160,8 +187,21 @@ Ho2C_SERVER <- function(input, output, session,
                     tabPanel(title = "RMedic Help!", value = 1,
                              Ho2C_01_RMedicHelp_UI(ns("ho06A"))),
                     
+                    tabPanel(title = "Test de Correlación de Pearson", value = 2,
+                             Ho2C_02_TestCorrelacionPearson_UI(ns("ho06B"))),
+                    
+                    tabPanel(title = "Test de Correlación de Spearman", value = 3,
+                             Ho2C_03_TestCorrelacionSpearman_UI(ns("ho06C"))),
+                    
+                    tabPanel(title = "Test de Regresión Lineal Simple", value = 4,
+                             Ho2C_04_TestRegresionLinealSimple_UI(ns("ho06D"))),
+                    
+                    
+                    
+                    
                     tabPanel(title = "Test t (Dos muestras apareadas)", value = 5,
                              Ho2C_05_TestTApareado_UI(ns("ho06E"))),
+                    
                     tabPanel(title = "Test Wilcoxon (Dos muestras apareadas)", value = 6,
                              Ho2C_06_TestWilcoxonApareado_UI(ns("ho06F"))),
                     

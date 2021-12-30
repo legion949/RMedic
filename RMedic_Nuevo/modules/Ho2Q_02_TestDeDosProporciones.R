@@ -188,7 +188,7 @@ Ho2Q_02_TestDeDosProporciones_SERVER <- function(input, output, session,
   output$armado_ho <- renderUI({
     
     div(
-      h2("Test de Dos proporciones de Fisher"),
+      h2("Test de Dos Proporciones"),
       br(),
       h3("Elecciones del usuario"),
       uiOutput(ns("opciones_ho")),
@@ -200,7 +200,7 @@ Ho2Q_02_TestDeDosProporciones_SERVER <- function(input, output, session,
       htmlOutput(ns("frase03")),
       br(),
       br(),
-      h3("Tabla Resumen del Test de dos proporciones de Fisher"),
+      h3("Tabla Resumen del Test de Dos Proporciones"),
       tableOutput(ns("tabla_resumen")),
       br(),
       br(),

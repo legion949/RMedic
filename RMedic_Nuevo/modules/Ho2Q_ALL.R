@@ -83,7 +83,7 @@ Ho2Q_SERVER <- function(input, output, session,
                   tabPanel(title = "RMedic Help!", value = 1,
                            Ho2Q_01_RMedicHelp_UI(ns("ho05A"))
                           ) ,
-                   tabPanel(title = "Test de Proporciones", value = 2,
+                   tabPanel(title = "Test de Dos Proporciones", value = 2,
                             Ho2Q_02_TestDeDosProporciones_UI(ns("ho05B"))
                             )
       )
